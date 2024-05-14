@@ -67,6 +67,7 @@ public:
 
 	void OnMouseUp(cxMouseEvent event) override
 	{
+		cxLog(L"asdasd %d", event.button);
 		//OutputDebugStringW(L"Mouse Up\n");
 	}
 
