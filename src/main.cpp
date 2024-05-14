@@ -45,15 +45,23 @@ public:
 		glVertex2f(1, -1);
 		glEnd();
 
+		//drawRectWithRoundedCorners(0, 0, 10, 5, 10, 0x00204080);
+
 		glFlush();
 	}
 
 	void OnMouseDown(int x, int y) override
 	{
 		//OutputDebugStringW(L"Mouse Down\n");
-		cxMessageBox(L"Hej med dig");
+		//cxMessageBox(L"Hej med dig");
 		//SetPosition(100, 500);
 		//CaptureMouse();
+
+
+		int x1, y1;
+		GetClientSize(x1, y1);
+		std::wstring test = std::to_wstring(x1) + L", " + std::to_wstring(y1) + L"\n";
+		OutputDebugStringW(test.c_str());
 	}
 
 
@@ -74,9 +82,7 @@ CX_FUNC_MAIN
 	MyWindow * window = new MyWindow();
 	window->SetTitle(L"Test");
 	window->Show();
-	
-	cxWindowBase* window2 = new cxWindowBase;
-	window2->Show();
+
 
 	cxRunApp();
 

@@ -37,7 +37,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         cxWindowBase* wnd1 = (cxWindowBase*)(CrtStrPtr->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)wnd1);
 
-        wnd1->OnInit();
+        //wnd1->OnInit();
 
         return 0;
     }
@@ -156,6 +156,37 @@ void cxWindowBase::SetPosition(int x, int y)
 void cxWindowBase::SetSize(int width, int height)
 {
     SetWindowPos(WND_HWND, NULL, 0, 0, width, height, SWP_NOMOVE);
+}
+
+void cxWindowBase::GetTitle(std::wstring& out)
+{
+    wchar_t buffer[128] = { '\0' };
+    GetWindowTextW(WND_HWND, buffer, 128);
+    out = std::wstring(buffer);
+}
+
+void cxWindowBase::GetPosition(int& x, int& y)
+{
+    RECT rect;
+    GetWindowRect(WND_HWND, &rect);
+    x = rect.left;
+    y = rect.top;
+}
+
+void cxWindowBase::GetSize(int& width, int& height)
+{
+    RECT rect;
+    GetWindowRect(WND_HWND, &rect);
+    width = rect.right - rect.left;
+    height = rect.bottom - rect.top;
+}
+
+void cxWindowBase::GetClientSize(int& width, int& height)
+{
+    RECT rect;
+    GetClientRect(WND_HWND, &rect);
+    width = rect.right;
+    height = rect.bottom;
 }
 
 void cxWindowBase::Show(bool show)

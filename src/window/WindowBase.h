@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+
 class cxWindowBase
 {
     void* m_Window;
@@ -14,6 +15,12 @@ public:
     void SetTitle(std::wstring title);
     void SetPosition(int x, int y);
     void SetSize(int width, int height);
+
+    void GetTitle(std::wstring& out);
+    void GetPosition(int& x, int& y);
+    void GetSize(int& width, int& height);
+    void GetClientSize(int& width, int& height);
+
     void Show(bool show = true);
 
     void Invalidate();
@@ -32,4 +39,5 @@ public:
     virtual void OnMouseUp(int x, int y) {}
     virtual void OnMouseMove(int x, int y) {}
     virtual void OnMouseDragged(int x, int y) {}
+
 };
