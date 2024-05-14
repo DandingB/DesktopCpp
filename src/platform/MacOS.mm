@@ -98,39 +98,37 @@
 - (void)mouseDown:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (int)curPoint.x * 2, (int)curPoint.y * 2, LEFT });
+    ref->OnMouseDown({ (int)curPoint.x, (int)curPoint.y, LEFT });
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (int)curPoint.x * 2, (int)curPoint.y * 2, RIGHT });
+    ref->OnMouseDown({ (int)curPoint.x, (int)curPoint.y, RIGHT });
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (int)curPoint.x * 2, (int)curPoint.y * 2, LEFT });
+    ref->OnMouseUp({ (int)curPoint.x, (int)curPoint.y, LEFT });
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (int)curPoint.x * 2, (int)curPoint.y * 2, RIGHT });
+    ref->OnMouseUp({ (int)curPoint.x, (int)curPoint.y, RIGHT });
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove({ (int)curPoint.x * 2, (int)curPoint.y * 2, NONE });
-    //NSLog(@"mouseMove x: %f, %f", curPoint.x*2, curPoint.y*2);
+    ref->OnMouseMove({ (int)curPoint.x, (int)curPoint.y, NONE });
 }
 
 - (void)mouseDragged:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDragged({ (int)curPoint.x * 2, (int)curPoint.y * 2, LEFT });
-    //NSLog(@"mouseDragged x: %f, %f", curPoint.x*2, curPoint.y*2);
+    ref->OnMouseDragged({ (int)curPoint.x, (int)curPoint.y, LEFT });
 }
 
 - (BOOL)isFlipped
