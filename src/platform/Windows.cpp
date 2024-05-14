@@ -1,7 +1,7 @@
 #ifdef _WIN32
 
 #include "../cx.h"
-#include "../window/WindowBase.h"
+#include "../cx/WindowBase.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -60,17 +60,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_LBUTTONDOWN:
     {
-        wnd->OnMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        wnd->OnMouseDown({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), LEFT });
         return 0;
     }
     case WM_LBUTTONUP:
     {
-        wnd->OnMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        wnd->OnMouseUp({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), LEFT });
+        return 0;
+    }
+    case WM_RBUTTONDOWN:
+    {
+        wnd->OnMouseDown({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), RIGHT });
+        return 0;
+    }
+    case WM_RBUTTONUP:
+    {
+        wnd->OnMouseUp({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), RIGHT });
         return 0;
     }
     case WM_MOUSEMOVE:
     {
-        wnd->OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        wnd->OnMouseMove({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), NONE });
         return 0;
     }
     case WM_CLOSE:

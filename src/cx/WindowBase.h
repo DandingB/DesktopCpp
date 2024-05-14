@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-
+#include "Event.h"
 
 class cxWindowBase
 {
@@ -33,9 +33,9 @@ public:
     virtual void OnSize(int width, int height) {}
     virtual void OnPaint() {}
 
-    virtual void OnMouseDown(int x, int y) {}
-    virtual void OnMouseUp(int x, int y) {}
-    virtual void OnMouseMove(int x, int y) {}
-    virtual void OnMouseDragged(int x, int y) {}
+    virtual void OnMouseDown(cxMouseEvent event) {}
+    virtual void OnMouseUp(cxMouseEvent event) {}
+    virtual void OnMouseMove(cxMouseEvent event) {}
+    virtual void OnMouseDragged(cxMouseEvent event) {}
 
 };

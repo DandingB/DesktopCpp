@@ -1,5 +1,4 @@
 #include "cx.h"
-#include <iostream>
 
 class MyWindow : public cxWindowBase
 {
@@ -50,16 +49,12 @@ public:
 		glFlush();
 	}
 
-	void OnMouseDown(int x, int y) override
+	void OnMouseDown(cxMouseEvent event) override
 	{
 		//OutputDebugStringW(L"Mouse Down\n");
 		//cxMessageBox(L"Hej med dig");
 		//SetPosition(100, 500);
 		//CaptureMouse();
-		int x1, y1;
-		GetClientSize(x1, y1);
-
-		cxLog(L"asdasd %d %d", x1, y1);
 
 		// int x1, y1;
 		// GetClientSize(x1, y1);
@@ -68,12 +63,12 @@ public:
 	}
 
 
-	void OnMouseUp(int x, int y) override
+	void OnMouseUp(cxMouseEvent event) override
 	{
 		//OutputDebugStringW(L"Mouse Up\n");
 	}
 
-	void OnMouseMove(int x, int y) override
+	void OnMouseMove(cxMouseEvent event) override
 	{
 
 	}

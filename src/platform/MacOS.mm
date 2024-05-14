@@ -1,7 +1,7 @@
 #ifdef __APPLE__
 
 #include "../cx.h"
-#include "../window/WindowBase.h"
+#include "../cx/WindowBase.h"
 
 #include <Cocoa/Cocoa.h>
 #include <string>
@@ -98,26 +98,26 @@
 - (void)mouseDown:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown(curPoint.x * 2, curPoint.y * 2);
+    ref->OnMouseDown({ curPoint.x * 2, curPoint.y * 2, LEFT });
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp(curPoint.x * 2, curPoint.y * 2);
+    ref->OnMouseUp({ curPoint.x * 2, curPoint.y * 2, LEFT });
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove(curPoint.x * 2, curPoint.y * 2);
+    ref->OnMouseMove({ curPoint.x * 2, curPoint.y * 2, NONE });
     //NSLog(@"mouseMove x: %f, %f", curPoint.x*2, curPoint.y*2);
 }
 
 - (void)mouseDragged:(NSEvent*)event
 {
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDragged(curPoint.x * 2, curPoint.y * 2);
+    ref->OnMouseDragged({ curPoint.x * 2, curPoint.y * 2, LEFT });
     //NSLog(@"mouseDragged x: %f, %f", curPoint.x*2, curPoint.y*2);
 }
 
