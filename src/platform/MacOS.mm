@@ -186,8 +186,8 @@ void cxWindowBase::SetPosition(int x, int y)
 {
     float scale = GetDPIScale();
     NSRect frame = [WND_NSWND frame];
-    frame.origin.x = x * scale;
-    frame.origin.y = y * scale;
+    frame.origin.x = x / scale;
+    frame.origin.y = y / scale;
     [WND_NSWND setFrame: frame display: YES animate: YES];
 }
 
@@ -195,7 +195,7 @@ void cxWindowBase::SetSize(int width, int height)
 {
     float scale = GetDPIScale();
     NSRect frame = [WND_NSWND frame];
-    frame.size = NSMakeSize(width * scale, height * scale);
+    frame.size = NSMakeSize(width / scale, height / scale);
     [WND_NSWND setFrame: frame display: YES animate: YES];
 }
 
@@ -260,6 +260,9 @@ float cxWindowBase::GetDPIScale()
 
 
 
+void cxInitApp()
+{
+}
 
 void cxRunApp()
 {

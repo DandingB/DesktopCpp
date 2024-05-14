@@ -83,6 +83,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         wnd->OnMouseMove({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), NONE });
         return 0;
     }
+    case WM_DPICHANGED:
+    {
+        int dpi = HIWORD(wParam);
+
+        return 0;
+    }
     case WM_CLOSE:
     {
         wnd->OnClosing();
@@ -209,6 +215,24 @@ void cxWindowBase::Invalidate()
     InvalidateRect(WND_HWND, NULL, TRUE);
 }
 
+void cxWindowBase::CaptureMouse()
+{
+    //[WND_GLVIEW disableCursorRects];
+}
+
+void cxWindowBase::ReleaseMouse()
+{
+
+}
+
+float cxWindowBase::GetDPIScale()
+{
+    return (float)GetDpiForWindow(WND_HWND) / USER_DEFAULT_SCREEN_DPI;
+}
+
+
+
+
 bool RegisterWindowClass()
 {
     HINSTANCE hInstance = GetModuleHandle(0);
@@ -229,8 +253,15 @@ bool RegisterWindowClass()
     return true;
 }
 
+void cxInitApp()
+{
+    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+}
+
 void cxRunApp()
 {
+    
+
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{

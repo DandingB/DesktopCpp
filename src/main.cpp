@@ -60,7 +60,7 @@ public:
 		//SetPosition(100, 500);
 		//CaptureMouse();
 
-		cxLog(L"asdasd %lf", GetDPIScale());
+		cxLog(L"asdasd %lf \n", GetDPIScale());
 		Invalidate();
 
 		// int x1, y1;
@@ -85,7 +85,9 @@ public:
 
 CX_FUNC_MAIN
 {
-	MyWindow * window = new MyWindow();
+	cxInitApp();
+
+	MyWindow* window = new MyWindow();
 	window->SetTitle(L"Test");
 	window->Show();
 

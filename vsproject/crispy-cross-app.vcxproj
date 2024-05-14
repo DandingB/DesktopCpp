@@ -134,7 +134,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\cx.h" />
-    <ClInclude Include="..\src\window\WindowBase.h" />
+    <ClInclude Include="..\src\cx\Event.h" />
+    <ClInclude Include="..\src\cx\WindowBase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />

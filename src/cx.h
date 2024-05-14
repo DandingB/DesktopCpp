@@ -13,6 +13,7 @@
 
 #elif _WIN32
 
+#define WINVER 0x0605
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
@@ -22,6 +23,7 @@
 
 #endif
 
+void cxInitApp();
 void cxRunApp();
 void cxQuitApp(int exitCode = 0);
 
