@@ -24,6 +24,11 @@
     ref->OnClosing();
 }
 
+- (BOOL)isFlipped
+{
+    return YES;
+}
+
 @end
 
 
@@ -175,6 +180,33 @@ void cxWindowBase::SetSize(int width, int height)
     [WND_NSWND setFrame: frame display: YES animate: YES];
 }
 
+void cxWindowBase::GetTitle(std::wstring& out)
+{
+    NSData* pSData = [[WND_NSWND title] dataUsingEncoding: NSUTF32LittleEndianStringEncoding];
+    out = std::wstring((wchar_t*) [pSData bytes], [pSData length] / sizeof(wchar_t));
+}
+
+void cxWindowBase::GetPosition(int& x, int& y)
+{
+    NSRect rect = [WND_NSWND frame];
+    x = rect.origin.x;
+    y = rect.origin.y;
+}
+
+void cxWindowBase::GetSize(int& width, int& height)
+{
+    NSRect rect = [WND_NSWND frame];
+    width = rect.size.width;
+    height = rect.size.height;
+}
+
+void cxWindowBase::GetClientSize(int& width, int& height)
+{
+    NSRect rect = [ [WND_NSWND contentView] frame ];
+    width = rect.size.width;
+    height = rect.size.height;
+}
+
 void cxWindowBase::Show(bool show)
 {
     if (show)
@@ -220,6 +252,12 @@ void cxMessageBox(std::wstring text)
     NSAlert *alert = [[[NSAlert alloc] init] autorelease];
     [alert setMessageText: message];
     [alert runModal];
+}
+
+void cxLog(std::wstring message)
+{
+    NSString* s = [[NSString alloc] initWithBytes:message.data() length:message.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSLog(@"%@", s);
 }
 
 #endif

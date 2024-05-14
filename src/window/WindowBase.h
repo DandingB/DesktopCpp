@@ -22,9 +22,7 @@ public:
     void GetClientSize(int& width, int& height);
 
     void Show(bool show = true);
-
     void Invalidate();
-
     void CaptureMouse();
     void ReleaseMouse();
 

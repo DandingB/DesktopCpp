@@ -56,12 +56,13 @@ public:
 		//cxMessageBox(L"Hej med dig");
 		//SetPosition(100, 500);
 		//CaptureMouse();
-
-
 		int x1, y1;
 		GetClientSize(x1, y1);
-		std::wstring test = std::to_wstring(x1) + L", " + std::to_wstring(y1) + L"\n";
-		OutputDebugStringW(test.c_str());
+
+		// int x1, y1;
+		// GetClientSize(x1, y1);
+		// std::wstring test = std::to_wstring(x1) + L", " + std::to_wstring(y1) + L"\n";
+		// OutputDebugStringW(test.c_str());
 	}
 
 
