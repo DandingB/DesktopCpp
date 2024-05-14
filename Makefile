@@ -7,7 +7,7 @@ LIBS = -lopengl32 -mwindows
 default: compile
 
 compile:
-	$(CXX) src/main.cpp src/platform/Windows.cpp $(LIBS) -municode --static
+	$(CXX) src/main.cpp src/platform/Windows.cpp $(LIBS) -municode --static -o bin/App.exe
 
 else
 
