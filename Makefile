@@ -42,13 +42,13 @@ bundle:
 	-e "s/\$${MACOSX_BUNDLE_INFO_STRING}/wxTest version $(WX_VERSION), (c) 2002-2023 CrispyCross/" \
 	-e "s/\$${MACOSX_BUNDLE_LONG_VERSION_STRING}/$(WX_VERSION), (c) 2002-2023 CrispyCross/" \
 	-e "s/\$${MACOSX_BUNDLE_SHORT_VERSION_STRING}/$(WX_RELEASE)/" \
-	Info.plist.in > bin/App.app/Contents/Info.plist
+	support_files/Info.plist.in > bin/App.app/Contents/Info.plist
 	
 	/bin/echo "APPL????" >bin/App.app/Contents/PkgInfo
 	
 	ln -f bin/App bin/App.app/Contents/MacOS/App
 	
-	# cp -f media/icon.icns bin/App.app/Contents/Resources/icon.icns
+	# cp -f support_files/media/icon.icns bin/App.app/Contents/Resources/icon.icns
 
 
 endif
