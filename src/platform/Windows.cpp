@@ -130,7 +130,6 @@ cxWindowBase::cxWindowBase()
         return;
 
     CreateContext();
-
 }
 
 cxWindowBase::~cxWindowBase()
