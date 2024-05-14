@@ -259,9 +259,10 @@ void cxLog(std::wstring str, ...)
     va_list args;
     va_start(args, str);
 
-    int len = _vscwprintf(str.c_str(), args);
-    wchar_t* buffer = new wchar_t[len + 1];
-    vswprintf(buffer, len + 1, str.c_str(), args);
+    wchar_t* buffer = new wchar_t[1024];
+    memset(buffer, '\0', 1024);
+    vswprintf(buffer, 1024, str.c_str(), args);
+    int len = wcslen(buffer);
 
     va_end(args);
 
