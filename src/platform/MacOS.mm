@@ -84,10 +84,11 @@
 {
     [super reshape];
     [self.openGLContext makeCurrentContext];
-
+    
     // Get new viewport size
+    float scale = ref->GetDPIScale();
     NSRect bounds = [self bounds];
-    ref->OnSize(bounds.size.width, bounds.size.height);
+    ref->OnSize(bounds.size.width * scale, bounds.size.height * scale);
 }
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -97,38 +98,44 @@
 
 - (void)mouseDown:(NSEvent*)event
 {
+    float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (int)curPoint.x, (int)curPoint.y, LEFT });
+    ref->OnMouseDown({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
+    float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (int)curPoint.x, (int)curPoint.y, RIGHT });
+    ref->OnMouseDown({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), RIGHT });
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
+    float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (int)curPoint.x, (int)curPoint.y, LEFT });
+    ref->OnMouseUp({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
+    float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (int)curPoint.x, (int)curPoint.y, RIGHT });
+    ref->OnMouseUp({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), RIGHT });
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
+    float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove({ (int)curPoint.x, (int)curPoint.y, NONE });
+    ref->OnMouseMove({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), NONE });
 }
 
 - (void)mouseDragged:(NSEvent*)event
 {
+    float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDragged({ (int)curPoint.x, (int)curPoint.y, LEFT });
+    ref->OnMouseDragged({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
 
 - (BOOL)isFlipped
@@ -177,16 +184,18 @@ void cxWindowBase::SetTitle(std::wstring title)
 
 void cxWindowBase::SetPosition(int x, int y)
 {
+    float scale = GetDPIScale();
     NSRect frame = [WND_NSWND frame];
-    frame.origin.x = x;
-    frame.origin.y = y;
+    frame.origin.x = x * scale;
+    frame.origin.y = y * scale;
     [WND_NSWND setFrame: frame display: YES animate: YES];
 }
 
 void cxWindowBase::SetSize(int width, int height)
 {
+    float scale = GetDPIScale();
     NSRect frame = [WND_NSWND frame];
-    frame.size = NSMakeSize(width, height);
+    frame.size = NSMakeSize(width * scale, height * scale);
     [WND_NSWND setFrame: frame display: YES animate: YES];
 }
 
@@ -198,23 +207,26 @@ void cxWindowBase::GetTitle(std::wstring& out)
 
 void cxWindowBase::GetPosition(int& x, int& y)
 {
+    float scale = GetDPIScale();
     NSRect rect = [WND_NSWND frame];
-    x = rect.origin.x;
-    y = rect.origin.y;
+    x = rect.origin.x * scale;
+    y = rect.origin.y * scale;
 }
 
 void cxWindowBase::GetSize(int& width, int& height)
 {
+    float scale = GetDPIScale();
     NSRect rect = [WND_NSWND frame];
-    width = rect.size.width;
-    height = rect.size.height;
+    width = rect.size.width * scale;
+    height = rect.size.height * scale;
 }
 
 void cxWindowBase::GetClientSize(int& width, int& height)
 {
+    float scale = GetDPIScale();
     NSRect rect = [ [WND_NSWND contentView] frame ];
-    width = rect.size.width;
-    height = rect.size.height;
+    width = rect.size.width * scale;
+    height = rect.size.height * scale;
 }
 
 void cxWindowBase::Show(bool show)
@@ -227,7 +239,7 @@ void cxWindowBase::Show(bool show)
 
 void cxWindowBase::Invalidate()
 {
-    //[self setNeedsDisplay: YES];
+    [WND_GLVIEW setNeedsDisplay: YES];
 }
 
 void cxWindowBase::CaptureMouse()
@@ -239,6 +251,15 @@ void cxWindowBase::ReleaseMouse()
 {
 
 }
+
+float cxWindowBase::GetDPIScale()
+{
+    return [WND_NSWND backingScaleFactor];
+}
+
+
+
+
 
 void cxRunApp()
 {

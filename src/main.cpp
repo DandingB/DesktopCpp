@@ -19,11 +19,15 @@ public:
 
 	void OnSize(int width, int height) override
 	{
-		glViewport(0, 0, width, height);
+		
 	}
 
 	void OnPaint() override
 	{
+		int width, height;
+		GetClientSize(width, height);
+
+		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//glBegin(GL_TRIANGLES);
@@ -56,7 +60,8 @@ public:
 		//SetPosition(100, 500);
 		//CaptureMouse();
 
-		cxLog(L"asdasd %d", event.button);
+		cxLog(L"asdasd %lf", GetDPIScale());
+		Invalidate();
 
 		// int x1, y1;
 		// GetClientSize(x1, y1);
@@ -67,7 +72,7 @@ public:
 
 	void OnMouseUp(cxMouseEvent event) override
 	{
-		cxLog(L"asdasd %d", event.button);
+		//cxLog(L"asdasd %d", event.button);
 		//OutputDebugStringW(L"Mouse Up\n");
 	}
 

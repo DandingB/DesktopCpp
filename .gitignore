@@ -1,4 +1,5 @@
 .DS_Store
 .vs/
+.vscode/
 bin/
 /vsproject/x64

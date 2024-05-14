@@ -27,6 +27,7 @@ public:
     void ReleaseMouse();
 
     void* GetPlatformWindow() { return m_Window; }
+    float GetDPIScale();
 
     virtual void OnInit() {}
     virtual void OnClosing() {}
