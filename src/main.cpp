@@ -56,6 +56,8 @@ public:
 		//SetPosition(100, 500);
 		//CaptureMouse();
 
+		cxLog(L"asdasd %d", event.button);
+
 		// int x1, y1;
 		// GetClientSize(x1, y1);
 		// std::wstring test = std::to_wstring(x1) + L", " + std::to_wstring(y1) + L"\n";
