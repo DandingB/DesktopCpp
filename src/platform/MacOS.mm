@@ -87,7 +87,7 @@
 
     // Get new viewport size
     NSRect bounds = [self bounds];
-    ref->OnSize(bounds.size.width * 2, bounds.size.height * 2);
+    ref->OnSize(bounds.size.width, bounds.size.height);
 }
 
 - (void)drawRect:(NSRect)dirtyRect
