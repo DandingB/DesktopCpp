@@ -1,13 +1,14 @@
 ifeq ($(OS),Windows_NT)
 
 CXX = g++ -std=gnu++17
-LIBS = -lopengl32 -mwindows
+LIBS = -lopengl32
+FLAGS = -mwindows -municode --static
 
 
 default: compile
 
 compile:
-	$(CXX) src/main.cpp src/platform/Windows.cpp $(LIBS) -municode --static -o bin/App.exe
+	$(CXX) src/main.cpp src/platform/Windows.cpp $(LIBS) $(FLAGS) -o bin/App.exe
 
 else
 
