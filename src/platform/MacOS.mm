@@ -254,10 +254,21 @@ void cxMessageBox(std::wstring text)
     [alert runModal];
 }
 
-void cxLog(std::wstring message)
+void cxLog(std::wstring str, ...)
 {
-    NSString* s = [[NSString alloc] initWithBytes:message.data() length:message.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    va_list args;
+    va_start(args, str);
+
+    int len = _vscwprintf(str.c_str(), args);
+    wchar_t* buffer = new wchar_t[len + 1];
+    vswprintf(buffer, len + 1, str.c_str(), args);
+
+    va_end(args);
+
+    NSString* s = [[NSString alloc] initWithBytes:buffer length:len * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
     NSLog(@"%@", s);
+
+    delete[] buffer;
 }
 
 #endif

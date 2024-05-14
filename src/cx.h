@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdarg>
 #include "window/WindowBase.h"
 
 #ifdef __APPLE__
@@ -24,4 +25,4 @@ void cxQuitApp(int exitCode = 0);
 
 void cxMessageBox(std::wstring text);
 
-void cxLog(std::wstring message);
+void cxLog(std::wstring str, ...);

@@ -239,4 +239,20 @@ void cxMessageBox(std::wstring text)
     MessageBoxExW(NULL, text.c_str(), L"", MB_OK, NULL);
 }
 
+void cxLog(std::wstring str, ...)
+{
+    va_list args;
+    va_start(args, str);
+
+    int len = _vscwprintf(str.c_str(), args);
+    wchar_t* buffer = new wchar_t[len + 1];
+    vswprintf(buffer, len + 1, str.c_str(), args);
+
+    va_end(args);
+
+    OutputDebugStringW(buffer);
+
+    delete[] buffer;
+}
+
 #endif
