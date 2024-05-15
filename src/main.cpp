@@ -11,12 +11,11 @@ void cxFillRect(int x, int y, int width, int height, float r, float g, float b, 
 	glEnd();
 }
 
+float g_SplitterX = 0.2;
+
 class MyWindow : public cxWindowContainer
 {
 	bool m_Dragging = false;
-
-	int m_X = 50;
-	int m_Y = 50;
 
 public:
 	MyWindow()
@@ -39,10 +38,10 @@ public:
 		cxView* view2 = GetChildView(1);
 
 		view1->m_Height = height - 20;
-		view1->m_Width = width / 2 - 30;
+		view1->m_Width = width * g_SplitterX - 20;
 
-		view2->m_X = width / 2 - 10;
-		view2->m_Width = width / 2;
+		view2->m_X = width * g_SplitterX;
+		view2->m_Width = width * (1.0 - g_SplitterX) - 10;
 		view2->m_Height = height - 20;
 
 		Invalidate();
@@ -79,33 +78,54 @@ public:
 	//	glFlush();
 	//}
 
-	//void OnMouseDown(cxMouseEvent event) override
-	//{
-	//	if (event.button == LEFT)
-	//	{
-	//		m_Dragging = true;
-	//		CaptureMouse();
-	//	}
-	//}
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		cxWindowContainer::OnMouseDown(event);
+
+		int width, height;
+		GetClientSize(width, height);
+
+		if (event.x > width * g_SplitterX - 20 and event.x < width * g_SplitterX)
+		{
+			m_Dragging = true;
+		}
+	}
+
+	void OnMouseUp(cxMouseEvent event) override
+	{
+		m_Dragging = false;
+	}
+
+	void OnMouseMove(cxMouseEvent event) override
+	{
+		if (m_Dragging)
+		{
+			int width, height;
+			GetClientSize(width, height);
+
+			g_SplitterX = (float)event.x / width;
+
+			if (g_SplitterX < 0.0)
+				g_SplitterX = 0.0;
+
+			if (g_SplitterX > 1.0)
+				g_SplitterX = 1.0;
 
 
-	//void OnMouseUp(cxMouseEvent event) override
-	//{
-	//	m_Dragging = false;
-	//	ReleaseMouse();
-	//}
+			cxView* view1 = GetChildView(0);
+			cxView* view2 = GetChildView(1);
 
-	//void OnMouseMove(cxMouseEvent event) override
-	//{
-	//	if (m_Dragging)
-	//	{
-	//		cxView* view = GetChildView(0);
-	//		view->m_X = event.x;
-	//		view->m_Y = event.y;
+			view1->m_Height = height - 20;
+			view1->m_Width = width * g_SplitterX - 20;
 
-	//		Invalidate();
-	//	}
-	//}
+			view2->m_X = width * g_SplitterX;
+			view2->m_Width = width * (1.0 - g_SplitterX) - 10;
+			view2->m_Height = height - 20;
+
+
+			Invalidate();
+		}
+	}
 
 };
 
