@@ -217,12 +217,12 @@ void cxWindowBase::Invalidate()
 
 void cxWindowBase::CaptureMouse()
 {
-    //[WND_GLVIEW disableCursorRects];
+    SetCapture(WND_HWND);
 }
 
 void cxWindowBase::ReleaseMouse()
 {
-
+    ReleaseCapture();
 }
 
 float cxWindowBase::GetDPIScale()
