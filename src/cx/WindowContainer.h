@@ -14,7 +14,6 @@ public:
 
 	//std::vector<cxView> m_SubViews;
 
-
 	virtual void OnPaint() {};
 	virtual void OnSize() {};
 
@@ -27,13 +26,13 @@ public:
 
 class cxWindowContainer : public cxWindowBase
 {
-
 	std::vector<cxView*> m_SubViews;
 
 public:
-	void AddView(cxView* view);
 
 	cxView* GetChildView(int i);
+
+	void AddView(cxView* view);
 
 	void OnPaint() override;
 
