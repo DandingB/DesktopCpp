@@ -1,5 +1,31 @@
 #include "cx.h"
 
+void FillRect(int x, int y, int width, int height, float r, float g, float b, float a)
+{
+	//float x1 = x * 2 - 1;
+	//float y1 = y * 2 - 1;
+	//float width1 = width * 2;
+	//float height1 = height * 2;
+
+	//glBegin(GL_QUADS);
+	//glColor3f(1.0f, 0.0f, 0.0f);
+	//glVertex2f(x1,			y1);
+	//glVertex2f(x1 + width1, y1);
+	//glVertex2f(x1 + width1, y1 + height1);
+	//glVertex2f(x1,			y1 + height1);
+	//glEnd();
+
+	glBegin(GL_QUADS);
+	glColor4f(r, g, b, a);
+	glVertex2f(x, y);
+	glVertex2f(x + width, y);
+	glVertex2f(x + width, y + height);
+	glVertex2f(x, y + height);
+	glEnd();
+
+
+}
+
 class MyWindow : public cxWindowBase
 {
 public:
@@ -27,28 +53,28 @@ public:
 		int width, height;
 		GetClientSize(width, height);
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, width, height, 0, -1, 1);
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+
+
+		FillRect(10, 10, 200, 100, 1.0, 0.0, 0.0, 1.0);
+		FillRect(50, 50, 200, 100, 1.0, 1.0, 0.0, 0.5);
+
 		//glBegin(GL_TRIANGLES);
 		//glColor3f(1.0f, 0.0f, 0.0f);
-		//glVertex2i(0, 1);
+		//glVertex2f(10, 10);
 		//glColor3f(0.0f, 1.0f, 1.0f);
-		//glVertex2i(-1, -1);
+		//glVertex2f(100, 100);
 		//glColor3f(0.0f, 1.0f, 1.0f);
-		//glVertex2i(1, -1);
+		//glVertex2f(10, 100);
 		//glEnd();
-
-		glBegin(GL_TRIANGLES);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex2f(-0.4, 0.4);
-		glColor3f(0.0f, 1.0f, 1.0f);
-		glVertex2f(-1, -1);
-		glColor3f(0.0f, 1.0f, 1.0f);
-		glVertex2f(1, -1);
-		glEnd();
-
-		//drawRectWithRoundedCorners(0, 0, 10, 5, 10, 0x00204080);
 
 		glFlush();
 	}
