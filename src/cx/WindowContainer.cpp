@@ -147,8 +147,16 @@ void cxWindowContainer::PaintSubViews(std::vector<cxView*>& views, int left, int
 
 void cxWindowContainer::OnSize(int width, int height)
 {
+
+	void* test = wglGetProcAddress("glBindRenderbuffer");
+
+	(test)(2, multisampleColorBuffer);
+
 	//glBindRenderbuffer(GL_RENDERBUFFER, multisampleColorBuffer);
  //   glRenderbufferStorageMultisample(GL_RENDERBUFFER, 8, GL_RGBA8, width, height);
+
+	//HMODULE module = LoadLibraryA("opengl32.dll");
+	//p = (void*)GetProcAddress(module, name);
 }
 
 
