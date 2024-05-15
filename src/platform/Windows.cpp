@@ -132,6 +132,7 @@ void cxWindowBase::CreateContext()
     if (!WND_RC)
         return;
 
+    wglMakeCurrent(WND_DC, WND_RC);
 }
 
 cxWindowBase::cxWindowBase()

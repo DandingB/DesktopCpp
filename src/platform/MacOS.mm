@@ -64,7 +64,7 @@
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
         NSOpenGLPFAMultisample,
         NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, 4,
+        NSOpenGLPFASamples, 8,
         NSOpenGLPFAAccelerated,
         NSOpenGLPFANoRecovery,
         0
@@ -168,6 +168,8 @@ cxWindowBase::cxWindowBase()
     WND_GLVIEW = [[[GLView alloc] initWithFrame:graphicsRect] autorelease];
     [WND_NSWND setContentView: WND_GLVIEW];
     WND_GLVIEW->ref = this;
+
+    [WND_GLVIEW.openGLContext makeCurrentContext];
 }
 
 cxWindowBase::~cxWindowBase()
@@ -237,10 +239,52 @@ void cxWindowBase::Show(bool show)
         [WND_NSWND orderOut: nil];
 }
 
-void cxWindowBase::Invalidate()
+void cxWindowBase::ShowCursor(bool show)
 {
-    [WND_GLVIEW setNeedsDisplay: YES];
+    if (show)
+        [NSCursor unhide];
+    else
+        [NSCursor hide];
 }
+
+
+void cxWindowBase::SetCursor(cxCursorType type)
+{
+    switch(type)
+    {
+        case cxArrow:
+            [[NSCursor arrowCursor] set];
+            return;
+        case cxIBeam:
+            [[NSCursor IBeamCursor] set];
+            return;
+        case cxPointingHand:
+            [[NSCursor pointingHandCursor] set];
+            return;
+        case cxHand:
+            [[NSCursor openHandCursor] set];
+            return;
+        case cxGrab:
+            [[NSCursor closedHandCursor] set];
+            return;
+        case cxCrosshair:
+            [[NSCursor crosshairCursor] set];
+            return;
+        case cxSizeWE:
+            [[NSCursor resizeLeftRightCursor] set];
+            return;
+        case cxSizeNS:
+            [[NSCursor resizeUpDownCursor] set];
+            return;
+        case cxNo:
+            [[NSCursor operationNotAllowedCursor] set];
+            return;
+        default:
+            [[NSCursor arrowCursor] set];
+            return;
+    }
+}
+
 
 void cxWindowBase::CaptureMouse()
 {
@@ -250,6 +294,11 @@ void cxWindowBase::CaptureMouse()
 void cxWindowBase::ReleaseMouse()
 {
 
+}
+
+void cxWindowBase::Invalidate()
+{
+    [WND_GLVIEW setNeedsDisplay: YES];
 }
 
 float cxWindowBase::GetDPIScale()

@@ -2,6 +2,23 @@
 #include <string>
 #include "Event.h"
 
+enum cxCursorType
+{
+    cxArrow,
+    cxIBeam,
+    cxPointingHand,
+    cxHand,
+    cxGrab,
+    cxCrosshair,
+    cxSizeNWSE,
+    cxSizeNESW,
+    cxSizeWE,
+    cxSizeNS,
+    cxSizeAll,
+    cxNo,
+    
+};
+
 class cxWindowBase
 {
     void* m_Window;
@@ -22,9 +39,13 @@ public:
     void GetClientSize(int& width, int& height);
 
     void Show(bool show = true);
-    void Invalidate();
+
+    void ShowCursor(bool show = true);
+    void SetCursor(cxCursorType type);
     void CaptureMouse();
     void ReleaseMouse();
+
+    void Invalidate();
 
     void* GetPlatformWindow() { return m_Window; }
     float GetDPIScale();

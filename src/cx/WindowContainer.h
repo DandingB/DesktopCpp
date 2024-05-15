@@ -4,6 +4,8 @@
 
 #include <vector>
 
+
+
 class cxWindowContainer;
 
 class cxView
@@ -12,7 +14,13 @@ public:
 	int m_X, m_Y;
 	int m_Width, m_Height;
 
-	//std::vector<cxView> m_SubViews;
+	cxView* m_Parent;
+	std::vector<cxView*> m_SubViews;
+
+	void AddView(cxView* view);
+
+	bool PointInView(int x, int y);
+	void PosInWindow(int& x, int& y);
 
 	virtual void OnPaint() {};
 	virtual void OnSize() {};
@@ -24,19 +32,30 @@ public:
 	friend cxWindowContainer;
 };
 
+
+
 class cxWindowContainer : public cxWindowBase
 {
 	std::vector<cxView*> m_SubViews;
 
-public:
+	unsigned multisampleFBO;
+	unsigned multisampleColorBuffer;
 
-	cxView* GetChildView(int i);
+public:
+	cxWindowContainer();
+	~cxWindowContainer();
 
 	void AddView(cxView* view);
+	cxView* GetChildView(int i);
 
 	void OnPaint() override;
+	void OnSize(int width, int height) override;
 
 	void OnMouseDown(cxMouseEvent event) override;
 	void OnMouseUp(cxMouseEvent event) override;
 	void OnMouseMove(cxMouseEvent event) override;
+
+private:
+	void PaintSubViews(std::vector<cxView*>& views, int top, int left, int right, int bottom);
+
 };
