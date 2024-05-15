@@ -17,6 +17,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <gl/GL.h>
+#include <gl/GLU.h>
 
 #define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 

@@ -22,11 +22,11 @@ void cxDrawRect(int x, int y, int width, int height, float r, float g, float b, 
 	glVertex2f(x + width, y);	
 	glVertex2f(x + width, y + height);
 
-	glVertex2f(x + width, y + height);
-	glVertex2f(x, y + height);
+	glVertex2f(x + width, y + height - 1);
+	glVertex2f(x, y + height - 1);
 
-	glVertex2f(x, y + height);
-	glVertex2f(x, y);
+	glVertex2f(x+1, y + height);
+	glVertex2f(x+1, y);
 
 	glEnd();
 }

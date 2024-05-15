@@ -226,6 +226,16 @@ void cxWindowBase::ReleaseMouse()
     ReleaseCapture();
 }
 
+void cxWindowBase::ShowCursor(bool show)
+{
+}
+
+
+void cxWindowBase::SetCursor(cxCursorType type)
+{
+}
+
+
 float cxWindowBase::GetDPIScale()
 {
     return (float)GetDpiForWindow(WND_HWND) / USER_DEFAULT_SCREEN_DPI;
