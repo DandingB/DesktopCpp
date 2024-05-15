@@ -32,6 +32,9 @@
     <ClCompile Include="..\src\platform\Windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\cx\WindowContainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\platform\MacOS.mm" />

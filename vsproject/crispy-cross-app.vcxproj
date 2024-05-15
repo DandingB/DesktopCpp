@@ -138,6 +138,7 @@
     <ClInclude Include="..\src\cx\WindowBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\cx\WindowContainer.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\platform\Windows.cpp" />
   </ItemGroup>
