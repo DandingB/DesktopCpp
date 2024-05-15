@@ -20,7 +20,6 @@ class MyWindow : public cxWindowContainer
 public:
 	MyWindow()
 	{
-		// cxMessageBox(L"Hej med dig");
 	}
 
 	void OnInit() override
@@ -46,37 +45,6 @@ public:
 
 		Invalidate();
 	}
-
-	//void OnPaint() override
-	//{
-	//	int width, height;
-	//	GetClientSize(width, height);
-
-	//	glEnable(GL_BLEND);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//	glMatrixMode(GL_PROJECTION);
-	//	glLoadIdentity();
-	//	glOrtho(0, width, height, 0, -1, 1);
-	//	glViewport(0, 0, width, height);
-	//	glClear(GL_COLOR_BUFFER_BIT);
-
-
-	//	cxFillRect(10, 10, 200, 100, 1.0, 0.0, 0.0, 1.0);
-	//	cxFillRect(m_X, m_Y, 200, 100, 1.0, 1.0, 0.0, 0.5);
-
-
-	//	//glBegin(GL_TRIANGLES);
-	//	//glColor3f(1.0f, 0.0f, 0.0f);
-	//	//glVertex2f(10, 10);
-	//	//glColor3f(0.0f, 1.0f, 1.0f);
-	//	//glVertex2f(100, 100);
-	//	//glColor3f(0.0f, 1.0f, 1.0f);
-	//	//glVertex2f(10, 100);
-	//	//glEnd();
-
-	//	glFlush();
-	//}
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
@@ -121,7 +89,6 @@ public:
 			view2->m_X = width * g_SplitterX;
 			view2->m_Width = width * (1.0 - g_SplitterX) - 10;
 			view2->m_Height = height - 20;
-
 
 			Invalidate();
 		}
