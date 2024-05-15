@@ -135,7 +135,7 @@
 {
     float scale = ref->GetDPIScale();
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDragged({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
+    ref->OnMouseMove({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
 
 - (BOOL)isFlipped

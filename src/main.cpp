@@ -84,7 +84,7 @@ public:
 
 	void OnMouseMove(cxMouseEvent event) override
 	{
-		
+		cxLog(L"Mouse move");
 		if (m_Dragging)
 		{
 			m_X = event.x;
