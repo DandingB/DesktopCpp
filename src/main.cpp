@@ -35,7 +35,17 @@ public:
 
 	void OnSize(int width, int height) override
 	{
-		
+		cxView* view1 = GetChildView(0);
+		cxView* view2 = GetChildView(1);
+
+		view1->m_Height = height - 20;
+		view1->m_Width = width / 2 - 30;
+
+		view2->m_X = width / 2 - 10;
+		view2->m_Width = width / 2;
+		view2->m_Height = height - 20;
+
+		Invalidate();
 	}
 
 	//void OnPaint() override
@@ -69,33 +79,33 @@ public:
 	//	glFlush();
 	//}
 
-	void OnMouseDown(cxMouseEvent event) override
-	{
-		if (event.button == LEFT)
-		{
-			m_Dragging = true;
-			CaptureMouse();
-		}
-	}
+	//void OnMouseDown(cxMouseEvent event) override
+	//{
+	//	if (event.button == LEFT)
+	//	{
+	//		m_Dragging = true;
+	//		CaptureMouse();
+	//	}
+	//}
 
 
-	void OnMouseUp(cxMouseEvent event) override
-	{
-		m_Dragging = false;
-		ReleaseMouse();
-	}
+	//void OnMouseUp(cxMouseEvent event) override
+	//{
+	//	m_Dragging = false;
+	//	ReleaseMouse();
+	//}
 
-	void OnMouseMove(cxMouseEvent event) override
-	{
-		if (m_Dragging)
-		{
-			cxView* view = GetChildView(0);
-			view->m_X = event.x;
-			view->m_Y = event.y;
+	//void OnMouseMove(cxMouseEvent event) override
+	//{
+	//	if (m_Dragging)
+	//	{
+	//		cxView* view = GetChildView(0);
+	//		view->m_X = event.x;
+	//		view->m_Y = event.y;
 
-			Invalidate();
-		}
-	}
+	//		Invalidate();
+	//	}
+	//}
 
 };
 
@@ -107,7 +117,7 @@ public:
 	MyControl1()
 	{
 		m_X = 10;
-		m_Y = 20;
+		m_Y = 10;
 		m_Width = 100;
 		m_Height = 120;
 	}
@@ -116,6 +126,11 @@ public:
 	{
 		cxFillRect(0, 0, m_Width, m_Height, 0.2, 0.2, 0.2, 1.0);
 		cxFillRect(20, 20, 20, 20, 0.0, 1.0, 0.0, 1.0);
+	}
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		cxLog(L"MyControl1: x: %d, y: %d\n", event.x, event.y);
 	}
 
 };
@@ -128,7 +143,7 @@ public:
 	MyControl2()
 	{
 		m_X = 200;
-		m_Y = 20;
+		m_Y = 10;
 		m_Width = 100;
 		m_Height = 120;
 	}
@@ -137,6 +152,11 @@ public:
 	{
 		cxFillRect(0, 0, m_Width, m_Height, 0.2, 0.2, 0.2, 1.0);
 		cxFillRect(20, 50, m_Width - 40, 20, 1.0, 1.0, 0.0, 1.0);
+	}
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		cxLog(L"MyControl2: x: %d, y: %d\n", event.x, event.y);
 	}
 
 };

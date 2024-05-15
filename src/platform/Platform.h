@@ -21,3 +21,12 @@
 #define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 
 #endif
+
+
+void cxInitApp();
+void cxRunApp();
+void cxQuitApp(int exitCode = 0);
+
+void cxMessageBox(std::wstring text);
+
+void cxLog(std::wstring str, ...);

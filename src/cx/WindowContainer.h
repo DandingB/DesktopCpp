@@ -21,7 +21,6 @@ public:
 	virtual void OnMouseDown(cxMouseEvent event) {}
 	virtual void OnMouseUp(cxMouseEvent event) {}
 	virtual void OnMouseMove(cxMouseEvent event) {}
-	virtual void OnMouseDragged(cxMouseEvent event) {}
 
 	friend cxWindowContainer;
 };
@@ -38,6 +37,7 @@ public:
 
 	void OnPaint() override;
 
-
-
+	void OnMouseDown(cxMouseEvent event) override;
+	void OnMouseUp(cxMouseEvent event) override;
+	void OnMouseMove(cxMouseEvent event) override;
 };

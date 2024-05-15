@@ -37,3 +37,26 @@ void cxWindowContainer::OnPaint()
 
 	glFlush();
 }
+
+void cxWindowContainer::OnMouseDown(cxMouseEvent event)
+{
+	//cxLog(L"x: %d, y: %d", event.x, event.y);
+
+	for (int i = m_SubViews.size() - 1; i >= 0; i--)
+	{
+		cxView* view = m_SubViews[i];
+		if ((event.x > view->m_X) and (event.x < view->m_X + view->m_Width) and (event.y > view->m_Y) and (event.y < view->m_Y + view->m_Height))
+		{
+			view->OnMouseDown({ event.x - view->m_X, event.y - view->m_Y, event.button});
+			break;
+		}
+	}
+}
+
+void cxWindowContainer::OnMouseUp(cxMouseEvent event)
+{
+}
+
+void cxWindowContainer::OnMouseMove(cxMouseEvent event)
+{
+}
