@@ -31,5 +31,6 @@ void cxRunApp();
 void cxQuitApp(int exitCode = 0);
 
 void cxMessageBox(std::wstring text);
-
 void cxLog(std::wstring str, ...);
+
+void cxGetMousePosition(int& x, int& y);

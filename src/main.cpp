@@ -31,7 +31,34 @@ void cxDrawRect(int x, int y, int width, int height, float r, float g, float b, 
 	glEnd();
 }
 
+
+class MyButton : public cxView
+{
+public:
+
+	MyButton()
+	{
+		m_Left = 10;
+		m_Top = 30;
+		m_Right = m_Left + 120;
+		m_Bottom = m_Top + 30;
+	}
+
+	void OnPaint() override
+	{
+		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.0, 0.8, 0.2, 1.0);
+		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
+	}
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		//cxLog(L"MyControl2: x: %d, y: %d\n", event.x, event.y);
+	}
+};
+
+
 float g_SplitterX = 0.2;
+MyButton* btn;
 
 class MyWindow : public cxWindowContainer
 {
@@ -80,6 +107,15 @@ public:
 			m_Dragging = true;
 			CaptureMouse();
 		}
+		
+		// if (btn->PointInView(event.x, event.y))
+		// 	cxLog(L"Clicked");
+
+		int mX, mY;
+		cxGetMousePosition(mX, mY);
+
+		//cxLog(L"%d %d", mX, mY);
+
 	}
 
 	void OnMouseUp(cxMouseEvent event) override
@@ -162,7 +198,7 @@ public:
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
-		cxLog(L"MyControl1: x: %d, y: %d\n", event.x, event.y);
+		//cxLog(L"MyControl1: x: %d, y: %d\n", event.x, event.y);
 	}
 
 	void OnMouseMove(cxMouseEvent event) override
@@ -193,7 +229,7 @@ public:
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
-		cxLog(L"MyControl2: x: %d, y: %d\n", event.x, event.y);
+		//cxLog(L"MyControl2: x: %d, y: %d\n", event.x, event.y);
 	}
 
 	void OnMouseMove(cxMouseEvent event) override
@@ -237,30 +273,6 @@ public:
 };
 
 
-class MyButton : public cxView
-{
-public:
-
-	MyButton()
-	{
-		m_Left = 10;
-		m_Top = 30;
-		m_Right = m_Left + 120;
-		m_Bottom = m_Top + 30;
-	}
-
-	void OnPaint() override
-	{
-		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.0, 0.8, 0.2, 1.0);
-		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
-	}
-
-	void OnMouseDown(cxMouseEvent event) override
-	{
-		cxLog(L"MyControl2: x: %d, y: %d\n", event.x, event.y);
-	}
-};
-
 
 CX_FUNC_MAIN
 {
@@ -273,7 +285,7 @@ CX_FUNC_MAIN
 	MyView* view = new MyView;
 	control1->AddView(view);
 
-	MyButton* btn = new MyButton;
+	btn = new MyButton;
 	view->AddView(btn);
 
 	MyWindow* window = new MyWindow;

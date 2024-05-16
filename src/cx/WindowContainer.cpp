@@ -3,31 +3,55 @@
 
 bool cxView::PointInView(int x, int y)
 {
-	if (!m_Parent)
-	{
-		if ((x > m_Left) and (x < m_Right) and (y > m_Top) and (y < m_Bottom))
-			return true;
-	}
-	else
-	{
+	int left, top, right, bottom;
+	GetWindowRect(left, top, right, bottom);
 
-	}
-	return false;
+	if (x > left and x < right and y > top and y < bottom)
+		return true;
+	else
+		return false;
 }
 
-void cxView::PosInWindow(int& x, int& y)
+void cxView::GetWindowPos(int& x, int& y)
 {
 	if (!m_Parent)
 	{
 		x = m_Left;
-		y = m_Right;
+		y = m_Top;
 	}
 	else
 	{
 		int x1, y1;
-		m_Parent->PosInWindow(x1, y1);
-		x = m_Left + x1;
-		y = m_Right + y1;
+		m_Parent->GetWindowPos(x1, y1);
+		x = x1 + m_Left;
+		y = y1 + m_Top;
+	}
+}
+
+void cxView::GetWindowRect(int& left, int& top, int& right, int& bottom)
+{
+	if (!m_Parent)
+	{
+		left = m_Left;
+		top = m_Top;
+		right = m_Right;
+		bottom = m_Bottom;
+	}
+	else
+	{
+		int left1, top1, right1, bottom1;
+		m_Parent->GetWindowRect(left1, top1, right1, bottom1);
+
+		left = left1 + m_Left;
+		top = top1 + m_Top;
+		right = left1 + m_Right;
+		bottom = top1 + m_Bottom;
+
+		if (right > right1)
+			right = right1;
+			
+		if (bottom > bottom1)
+			bottom = bottom1;
 	}
 }
 

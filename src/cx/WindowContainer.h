@@ -22,7 +22,8 @@ public:
 	void AddView(cxView* view);
 
 	bool PointInView(int x, int y);
-	void PosInWindow(int& x, int& y);
+	void GetWindowPos(int& x, int& y);
+	void GetWindowRect(int& left, int& top, int& right, int& bottom);
 
 	virtual void OnPaint() {};
 	virtual void OnSize() {};
