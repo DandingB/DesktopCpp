@@ -11,8 +11,8 @@ class cxWindowContainer;
 class cxView
 {
 public:
-	int m_X, m_Y;
-	int m_Width, m_Height;
+	int m_Left, m_Top, m_Right, m_Bottom;
+	//int m_Width, m_Height;
 
 	cxView* m_Parent;
 	std::vector<cxView*> m_SubViews;

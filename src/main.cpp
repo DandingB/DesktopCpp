@@ -58,12 +58,12 @@ public:
 		cxView* view1 = GetChildView(0);
 		cxView* view2 = GetChildView(1);
 
-		view1->m_Height = height - 20;
-		view1->m_Width = width * g_SplitterX - 20;
+		view1->m_Bottom = height - 10;
+		view1->m_Right = width * g_SplitterX - 10;
 
-		view2->m_X = width * g_SplitterX;
-		view2->m_Width = width * (1.0 - g_SplitterX) - 10;
-		view2->m_Height = height - 20;
+		view2->m_Left = width * g_SplitterX;
+		view2->m_Right = width - 10;
+		view2->m_Bottom = height - 10;
 
 		Invalidate();
 	}
@@ -108,12 +108,12 @@ public:
 			cxView* view1 = GetChildView(0);
 			cxView* view2 = GetChildView(1);
 
-			view1->m_Height = height - 20;
-			view1->m_Width = width * g_SplitterX - 20;
+			view1->m_Bottom = height - 10;
+			view1->m_Right = width * g_SplitterX - 10;
 
-			view2->m_X = width * g_SplitterX;
-			view2->m_Width = width * (1.0 - g_SplitterX) - 10;
-			view2->m_Height = height - 20;
+			view2->m_Left = width * g_SplitterX;
+			view2->m_Right = width - 10;
+			view2->m_Bottom = height - 10;
 
 			Invalidate();
 		}
@@ -135,16 +135,16 @@ public:
 
 	MyControl1()
 	{
-		m_X = 10;
-		m_Y = 10;
-		m_Width = 100;
-		m_Height = 120;
+		m_Left = 10;
+		m_Top = 10;
+		m_Right = 110;
+		m_Bottom = 120;
 	}
 
 	void OnPaint() override
 	{
-		cxFillRect(0, 0, m_Width, m_Height, 0.2, 0.2, 0.2, 1.0);
-		cxDrawRect(0, 0, m_Width, m_Height, 1.0, 1.0, 1.0, 1.0);
+		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
+		//cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 
 		glBegin(GL_QUADS);
 		glColor4f(0.5, 1.0, 0.4, 1.0);
@@ -152,6 +152,15 @@ public:
 		glVertex2f(100, 10);
 		glVertex2f(120, 100);
 		glVertex2f(10, 100);
+		glEnd();
+
+
+		glBegin(GL_QUADS);
+		glColor4f(0.5, 1.0, 0.4, 1.0);
+		glVertex2f(2, 2);
+		glVertex2f(2, 3);
+		glVertex2f(3, 3);
+		glVertex2f(2, 3);
 		glEnd();
 
 	}
@@ -174,17 +183,17 @@ public:
 
 	MyControl2()
 	{
-		m_X = 200;
-		m_Y = 10;
-		m_Width = 100;
-		m_Height = 120;
+		m_Left = 10;
+		m_Top = 10;
+		m_Right = 110;
+		m_Bottom = 120;
 	}
 
 	void OnPaint() override
 	{
-		cxFillRect(0, 0, m_Width, m_Height, 0.2, 0.2, 0.2, 1.0);
-		cxFillRect(20, 50, m_Width - 40, 20, 1.0, 1.0, 0.0, 1.0);
-		cxDrawRect(0, 0, m_Width, m_Height, 1.0, 1.0, 1.0, 1.0);
+		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
+		cxFillRect(20, 50, m_Right - m_Left - 40, 20, 1.0, 1.0, 0.0, 1.0);
+		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 	}
 
 	void OnMouseDown(cxMouseEvent event) override
@@ -205,16 +214,16 @@ public:
 
 	MyView()
 	{
-		m_X = 10;
-		m_Y = 300;
-		m_Width = 400;
-		m_Height = 400;
+		m_Left = 30;
+		m_Top = 200;
+		m_Right = m_Left + 200;
+		m_Bottom = m_Top + 120;
 	}
 
 	void OnPaint() override
 	{
-		cxFillRect(0, 0, m_Width, m_Height, 0.4, 0.4, 0.4, 1.0);
-		cxDrawRect(0, 0, m_Width, m_Height, 1.0, 1.0, 1.0, 1.0);
+		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.4, 0.4, 0.4, 1.0);
+		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 	}
 
 	void OnMouseDown(cxMouseEvent event) override
@@ -230,16 +239,16 @@ public:
 
 	MyButton()
 	{
-		m_X = 20;
-		m_Y = 20;
-		m_Width = 200;
-		m_Height = 60;
+		m_Left = 10;
+		m_Top = 30;
+		m_Right = m_Left + 120;
+		m_Bottom = m_Top + 30;
 	}
 
 	void OnPaint() override
 	{
-		cxFillRect(0, 0, m_Width, m_Height, 0.0, 0.8, 0.2, 1.0);
-		cxDrawRect(0, 0, m_Width, m_Height, 1.0, 1.0, 1.0, 1.0);
+		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.0, 0.8, 0.2, 1.0);
+		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 	}
 
 	void OnMouseDown(cxMouseEvent event) override
