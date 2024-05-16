@@ -93,7 +93,7 @@ void cxWindowContainer::OnPaint()
 
 	//cxLog(L"---------------");
 
-	PaintSubViews(m_SubViews, 0, 0, width, height);
+	PaintSubviews(m_SubViews, 0, 0, width, height);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, multisampleFBO);
@@ -105,7 +105,7 @@ void cxWindowContainer::OnPaint()
 }
 
 
-void cxWindowContainer::PaintSubViews(std::vector<cxView*>& views, int left, int top, int right, int bottom)
+void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int top, int right, int bottom)
 {
 	int clientWidth, clientHeight;
 	GetClientSize(clientWidth, clientHeight);
@@ -140,7 +140,7 @@ void cxWindowContainer::PaintSubViews(std::vector<cxView*>& views, int left, int
 		
 		view->OnPaint();
 
-		PaintSubViews(view->m_SubViews, x, y, x + width, y + height);
+		PaintSubviews(view->m_SubViews, x, y, x + width, y + height);
 	}
 }
 
