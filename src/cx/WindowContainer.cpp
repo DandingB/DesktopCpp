@@ -53,7 +53,7 @@ cxWindowContainer::cxWindowContainer()
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, 8, GL_RGBA8, 500, 500);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, multisampleColorBuffer);
 
-      // Check framebuffer completeness
+    // Check framebuffer completeness
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
 		cxLog(L"Framebuffer is incomplete: %x", status);

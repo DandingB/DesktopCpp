@@ -14,6 +14,11 @@
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
 HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
 
+// enable optimus!
+//extern "C" {
+//    _declspec(dllexport) DWORD NvOptimusEnablement = 1;
+//    _declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+//}
 
 struct Win32Wnd
 {
