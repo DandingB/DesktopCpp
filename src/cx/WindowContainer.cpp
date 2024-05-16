@@ -129,9 +129,9 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 		if (y + height > bottom)
 			height = bottom - y;
 
+
 		glLoadIdentity();
 		glMatrixMode(GL_PROJECTION);
-		
 		glOrtho(0, width, height, 0, -1, 1);
 		glViewport(x, clientHeight - height - y, width, height);
 
