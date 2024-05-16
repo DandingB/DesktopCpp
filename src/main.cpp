@@ -146,19 +146,19 @@ public:
 		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
 		//cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 
-		glBegin(GL_QUADS);
-		glColor4f(0.5, 1.0, 0.4, 1.0);
-		glVertex2f(10, 10);
-		glVertex2f(100, 10);
-		glVertex2f(120, 100);
-		glVertex2f(10, 100);
-		glEnd();
+		// glBegin(GL_QUADS);
+		// glColor4f(0.5, 1.0, 0.4, 1.0);
+		// glVertex2f(10, 10);
+		// glVertex2f(100, 10);
+		// glVertex2f(120, 100);
+		// glVertex2f(10, 100);
+		// glEnd();
 
 
 		glBegin(GL_QUADS);
 		glColor4f(0.5, 1.0, 0.4, 1.0);
 		glVertex2f(2, 2);
-		glVertex2f(2, 3);
+		glVertex2f(3, 2);
 		glVertex2f(3, 3);
 		glVertex2f(2, 3);
 		glEnd();
