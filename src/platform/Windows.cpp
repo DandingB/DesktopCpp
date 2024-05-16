@@ -11,6 +11,9 @@
 #define WND_DC ((Win32Wnd*)m_Window)->dc
 #define WND_RC ((Win32Wnd*)m_Window)->rc
 
+HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
+HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
+
 
 struct Win32Wnd
 {
@@ -51,6 +54,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         BeginPaint(hwnd, &ps);
         EndPaint(hwnd, &ps);
+
+        SwapBuffers(pWnd->dc);
         return 0;
     }
     case WM_SIZE:
@@ -111,15 +116,13 @@ void cxWindowBase::CreateContext()
     int pixelFormat;
     PIXELFORMATDESCRIPTOR pixelFormatDesc;
 
-    /* initialize bits to 0 */
     memset(&pixelFormatDesc, 0, sizeof(PIXELFORMATDESCRIPTOR));
     pixelFormatDesc.nSize = sizeof(PIXELFORMATDESCRIPTOR);
     pixelFormatDesc.nVersion = 1;
-    pixelFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+    pixelFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pixelFormatDesc.iPixelType = PFD_TYPE_RGBA;
     pixelFormatDesc.cColorBits = 32;
     pixelFormatDesc.cAlphaBits = 8;
-    pixelFormatDesc.cDepthBits = 24;
 
     pixelFormat = ChoosePixelFormat(WND_DC, &pixelFormatDesc);
     if (!pixelFormat)
@@ -238,8 +241,7 @@ void cxWindowBase::SetCursor(cxCursorType type)
     {
     case cxArrow:
     {
-        HCURSOR hCursor = LoadCursor(NULL, IDC_ARROW);
-        ::SetCursor(hCursor);
+        ::SetCursor(cArrow);
         return;
     }
     case cxIBeam:
@@ -253,9 +255,8 @@ void cxWindowBase::SetCursor(cxCursorType type)
     case cxCrosshair:
         return;
     case cxSizeWE:
-    {
-        HCURSOR hCursor = LoadCursor(NULL, IDC_SIZEWE);
-        ::SetCursor(hCursor);
+    {   
+        ::SetCursor(cSizeWE);
         return;
     }
     case cxSizeNS:

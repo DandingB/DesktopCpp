@@ -19,6 +19,8 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
+#include "wgl.h"
+
 #define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 
 #endif
