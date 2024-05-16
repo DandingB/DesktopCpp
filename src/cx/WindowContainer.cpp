@@ -39,12 +39,22 @@ void cxView::AddView(cxView* view)
 }
 
 
+//typedef void (APIENTRY* GLGENFRAMEBUFFERSPROC)(GLsizei, GLuint*);
+
+
 cxWindowContainer::cxWindowContainer()
 {
+	// Get the function pointer
+	//GLGENFRAMEBUFFERSPROC glGenFramebuffers = (GLGENFRAMEBUFFERSPROC)wglGetProcAddress("glGenFramebuffers");
+	//if (glGenFramebuffers == NULL) {
+	//	// handle error
+	//	return;
+	//}
+
 	//glEnable(GL_MULTISAMPLE);
 
- //   // Create multisample framebuffer
- //   glGenFramebuffers(1, &multisampleFBO);
+    // Create multisample framebuffer
+    //glGenFramebuffers(1, &multisampleFBO);
  //   glBindFramebuffer(GL_FRAMEBUFFER, multisampleFBO);
 
  //   // Create multisample color buffer
@@ -144,13 +154,9 @@ void cxWindowContainer::PaintSubViews(std::vector<cxView*>& views, int left, int
 	}
 }
 
-
 void cxWindowContainer::OnSize(int width, int height)
 {
 
-	void* test = wglGetProcAddress("glBindRenderbuffer");
-
-	(test)(2, multisampleColorBuffer);
 
 	//glBindRenderbuffer(GL_RENDERBUFFER, multisampleColorBuffer);
  //   glRenderbufferStorageMultisample(GL_RENDERBUFFER, 8, GL_RGBA8, width, height);

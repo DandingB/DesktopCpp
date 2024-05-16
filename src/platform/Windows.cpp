@@ -228,11 +228,43 @@ void cxWindowBase::ReleaseMouse()
 
 void cxWindowBase::ShowCursor(bool show)
 {
+    ::ShowCursor(show);
 }
 
 
 void cxWindowBase::SetCursor(cxCursorType type)
 {
+    switch (type)
+    {
+    case cxArrow:
+    {
+        HCURSOR hCursor = LoadCursor(NULL, IDC_ARROW);
+        ::SetCursor(hCursor);
+        return;
+    }
+    case cxIBeam:
+        return;
+    case cxPointingHand:
+        return;
+    case cxHand:
+        return;
+    case cxGrab:
+        return;
+    case cxCrosshair:
+        return;
+    case cxSizeWE:
+    {
+        HCURSOR hCursor = LoadCursor(NULL, IDC_SIZEWE);
+        ::SetCursor(hCursor);
+        return;
+    }
+    case cxSizeNS:
+        return;
+    case cxNo:
+        return;
+    default:
+        return;
+    }
 }
 
 
@@ -256,7 +288,7 @@ bool RegisterWindowClass()
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = hInstance;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    //wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClassEx(&wc);
