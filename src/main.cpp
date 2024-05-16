@@ -78,12 +78,16 @@ public:
 		if (event.x > width * g_SplitterX - 20 and event.x < width * g_SplitterX)
 		{
 			m_Dragging = true;
+			CaptureMouse();
 		}
 	}
 
 	void OnMouseUp(cxMouseEvent event) override
 	{
 		cxWindowContainer::OnMouseUp(event);
+
+		ReleaseMouse();
+
 		m_Dragging = false;
 	}
 
@@ -146,22 +150,13 @@ public:
 		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
 		//cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 
-		// glBegin(GL_QUADS);
-		// glColor4f(0.5, 1.0, 0.4, 1.0);
-		// glVertex2f(10, 10);
-		// glVertex2f(100, 10);
-		// glVertex2f(120, 100);
-		// glVertex2f(10, 100);
-		// glEnd();
-
-
-		glBegin(GL_QUADS);
-		glColor4f(0.5, 1.0, 0.4, 1.0);
-		glVertex2f(2, 2);
-		glVertex2f(3, 2);
-		glVertex2f(3, 3);
-		glVertex2f(2, 3);
-		glEnd();
+		 glBegin(GL_QUADS);
+		 glColor4f(0.5, 1.0, 0.4, 1.0);
+		 glVertex2f(10, 10);
+		 glVertex2f(100, 10);
+		 glVertex2f(120, 100);
+		 glVertex2f(10, 100);
+		 glEnd();
 
 	}
 
@@ -223,7 +218,16 @@ public:
 	void OnPaint() override
 	{
 		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.4, 0.4, 0.4, 1.0);
-		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
+		//cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
+
+		glBegin(GL_QUADS);
+		glColor4f(0.5, 1.0, 0.4, 1.0);
+		glVertex2f(2, 2);
+		glVertex2f(3, 2);
+		glVertex2f(3, 3);
+		glVertex2f(2, 3);
+		glEnd();
+
 	}
 
 	void OnMouseDown(cxMouseEvent event) override
@@ -278,7 +282,6 @@ CX_FUNC_MAIN
 	window->AddView(control1);
 	window->AddView(control2);
 	window->Show();
-
 
 	cxRunApp();
 

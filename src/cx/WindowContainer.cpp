@@ -120,14 +120,14 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 		width = view->m_Right - view->m_Left;
 		height = view->m_Bottom - view->m_Top;
 
-		if (x > right or y > bottom)
-			continue;
-
 		if (x + width > right)
 			width = right - x;
 			
 		if (y + height > bottom)
 			height = bottom - y;
+
+		if (width < 0 or height < 0)
+			continue;
 
 
 		glLoadIdentity();
