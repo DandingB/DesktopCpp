@@ -17,6 +17,8 @@ public:
 	cxView* m_Parent;
 	std::vector<cxView*> m_SubViews;
 
+	std::wstring m_Title;
+
 	void AddView(cxView* view);
 
 	bool PointInView(int x, int y);
@@ -56,6 +58,6 @@ public:
 	void OnMouseMove(cxMouseEvent event) override;
 
 private:
-	void PaintSubViews(std::vector<cxView*>& views, int top, int left, int right, int bottom);
+	void PaintSubviews(std::vector<cxView*>& views, int top, int left, int right, int bottom);
 
 };
