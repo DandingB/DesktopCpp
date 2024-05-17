@@ -114,7 +114,7 @@ public:
 		int mX, mY;
 		cxGetMousePosition(mX, mY);
 
-		//cxLog(L"%d %d", mX, mY);
+		cxLog(L"%d %d", mX, mY);
 
 	}
 

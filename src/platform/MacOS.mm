@@ -376,9 +376,12 @@ void cxGetMousePosition(int& x, int& y)
             NSSize size = {1, 1};
             NSRect mouseRect = {location, size};
             NSRect retinaMouseRect = [screen convertRectToBacking:mouseRect];
-// 
-            NSLog(@"Mouse Rect = %@", NSStringFromRect(mouseRect));
-            NSLog(@"Retina Mouse Rect = %@", NSStringFromRect(retinaMouseRect));
+
+            x = retinaMouseRect.origin.x;
+            y = retinaMouseRect.origin.y;
+
+            //NSLog(@"Mouse Rect = %@", NSStringFromRect(mouseRect));
+            //NSLog(@"Retina Mouse Rect = %@", NSStringFromRect(retinaMouseRect));
         }
     }
 }

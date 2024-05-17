@@ -345,4 +345,13 @@ void cxLog(std::wstring str, ...)
     delete[] buffer;
 }
 
+void cxGetMousePosition(int& x, int& y)
+{
+    POINT pt;
+    GetCursorPos(&pt);
+
+    x = pt.x;
+    y = pt.y;
+}
+
 #endif
