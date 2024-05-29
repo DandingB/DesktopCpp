@@ -11,6 +11,50 @@ void cxFillRect(int x, int y, int width, int height, float r, float g, float b, 
 	glEnd();
 }
 
+void cxFillRoundedRect(float cx, float cy, float dx, float dy, float r, unsigned __int32 rgba)
+{
+	int i;
+	float x0, y0, x, y, a = 0.0;
+	const int n = 9;
+	const float da = 1.5707963267948966192313216916398 / float(n);
+	dx -= r + r;
+	dy -= r + r;
+	glColor4ubv((unsigned __int8*)(&rgba));
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex2f(cx, cy);
+	x0 = cx + (0.5 * dx);
+	y0 = cy + (0.5 * dy);
+	for (i = 0; i < n; i++, a += da)
+	{
+		x = x0 + (r * cos(a));
+		y = y0 + (r * sin(a));
+		glVertex2f(x, y);
+	}
+	x0 -= dx;
+	for (i = 0; i < n; i++, a += da)
+	{
+		x = x0 + (r * cos(a));
+		y = y0 + (r * sin(a));
+		glVertex2f(x, y);
+	}
+	y0 -= dy;
+	for (i = 0; i < n; i++, a += da)
+	{
+		x = x0 + (r * cos(a));
+		y = y0 + (r * sin(a));
+		glVertex2f(x, y);
+	}
+	x0 += dx;
+	for (i = 0; i < n; i++, a += da)
+	{
+		x = x0 + (r * cos(a));
+		y = y0 + (r * sin(a));
+		glVertex2f(x, y);
+	}
+	glVertex2f(x, cy + (0.5 * dy));
+	glEnd();
+}
+
 void cxDrawRect(int x, int y, int width, int height, float r, float g, float b, float a)
 {
 	glBegin(GL_LINES);
@@ -223,8 +267,18 @@ public:
 	void OnPaint() override
 	{
 		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
-		cxFillRect(20, 50, m_Right - m_Left - 40, 20, 1.0, 1.0, 0.0, 1.0);
+		//cxFillRect(20, 50, m_Right - m_Left - 40, 20, 1.0, 1.0, 0.0, 1.0);
 		cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
+
+		cxFillRoundedRect(200, 200, 100, 50, 10, 0x00204080);
+
+		glLineWidth(5.0);
+		glBegin(GL_LINES);
+		glColor4f(1.0, 1.0, 0.4, 1.0);
+		glVertex2f(10, 10);
+		glVertex2f(100, 100);
+		glEnd();
+
 	}
 
 	void OnMouseDown(cxMouseEvent event) override

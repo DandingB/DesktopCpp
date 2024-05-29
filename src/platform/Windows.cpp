@@ -309,8 +309,6 @@ void cxInitApp()
 
 void cxRunApp()
 {
-    
-
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
