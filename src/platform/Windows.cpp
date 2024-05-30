@@ -134,11 +134,11 @@ void cxWindowBase::CreateContext()
     if (!SetPixelFormat(WND_DC, pixelFormat, &pixelFormatDesc))
         return;
 
-    WND_RC = wglCreateContext(WND_DC);
-    if (!WND_RC)
-        return;
+    //WND_RC = wglCreateContext(WND_DC);
+    //if (!WND_RC)
+    //    return;
 
-    wglMakeCurrent(WND_DC, WND_RC);
+    //wglMakeCurrent(WND_DC, WND_RC);
 }
 
 cxWindowBase::cxWindowBase()

@@ -103,7 +103,8 @@ cxView* cxWindowContainer::GetChildView(int i)
 		return nullptr;
 }
 
-void cxWindowContainer::OnPaint()
+
+void cxWindowContainer::StartPaint()
 {
 	int width, height;
 	GetClientSize(width, height);
@@ -113,19 +114,36 @@ void cxWindowContainer::OnPaint()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glOrtho(0, width, height, 0, -1, 1);
+	glViewport(0, 0, width, height);
+
 	glClear(GL_COLOR_BUFFER_BIT);
+}
 
-	//cxLog(L"---------------");
-
-	PaintSubviews(m_SubViews, 0, 0, width, height);
+void cxWindowContainer::EndPaint()
+{
+	int width, height;
+	GetClientSize(width, height);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, multisampleFBO);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, multisampleFBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glFlush();
+}
+
+void cxWindowContainer::OnPaint()
+{
+	int width, height;
+	GetClientSize(width, height);
+
+	StartPaint();
+	PaintSubviews(m_SubViews, 0, 0, width, height);
+	EndPaint();
 }
 
 
@@ -136,7 +154,6 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 
 	for (cxView* view : views)
 	{
-
 		int x, y, width, height;
 
 		x = left + view->m_Left;

@@ -51,6 +51,9 @@ public:
 	void AddView(cxView* view);
 	cxView* GetChildView(int i);
 
+	void StartPaint();
+	void EndPaint();
+
 	void OnPaint() override;
 	void OnSize(int width, int height) override;
 
