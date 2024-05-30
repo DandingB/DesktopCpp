@@ -273,9 +273,10 @@ public:
 		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
 		//cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-
 		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glColor3f(1, 1, 1);
+
 		glBegin(GL_QUADS);
 		
 		//glColor4f(0.5, 1.0, 0.4, 1.0);
