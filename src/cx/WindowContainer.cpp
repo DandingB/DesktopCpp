@@ -61,8 +61,6 @@ void cxView::AddView(cxView* view)
 	view->m_Parent = this;
 }
 
-
-
 cxWindowContainer::cxWindowContainer()
 {
 	glEnable(GL_MULTISAMPLE);

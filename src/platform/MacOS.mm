@@ -301,6 +301,11 @@ void cxWindowBase::Invalidate()
     [WND_GLVIEW setNeedsDisplay: YES];
 }
 
+void cxWindowBase::SetContext()
+{
+    [WND_GLVIEW.openGLContext makeCurrentContext];
+}
+
 float cxWindowBase::GetDPIScale()
 {
     return [WND_NSWND backingScaleFactor];

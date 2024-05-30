@@ -34,3 +34,5 @@ void cxMessageBox(std::wstring text);
 void cxLog(std::wstring str, ...);
 
 void cxGetMousePosition(int& x, int& y);
+
+void cxSetGlobalContext();

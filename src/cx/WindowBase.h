@@ -47,6 +47,8 @@ public:
 
     void Invalidate();
 
+    void SetContext();
+
     void* GetPlatformWindow() { return m_Window; }
     float GetDPIScale();
 

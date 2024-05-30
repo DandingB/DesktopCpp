@@ -121,9 +121,13 @@ CX_FUNC_MAIN
 {
 	cxInitApp();
 
+
 	
 	MyWindow* window = new MyWindow;
+	MyWindow2* window2 = new MyWindow2;
 
+
+	cxSetGlobalContext();
 
 	glGenTextures(1, &m_Texture);
 	glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -131,8 +135,6 @@ CX_FUNC_MAIN
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-
-	MyWindow2* window2 = new MyWindow2;
 
 
 	window->SetTitle(L"Test");

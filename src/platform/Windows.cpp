@@ -11,6 +11,9 @@
 #define WND_DC ((Win32Wnd*)m_Window)->dc
 #define WND_RC ((Win32Wnd*)m_Window)->rc
 
+HDC g_DC = NULL;
+HGLRC g_HGLRC = NULL;
+
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
 HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
 
@@ -32,6 +35,7 @@ bool RegisterWindowClass();
 
 const wchar_t CLASS_NAME[] = L"Main_Window";
 bool g_ClassRegistered = RegisterWindowClass();
+
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -134,11 +138,19 @@ void cxWindowBase::CreateContext()
     if (!SetPixelFormat(WND_DC, pixelFormat, &pixelFormatDesc))
         return;
 
-    //WND_RC = wglCreateContext(WND_DC);
-    //if (!WND_RC)
-    //    return;
+    WND_RC = wglCreateContext(WND_DC);
+    if (!WND_RC)
+        return;
 
-    //wglMakeCurrent(WND_DC, WND_RC);
+    if (!wglMakeCurrent(NULL, NULL))
+    {
+    }
+
+    if (!wglShareLists(g_HGLRC, WND_RC))
+    {
+    }
+
+    wglMakeCurrent(WND_DC, WND_RC);
 }
 
 cxWindowBase::cxWindowBase()
@@ -217,26 +229,10 @@ void cxWindowBase::Show(bool show)
     ShowWindow(WND_HWND, show);
 }
 
-void cxWindowBase::Invalidate()
-{
-    InvalidateRect(WND_HWND, NULL, TRUE);
-}
-
-void cxWindowBase::CaptureMouse()
-{
-    SetCapture(WND_HWND);
-}
-
-void cxWindowBase::ReleaseMouse()
-{
-    ReleaseCapture();
-}
-
 void cxWindowBase::ShowCursor(bool show)
 {
     ::ShowCursor(show);
 }
-
 
 void cxWindowBase::SetCursor(cxCursorType type)
 {
@@ -271,6 +267,27 @@ void cxWindowBase::SetCursor(cxCursorType type)
     }
 }
 
+void cxWindowBase::CaptureMouse()
+{
+    SetCapture(WND_HWND);
+}
+
+void cxWindowBase::ReleaseMouse()
+{
+    ReleaseCapture();
+}
+
+
+void cxWindowBase::Invalidate()
+{
+    InvalidateRect(WND_HWND, NULL, TRUE);
+}
+
+
+void cxWindowBase::SetContext()
+{
+    wglMakeCurrent(WND_DC, WND_RC);
+}
 
 float cxWindowBase::GetDPIScale()
 {
@@ -296,6 +313,36 @@ bool RegisterWindowClass()
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClassEx(&wc);
+
+
+
+
+
+    HWND hDesktop = CreateWindowEx(0, L"Main_Window", L"", NULL, 0, 0, 500, 500, NULL, NULL, hInstance, NULL);
+    g_DC = GetDC(hDesktop);
+
+    int pixelFormat;
+    PIXELFORMATDESCRIPTOR pixelFormatDesc;
+
+    memset(&pixelFormatDesc, 0, sizeof(PIXELFORMATDESCRIPTOR));
+    pixelFormatDesc.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    pixelFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pixelFormatDesc.iPixelType = PFD_TYPE_RGBA;
+    pixelFormatDesc.cColorBits = 32;
+    pixelFormatDesc.cAlphaBits = 8;
+
+    pixelFormat = ChoosePixelFormat(g_DC, &pixelFormatDesc);
+    if (!pixelFormat)
+        return 0;
+
+    if (!SetPixelFormat(g_DC, pixelFormat, &pixelFormatDesc))
+        return 0;
+
+    g_HGLRC = wglCreateContext(g_DC);
+    if (!g_HGLRC)
+    {
+    }
+
 
     return true;
 }
@@ -348,6 +395,11 @@ void cxGetMousePosition(int& x, int& y)
 
     x = pt.x;
     y = pt.y;
+}
+
+void cxSetGlobalContext()
+{
+    wglMakeCurrent(g_DC, g_HGLRC);
 }
 
 #endif
