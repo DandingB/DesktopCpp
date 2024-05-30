@@ -45,8 +45,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         cxWindowBase* wnd1 = (cxWindowBase*)(CrtStrPtr->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)wnd1);
 
-        //wnd1->OnInit();
-
         return 0;
     }
     case WM_PAINT:

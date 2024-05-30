@@ -1,4 +1,12 @@
-#include "cx.h"
+﻿#include "cx.h"
+#include "ft2build.h"
+#include FT_FREETYPE_H 
+
+HFONT hFont;
+GLuint base;
+
+FT_Library ft;
+FT_Face face;
 
 void cxFillRect(int x, int y, int width, int height, float r, float g, float b, float a)
 {
@@ -75,6 +83,23 @@ void cxDrawRect(int x, int y, int width, int height, float r, float g, float b, 
 	glEnd();
 }
 
+
+
+void PrintText(const wchar_t* text, GLuint base) {
+	if (text == nullptr) {
+		return;
+	}
+
+	// Save the current matrix state
+	glPushAttrib(GL_LIST_BIT);
+	glListBase(base);  // Adjust for the ASCII table
+
+	// Render the text
+	glCallLists(wcslen(text), GL_UNSIGNED_SHORT, text);
+
+	// Restore the matrix state
+	glPopAttrib();
+}
 
 class MyButton : public cxView
 {
@@ -212,9 +237,18 @@ public:
 
 };
 
+static GLfloat pixels[] =
+{
+	1, 0, 0, 1,
+	0, 1, 0, 1,
+	0, 0, 1, 1,
+	1, 1, 1, 1
+};
 
 class MyControl1: public cxView
 {
+	GLuint m_Texture = -1;
+
 public:
 
 	MyControl1()
@@ -223,6 +257,15 @@ public:
 		m_Top = 10;
 		m_Right = 110;
 		m_Bottom = 120;
+
+		//FILE* file = fopen("texture.bmp", "rb");
+
+		//glEnable(GL_TEXTURE_2D);
+		glGenTextures(1, &m_Texture);
+		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_FLOAT, pixels);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	void OnPaint() override
@@ -230,14 +273,23 @@ public:
 		cxFillRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 0.2, 0.2, 0.2, 1.0);
 		//cxDrawRect(0, 0, m_Right - m_Left, m_Bottom - m_Top, 1.0, 1.0, 1.0, 1.0);
 
-		 glBegin(GL_QUADS);
-		 glColor4f(0.5, 1.0, 0.4, 1.0);
-		 glVertex2f(10, 10);
-		 glVertex2f(100, 10);
-		 glVertex2f(120, 100);
-		 glVertex2f(10, 100);
-		 glEnd();
+		glBindTexture(GL_TEXTURE_2D, m_Texture);
 
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_QUADS);
+		
+		//glColor4f(0.5, 1.0, 0.4, 1.0);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(10, 10);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(100, 10);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(100, 100);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(10, 100);
+		glEnd();
+
+		glDisable(GL_TEXTURE_2D);
 	}
 
 	void OnMouseDown(cxMouseEvent event) override
@@ -254,6 +306,9 @@ public:
 
 class MyControl2 : public cxView
 {
+
+
+
 public:
 
 	MyControl2()
@@ -262,6 +317,7 @@ public:
 		m_Top = 10;
 		m_Right = 110;
 		m_Bottom = 120;
+
 	}
 
 	void OnPaint() override
@@ -278,6 +334,12 @@ public:
 		glVertex2f(10, 10);
 		glVertex2f(100, 100);
 		glEnd();
+
+
+		//glColor4f(0.5, 0.8, 1.0, 1.0);
+		//glRasterPos2f(10, 400);
+		//PrintText(L"Hello,æøå! 世界", base);
+
 
 	}
 
@@ -326,12 +388,21 @@ public:
 	}
 };
 
-
+//struct Win32Wnd
+//{
+//	HWND hWnd;	// Window handle
+//	HDC dc;		// Device context
+//	HGLRC rc;	// Render context
+//};
+//
+//
 
 CX_FUNC_MAIN
 {
 	cxInitApp();
 
+	MyWindow* window = new MyWindow;
+	window->SetTitle(L"Test");
 
 	MyControl1* control1 = new MyControl1;
 	MyControl2* control2 = new MyControl2;
@@ -342,12 +413,47 @@ CX_FUNC_MAIN
 	btn = new MyButton;
 	view->AddView(btn);
 
-	MyWindow* window = new MyWindow;
-	window->SetTitle(L"Test");
-
 	window->AddView(control1);
 	window->AddView(control2);
 	window->Show();
+
+	//if (FT_Init_FreeType(&ft))
+	//{
+	//	return -1;
+	//}
+	//if (FT_New_Face(ft, "C:/Windows/Fonts/segoeui.ttf", 0, &face))
+	//{
+	//	return -1;
+	//}
+
+	//FT_Set_Pixel_Sizes(face, 0, 48);
+
+	//// Create a font
+	//hFont = CreateFont(
+	//	-12,                        // Height of font
+	//	0,                          // Width of font
+	//	0,                          // Angle of escapement
+	//	0,                          // Orientation angle
+	//	FW_NORMAL,                  // Font weight
+	//	FALSE,                      // Italic attribute option
+	//	FALSE,                      // Underline attribute option
+	//	FALSE,                      // Strikeout attribute option
+	//	ANSI_CHARSET,               // Character set identifier
+	//	OUT_TT_PRECIS,              // Output precision
+	//	CLIP_DEFAULT_PRECIS,        // Clipping precision
+	//	ANTIALIASED_QUALITY,        // Output quality
+	//	FF_DONTCARE | DEFAULT_PITCH,// Family and pitch
+	//	L"Segoe UI");                   // Font face name
+
+	//Win32Wnd* test = ((Win32Wnd*)(window->GetPlatformWindow()));
+
+	//// Select the font into the device context
+	//SelectObject(test->dc, hFont);
+
+	//// Generate display lists for 65536 characters starting at Unicode 0
+	//base = glGenLists(65535);
+	//wglUseFontBitmapsW(test->dc, 0, 65535, base);
+
 
 	cxRunApp();
 
