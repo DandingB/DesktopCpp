@@ -127,7 +127,7 @@ CX_FUNC_MAIN
 	MyWindow2* window2 = new MyWindow2;
 
 
-	cxSetGlobalContext();
+	//cxSetGlobalContext();
 
 	glGenTextures(1, &m_Texture);
 	glBindTexture(GL_TEXTURE_2D, m_Texture);

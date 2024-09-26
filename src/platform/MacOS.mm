@@ -9,6 +9,11 @@
 #define WND_NSWND ((MacWnd*)m_Window)->m_NSWindow
 #define WND_GLVIEW ((MacWnd*)m_Window)->m_GLView
 
+NSOpenGLView* g_Context;
+
+bool Init();
+bool g_Init = Init();
+
 
 @interface Window : NSWindow <NSWindowDelegate> //<NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
 {
@@ -70,8 +75,10 @@
         0
     };
 
+    NSOpenGLContext* context = [g_Context openGLContext];
+
     NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes];
-    NSOpenGLContext* glc = [[NSOpenGLContext  alloc]initWithFormat:pixelFormat shareContext:nil];
+    NSOpenGLContext* glc = [[NSOpenGLContext  alloc]initWithFormat:pixelFormat shareContext:context];
     [self setOpenGLContext: glc];
 }
 
@@ -312,7 +319,31 @@ float cxWindowBase::GetDPIScale()
 }
 
 
+bool Init()
+{
+    NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
+    {
+        NSOpenGLPFADoubleBuffer,
+        NSOpenGLPFADepthSize, 24,
+        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+        NSOpenGLPFAMultisample,
+        NSOpenGLPFASampleBuffers, 1,
+        NSOpenGLPFASamples, 8,
+        NSOpenGLPFAAccelerated,
+        NSOpenGLPFANoRecovery,
+        0
+    };
 
+    NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes];
+    NSOpenGLContext* glc = [[NSOpenGLContext alloc]initWithFormat:pixelFormat shareContext:nil];
+
+
+    NSRect graphicsRect = NSMakeRect(0, 0, 500, 500);
+    g_Context = [[[NSOpenGLView alloc] initWithFrame:graphicsRect] autorelease];
+    [g_Context setOpenGLContext: glc];
+
+    return true;
+}
 
 void cxInitApp()
 {
@@ -389,6 +420,11 @@ void cxGetMousePosition(int& x, int& y)
             //NSLog(@"Retina Mouse Rect = %@", NSStringFromRect(retinaMouseRect));
         }
     }
+}
+
+void cxSetGlobalContext()
+{
+    [[g_Context openGLContext] makeCurrentContext];
 }
 
 #endif
