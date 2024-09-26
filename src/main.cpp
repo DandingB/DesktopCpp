@@ -115,17 +115,22 @@ public:
 
 };
 
-
+struct Win32Wnd
+{
+	HWND hWnd;	// Window handle
+	HDC dc;		// Device context
+	HGLRC rc;	// Render context
+};
 
 CX_FUNC_MAIN
 {
 	cxInitApp();
 
-
-	
 	MyWindow* window = new MyWindow;
 	MyWindow2* window2 = new MyWindow2;
 
+	//Win32Wnd* test = (Win32Wnd*)window2->GetPlatformWindow();
+	//wglMakeCurrent(test->dc, test->rc);
 
 	//cxSetGlobalContext();
 
