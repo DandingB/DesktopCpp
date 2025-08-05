@@ -3,3 +3,5 @@
 .vscode/
 bin/
 /vsproject/x64
+/vsproject/.vs
+/vsproject/crispy-cross-app
