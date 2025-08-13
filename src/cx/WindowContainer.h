@@ -41,9 +41,6 @@ class cxWindowContainer : public cxWindowBase
 {
 	std::vector<cxView*> m_SubViews;
 
-	unsigned multisampleFBO = -1;
-	unsigned multisampleColorBuffer = -1;
-
 public:
 	cxWindowContainer();
 	~cxWindowContainer();

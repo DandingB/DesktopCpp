@@ -2,6 +2,9 @@
 #include <string>
 #include "Event.h"
 
+#include "../platform/platform.h"
+
+
 enum cxCursorType
 {
     cxArrow,
@@ -21,9 +24,12 @@ enum cxCursorType
 
 class cxWindowBase
 {
-    void* m_Window;
-
-    void CreateContext();
+#ifdef __APPLE__
+    NSWindow asd;
+#elif _WIN32
+    HWND m_hWnd;
+    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
+#endif
 
 public:
     cxWindowBase();
@@ -46,10 +52,7 @@ public:
     void ReleaseMouse();
 
     void Invalidate();
-
-    void SetContext();
-
-    void* GetPlatformWindow() { return m_Window; }
+    
     float GetDPIScale();
 
     virtual void OnInit() {}
@@ -61,5 +64,16 @@ public:
     virtual void OnMouseUp(cxMouseEvent event) {}
     virtual void OnMouseMove(cxMouseEvent event) {}
     virtual void OnMouseDragged(cxMouseEvent event) {}
+
+
+#ifdef __APPLE__
+    NSWindow* GetPlatformWindow() { return m_Window; }
+#elif _WIN32
+    HWND GetPlatformWindow() { return m_hWnd; }
+#endif
+
+#ifdef _WIN32
+    ID2D1HwndRenderTarget* GetWin32RenderTarget() { return m_pRenderTarget.Get(); }
+#endif
 
 };

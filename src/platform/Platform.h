@@ -16,10 +16,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
-#include <gl/GL.h>
-#include <gl/GLU.h>
+#include <wrl.h>
+#include <d2d1.h>
+#include <d2d1helper.h>
+#include <dwrite.h>
 
-#include "wgl.h"
+using Microsoft::WRL::ComPtr;
 
 #define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 
@@ -34,5 +36,3 @@ void cxMessageBox(std::wstring text);
 void cxLog(std::wstring str, ...);
 
 void cxGetMousePosition(int& x, int& y);
-
-void cxSetGlobalContext();

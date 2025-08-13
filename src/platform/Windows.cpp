@@ -3,38 +3,16 @@
 #include "../cx.h"
 #include "../cx/WindowBase.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <gl/GL.h>
-
-#define WND_HWND ((Win32Wnd*)m_Window)->hWnd
-#define WND_DC ((Win32Wnd*)m_Window)->dc
-#define WND_RC ((Win32Wnd*)m_Window)->rc
-
-HDC g_DC = NULL;
-HGLRC g_HGLRC = NULL;
-
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
 HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
-
-// enable optimus!
-//extern "C" {
-//    _declspec(dllexport) DWORD NvOptimusEnablement = 1;
-//    _declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-//}
-
-struct Win32Wnd
-{
-    HWND hWnd;	// Window handle
-    HDC dc;		// Device context
-    HGLRC rc;	// Render context
-};
-
 
 bool RegisterWindowClass();
 
 const wchar_t CLASS_NAME[] = L"Main_Window";
 bool g_ClassRegistered = RegisterWindowClass();
+
+ID2D1Factory* m_pDirect2dFactory;
+
 
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -53,20 +31,29 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_PAINT:
     {
-        Win32Wnd* pWnd = (Win32Wnd*)(wnd->GetPlatformWindow());
-        wglMakeCurrent(pWnd->dc, pWnd->rc);
+        wnd->GetWin32RenderTarget()->BeginDraw();
+        wnd->GetWin32RenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
+        wnd->GetWin32RenderTarget()->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+        D2D1_SIZE_F rtSize = wnd->GetWin32RenderTarget()->GetSize();
+        int width = static_cast<int>(rtSize.width);
+        int height = static_cast<int>(rtSize.height);
 
         wnd->OnPaint();
 
-        PAINTSTRUCT ps;
-        BeginPaint(hwnd, &ps);
-        EndPaint(hwnd, &ps);
+        wnd->GetWin32RenderTarget()->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(0, 0, 100, 100), 10.0, 10.0), m_pLightSlateGrayBrush.Get());
 
-        SwapBuffers(pWnd->dc);
+        wnd->GetWin32RenderTarget()->EndDraw();
+
         return 0;
     }
     case WM_SIZE:
     {
+        if (wnd->GetWin32RenderTarget())
+        {
+            wnd->GetWin32RenderTarget()->Resize(D2D1::SizeU(LOWORD(lParam), HIWORD(lParam)));
+        }
+
         wnd->OnSize(LOWORD(lParam), HIWORD(lParam));
         return 0;
     }
@@ -99,7 +86,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         int dpi = HIWORD(wParam);
 
-        return 0;
+        return 0; 
     }
     case WM_CLOSE:
     {
@@ -114,96 +101,65 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-void cxWindowBase::CreateContext()
-{
-    WND_DC = GetDC(WND_HWND);
-    if (!WND_DC)
-        return;
-
-    int pixelFormat;
-    PIXELFORMATDESCRIPTOR pixelFormatDesc;
-
-    memset(&pixelFormatDesc, 0, sizeof(PIXELFORMATDESCRIPTOR));
-    pixelFormatDesc.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    pixelFormatDesc.nVersion = 1;
-    pixelFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pixelFormatDesc.iPixelType = PFD_TYPE_RGBA;
-    pixelFormatDesc.cColorBits = 32;
-    pixelFormatDesc.cAlphaBits = 8;
-
-    pixelFormat = ChoosePixelFormat(WND_DC, &pixelFormatDesc);
-    if (!pixelFormat)
-        return;
-
-    if (!SetPixelFormat(WND_DC, pixelFormat, &pixelFormatDesc))
-        return;
-
-    WND_RC = wglCreateContext(WND_DC);
-    if (!WND_RC)
-        return;
-
-    if (!wglMakeCurrent(NULL, NULL))
-    {
-    }
-
-    if (!wglShareLists(g_HGLRC, WND_RC))
-    {
-    }
-
-    wglMakeCurrent(WND_DC, WND_RC);
-}
 
 cxWindowBase::cxWindowBase()
 {
-	m_Window = new Win32Wnd;
-
     HINSTANCE hInstance = GetModuleHandle(0);
 
-	WND_HWND = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, NULL, NULL, hInstance, this);
+	m_hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, NULL, NULL, hInstance, this);
 
-    if (m_Window == NULL)
+    if (m_hWnd == NULL)
         return;
 
-    CreateContext();
+    RECT rc;
+    GetClientRect(m_hWnd, &rc);
+
+    D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
+
+    // Create a Direct2D render target.
+    m_pDirect2dFactory->CreateHwndRenderTarget(
+        D2D1::RenderTargetProperties(),
+        D2D1::HwndRenderTargetProperties(m_hWnd, size),
+        &m_pRenderTarget
+    );
+
+    //m_pRenderTarget->CreateSolidColorBrush(
+    //    D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
+    //    &(WND->m_pLightSlateGrayBrush)
+    //);
 }
 
 cxWindowBase::~cxWindowBase()
 {
-    wglMakeCurrent(WND_DC, NULL);
-    wglDeleteContext(WND_RC);
-    ReleaseDC(WND_HWND, WND_DC);
-
-    DestroyWindow(WND_HWND);
-
-	delete m_Window;
+    DestroyWindow(m_hWnd);
 }
 
 void cxWindowBase::SetTitle(std::wstring title)
 {
-    SetWindowTextW(WND_HWND, title.c_str());
+    SetWindowTextW(m_hWnd, title.c_str());
 }
 
 void cxWindowBase::SetPosition(int x, int y)
 {
-    SetWindowPos(WND_HWND, NULL, x, y, 0, 0, SWP_NOSIZE);
+    SetWindowPos(m_hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
 }
 
 void cxWindowBase::SetSize(int width, int height)
 {
-    SetWindowPos(WND_HWND, NULL, 0, 0, width, height, SWP_NOMOVE);
+    SetWindowPos(m_hWnd, NULL, 0, 0, width, height, SWP_NOMOVE);
 }
 
 void cxWindowBase::GetTitle(std::wstring& out)
 {
     wchar_t buffer[128] = { '\0' };
-    GetWindowTextW(WND_HWND, buffer, 128);
+    GetWindowTextW(m_hWnd, buffer, 128);
     out = std::wstring(buffer);
 }
 
 void cxWindowBase::GetPosition(int& x, int& y)
 {
     RECT rect;
-    GetWindowRect(WND_HWND, &rect);
+    GetWindowRect(m_hWnd, &rect);
     x = rect.left;
     y = rect.top;
 }
@@ -211,7 +167,7 @@ void cxWindowBase::GetPosition(int& x, int& y)
 void cxWindowBase::GetSize(int& width, int& height)
 {
     RECT rect;
-    GetWindowRect(WND_HWND, &rect);
+    GetWindowRect(m_hWnd, &rect);
     width = rect.right - rect.left;
     height = rect.bottom - rect.top;
 }
@@ -219,14 +175,14 @@ void cxWindowBase::GetSize(int& width, int& height)
 void cxWindowBase::GetClientSize(int& width, int& height)
 {
     RECT rect;
-    GetClientRect(WND_HWND, &rect);
+    GetClientRect(m_hWnd, &rect);
     width = rect.right;
     height = rect.bottom;
 }
 
 void cxWindowBase::Show(bool show)
 {
-    ShowWindow(WND_HWND, show);
+    ShowWindow(m_hWnd, show);
 }
 
 void cxWindowBase::ShowCursor(bool show)
@@ -269,7 +225,7 @@ void cxWindowBase::SetCursor(cxCursorType type)
 
 void cxWindowBase::CaptureMouse()
 {
-    SetCapture(WND_HWND);
+    SetCapture(m_hWnd);
 }
 
 void cxWindowBase::ReleaseMouse()
@@ -280,18 +236,13 @@ void cxWindowBase::ReleaseMouse()
 
 void cxWindowBase::Invalidate()
 {
-    InvalidateRect(WND_HWND, NULL, TRUE);
+    InvalidateRect(m_hWnd, NULL, TRUE);
 }
 
-
-void cxWindowBase::SetContext()
-{
-    wglMakeCurrent(WND_DC, WND_RC);
-}
 
 float cxWindowBase::GetDPIScale()
 {
-    return (float)GetDpiForWindow(WND_HWND) / USER_DEFAULT_SCREEN_DPI;
+    return (float)GetDpiForWindow(m_hWnd) / USER_DEFAULT_SCREEN_DPI;
 }
 
 
@@ -299,6 +250,8 @@ float cxWindowBase::GetDPIScale()
 
 bool RegisterWindowClass()
 {
+    HRESULT hr = S_OK;
+
     HINSTANCE hInstance = GetModuleHandle(0);
 
     WNDCLASSEXW wc = { };
@@ -314,35 +267,11 @@ bool RegisterWindowClass()
 
     RegisterClassEx(&wc);
 
+    // Create a Direct2D factory.
+    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&m_pDirect2dFactory));
 
 
-
-
-    HWND hDesktop = CreateWindowEx(0, L"Main_Window", L"", NULL, 0, 0, 500, 500, NULL, NULL, hInstance, NULL);
-    g_DC = GetDC(hDesktop);
-
-    int pixelFormat;
-    PIXELFORMATDESCRIPTOR pixelFormatDesc;
-
-    memset(&pixelFormatDesc, 0, sizeof(PIXELFORMATDESCRIPTOR));
-    pixelFormatDesc.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    pixelFormatDesc.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pixelFormatDesc.iPixelType = PFD_TYPE_RGBA;
-    pixelFormatDesc.cColorBits = 32;
-    pixelFormatDesc.cAlphaBits = 8;
-
-    pixelFormat = ChoosePixelFormat(g_DC, &pixelFormatDesc);
-    if (!pixelFormat)
-        return 0;
-
-    if (!SetPixelFormat(g_DC, pixelFormat, &pixelFormatDesc))
-        return 0;
-
-    g_HGLRC = wglCreateContext(g_DC);
-    if (!g_HGLRC)
-    {
-    }
-
+    //HWND hDesktop = CreateWindowEx(0, L"Main_Window", L"", NULL, 0, 0, 500, 500, NULL, NULL, hInstance, NULL);
 
     return true;
 }
@@ -395,11 +324,6 @@ void cxGetMousePosition(int& x, int& y)
 
     x = pt.x;
     y = pt.y;
-}
-
-void cxSetGlobalContext()
-{
-    wglMakeCurrent(g_DC, g_HGLRC);
 }
 
 #endif

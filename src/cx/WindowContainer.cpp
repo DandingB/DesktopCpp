@@ -63,23 +63,6 @@ void cxView::AddView(cxView* view)
 
 cxWindowContainer::cxWindowContainer()
 {
-	glEnable(GL_MULTISAMPLE);
-
-    // Create multisample framebuffer
-    glGenFramebuffers(1, &multisampleFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, multisampleFBO);
-
-    // Create multisample color buffer
-    glGenRenderbuffers(1, &multisampleColorBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, multisampleColorBuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 8, GL_RGBA8, 500, 500);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, multisampleColorBuffer);
-
-    // Check framebuffer completeness
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-		cxLog(L"Framebuffer is incomplete: %x", status);
-    }
 }
 
 cxWindowContainer::~cxWindowContainer()
@@ -107,31 +90,12 @@ void cxWindowContainer::StartPaint()
 	int width, height;
 	GetClientSize(width, height);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, multisampleFBO);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glOrtho(0, width, height, 0, -1, 1);
-	glViewport(0, 0, width, height);
-
-	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void cxWindowContainer::EndPaint()
 {
 	int width, height;
 	GetClientSize(width, height);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, multisampleFBO);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glFlush();
 }
 
 void cxWindowContainer::OnPaint()
@@ -169,10 +133,10 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 			continue;
 
 
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glOrtho(0, width, height, 0, -1, 1);
-		glViewport(x, clientHeight - height - y, width, height);
+		//glLoadIdentity();
+		//glMatrixMode(GL_PROJECTION);
+		//glOrtho(0, width, height, 0, -1, 1);
+		//glViewport(x, clientHeight - height - y, width, height);
 
 		//cxLog(L"x: %d, y: %d, width: %d, height: %d", x, y, width, height);
 		
@@ -184,11 +148,6 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 
 void cxWindowContainer::OnSize(int width, int height)
 {
-	glBindRenderbuffer(GL_RENDERBUFFER, multisampleColorBuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 8, GL_RGBA8, width, height);
-
-	//HMODULE module = LoadLibraryA("opengl32.dll");
-	//p = (void*)GetProcAddress(module, name);
 }
 
 
