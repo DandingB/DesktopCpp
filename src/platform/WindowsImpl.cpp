@@ -1,7 +1,5 @@
 #ifdef _WIN32
-
-#include "../cx.h"
-#include "../cx/WindowBase.h"
+#include "WindowBase.h"
 
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
 HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
@@ -41,7 +39,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         wnd->OnPaint();
 
-        wnd->GetWin32RenderTarget()->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(0, 0, 100, 100), 10.0, 10.0), m_pLightSlateGrayBrush.Get());
+        //wnd->GetWin32RenderTarget()->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(0, 0, 100, 100), 10.0, 10.0), m_pLightSlateGrayBrush.Get());
 
         wnd->GetWin32RenderTarget()->EndDraw();
 

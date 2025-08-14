@@ -18,10 +18,10 @@
     <ClInclude Include="..\src\cx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\cx\WindowBase.h">
+    <ClInclude Include="..\src\cx\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\cx\Event.h">
+    <ClInclude Include="..\src\platform\WindowBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

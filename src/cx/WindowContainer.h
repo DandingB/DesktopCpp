@@ -1,5 +1,5 @@
 #pragma once
-#include "WindowBase.h"
+#include "../platform/WindowBase.h"
 #include "Event.h"
 
 #include <vector>

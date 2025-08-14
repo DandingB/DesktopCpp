@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
-#include "Event.h"
+#include "../cx/Event.h"
 
-#include "../platform/platform.h"
+#include "Platform.h"
 
 
 enum cxCursorType
