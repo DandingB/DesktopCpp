@@ -1,10 +1,6 @@
 #pragma once
 #include "../platform/WindowBase.h"
-#include "Event.h"
-
 #include <vector>
-
-
 
 class cxWindowContainer;
 
@@ -15,9 +11,14 @@ public:
 	//int m_Width, m_Height;
 
 	cxView* m_Parent;
+	cxWindowContainer* m_TopParent;
 	std::vector<cxView*> m_SubViews;
 
 	std::wstring m_Title;
+
+	bool m_Show = true;
+
+	cxView(int left, int top, int right, int bottom) : m_Left(left), m_Top(top), m_Right(right), m_Bottom(bottom), m_Parent(0) {}
 
 	void AddView(cxView* view);
 
@@ -25,7 +26,7 @@ public:
 	void GetWindowPos(int& x, int& y);
 	void GetWindowRect(int& left, int& top, int& right, int& bottom);
 
-	virtual void OnPaint() {};
+	virtual void OnPaint(cxWindowContainer* container) {};
 	virtual void OnSize() {};
 
 	virtual void OnMouseDown(cxMouseEvent event) {}
@@ -48,15 +49,14 @@ public:
 	void AddView(cxView* view);
 	cxView* GetChildView(int i);
 
-	void StartPaint();
-	void EndPaint();
-
 	void OnPaint() override;
 	void OnSize(int width, int height) override;
 
 	void OnMouseDown(cxMouseEvent event) override;
 	void OnMouseUp(cxMouseEvent event) override;
 	void OnMouseMove(cxMouseEvent event) override;
+
+	cxView* GetViewAtLocation(std::vector<cxView*>& views, int top, int left, int right, int bottom, int x, int y);
 
 private:
 	void PaintSubviews(std::vector<cxView*>& views, int top, int left, int right, int bottom);

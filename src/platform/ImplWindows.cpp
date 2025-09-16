@@ -10,7 +10,7 @@ const wchar_t CLASS_NAME[] = L"Main_Window";
 bool g_ClassRegistered = RegisterWindowClass();
 
 ID2D1Factory* m_pDirect2dFactory;
-
+IDWriteFactory* pDWriteFactory;
 
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -38,8 +38,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         int height = static_cast<int>(rtSize.height);
 
         wnd->OnPaint();
-
-        //wnd->GetWin32RenderTarget()->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(0, 0, 100, 100), 10.0, 10.0), m_pLightSlateGrayBrush.Get());
 
         wnd->GetWin32RenderTarget()->EndDraw();
 
@@ -121,10 +119,7 @@ cxWindowBase::cxWindowBase()
         &m_pRenderTarget
     );
 
-    //m_pRenderTarget->CreateSolidColorBrush(
-    //    D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-    //    &(WND->m_pLightSlateGrayBrush)
-    //);
+
 }
 
 cxWindowBase::~cxWindowBase()
@@ -237,6 +232,98 @@ void cxWindowBase::Invalidate()
     InvalidateRect(m_hWnd, NULL, TRUE);
 }
 
+void cxWindowBase::SetDrawConstraints(cxRect rect)
+{
+    m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(rect.left, rect.top));
+    m_pRenderTarget->PushAxisAlignedClip(D2D1::RectF(0, 0, rect.right - rect.left, rect.bottom - rect.top), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+}
+
+void cxWindowBase::RemoveDrawConstraints()
+{
+    m_pRenderTarget->PopAxisAlignedClip();
+}
+
+void cxWindowBase::CreateSolidBrush(float r, float g, float b, float a)
+{
+    ComPtr<ID2D1SolidColorBrush> brush;
+    m_pRenderTarget->CreateSolidColorBrush(
+        D2D1::ColorF(D2D1::ColorF(r, g, b, a)),
+        &brush
+    );
+    m_pBrushes.push_back(brush);
+}
+
+void cxWindowBase::CreateFont(std::wstring fontName, float size)
+{
+    ComPtr<IDWriteTextFormat> font;
+    pDWriteFactory->CreateTextFormat(
+        fontName.c_str(),                // Font family name.
+        NULL,                       // Font collection (NULL sets it to use the system font collection).
+        DWRITE_FONT_WEIGHT_REGULAR,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL,
+        size,
+        L"en-us",
+        &font
+    );
+
+    font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+    m_pFonts.push_back(font);
+}
+
+void cxWindowBase::GetTextMetrics(std::wstring str, int font, float maxWidth, float maxHeight, float& width, float& height)
+{
+    HRESULT hr = S_OK;
+    ComPtr<IDWriteTextLayout> pTextLayout;
+    // Create a text layout 
+    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), m_pFonts[font].Get(), maxWidth, maxHeight, pTextLayout.GetAddressOf());
+
+    if (SUCCEEDED(hr))
+    {
+        // Get text size  
+        DWRITE_TEXT_METRICS textMetrics;
+        hr = pTextLayout->GetMetrics(&textMetrics);
+        D2D1_SIZE_F size = D2D1::SizeF(ceil(textMetrics.widthIncludingTrailingWhitespace), ceil(textMetrics.height));
+
+        width = size.width;
+        height = size.height;
+    }
+}
+
+void cxWindowBase::FillRectangle(cxRect rect, int brush)
+{
+    m_pRenderTarget->FillRectangle(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), m_pBrushes[brush].Get());
+}
+
+void cxWindowBase::DrawRectangle(cxRect rect, int brush, float strokeWidth)
+{
+    m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5 + rect.left, 0.5 + rect.top, -0.5 + rect.right, -0.5 + rect.bottom), m_pBrushes[brush].Get(), strokeWidth);
+}
+
+void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brush)
+{
+    m_pRenderTarget->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brush].Get());
+}
+
+void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth)
+{
+    m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brush].Get(), strokeWidth);
+}
+
+void cxWindowBase::DrawTextW(std::wstring str, int font, cxRect rect, int brush)
+{
+
+    m_pRenderTarget->DrawText(
+        str.c_str(),
+        str.length(),
+        m_pFonts[font].Get(),
+        D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
+        m_pBrushes[brush].Get()
+    );
+}
+
 
 float cxWindowBase::GetDPIScale()
 {
@@ -268,6 +355,11 @@ bool RegisterWindowClass()
     // Create a Direct2D factory.
     hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&m_pDirect2dFactory));
 
+    hr = DWriteCreateFactory(
+        DWRITE_FACTORY_TYPE_SHARED,
+        __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(&pDWriteFactory)
+    );
 
     //HWND hDesktop = CreateWindowEx(0, L"Main_Window", L"", NULL, 0, 0, 500, 500, NULL, NULL, hInstance, NULL);
 

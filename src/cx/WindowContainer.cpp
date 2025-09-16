@@ -59,6 +59,7 @@ void cxView::AddView(cxView* view)
 {
 	m_SubViews.push_back(view);
 	view->m_Parent = this;
+	view->m_TopParent = m_TopParent;
 }
 
 cxWindowContainer::cxWindowContainer()
@@ -74,6 +75,7 @@ void cxWindowContainer::AddView(cxView* view)
 {
 	m_SubViews.push_back(view);
 	view->m_Parent = nullptr;
+	view->m_TopParent = this;
 }
 
 cxView* cxWindowContainer::GetChildView(int i)
@@ -85,27 +87,12 @@ cxView* cxWindowContainer::GetChildView(int i)
 }
 
 
-void cxWindowContainer::StartPaint()
-{
-	int width, height;
-	GetClientSize(width, height);
-
-}
-
-void cxWindowContainer::EndPaint()
-{
-	int width, height;
-	GetClientSize(width, height);
-}
-
 void cxWindowContainer::OnPaint()
 {
 	int width, height;
 	GetClientSize(width, height);
 
-	StartPaint();
 	PaintSubviews(m_SubViews, 0, 0, width, height);
-	EndPaint();
 }
 
 
@@ -116,6 +103,9 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 
 	for (cxView* view : views)
 	{
+		if (!(view->m_Show))
+			continue;
+
 		int x, y, width, height;
 
 		x = left + view->m_Left;
@@ -132,15 +122,9 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, int left, int
 		if (width < 0 or height < 0)
 			continue;
 
-
-		//glLoadIdentity();
-		//glMatrixMode(GL_PROJECTION);
-		//glOrtho(0, width, height, 0, -1, 1);
-		//glViewport(x, clientHeight - height - y, width, height);
-
-		//cxLog(L"x: %d, y: %d, width: %d, height: %d", x, y, width, height);
-		
-		view->OnPaint();
+		SetDrawConstraints({ x, y, x + width, y + height });
+		view->OnPaint(this);
+		RemoveDrawConstraints();
 
 		PaintSubviews(view->m_SubViews, x, y, x + width, y + height);
 	}
@@ -153,39 +137,87 @@ void cxWindowContainer::OnSize(int width, int height)
 
 void cxWindowContainer::OnMouseDown(cxMouseEvent event)
 {
-	for (int i = m_SubViews.size() - 1; i >= 0; i--)
+	int width, height;
+	GetClientSize(width, height);
+
+	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
+	if (view)
 	{
-		cxView* view = m_SubViews[i];
-		if ((event.x > view->m_Left) and (event.x < view->m_Right) and (event.y > view->m_Top) and (event.y < view->m_Bottom))
-		{
-			view->OnMouseDown({ event.x - view->m_Left, event.y - view->m_Top, event.button});
-			break;
-		}
+		int x, y;
+		view->GetWindowPos(x, y);
+		view->OnMouseDown({ event.x - x, event.y - y, event.button });
 	}
+	//for (int i = m_SubViews.size() - 1; i >= 0; i--)
+	//{
+	//	cxView* view = m_SubViews[i];
+	//	if ((event.x > view->m_Left) and (event.x < view->m_Right) and (event.y > view->m_Top) and (event.y < view->m_Bottom))
+	//	{
+	//		view->OnMouseDown({ event.x - view->m_Left, event.y - view->m_Top, event.button});
+	//		break;
+	//	}
+	//}
 }
 
 void cxWindowContainer::OnMouseUp(cxMouseEvent event)
 {
-	for (int i = m_SubViews.size() - 1; i >= 0; i--)
+	int width, height;
+	GetClientSize(width, height);
+
+	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
+	if (view)
 	{
-		cxView* view = m_SubViews[i];
-		if ((event.x > view->m_Left) and (event.x < view->m_Right) and (event.y > view->m_Top) and (event.y < view->m_Bottom))
-		{
-			view->OnMouseUp({ event.x - view->m_Left, event.y - view->m_Top, event.button });
-			break;
-		}
+		int x, y;
+		view->GetWindowPos(x, y);
+		view->OnMouseUp({ event.x - x, event.y - y, event.button });
 	}
 }
 
 void cxWindowContainer::OnMouseMove(cxMouseEvent event)
 {
-	for (int i = m_SubViews.size() - 1; i >= 0; i--)
+	int width, height;
+	GetClientSize(width, height);
+
+	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
+	if (view)
 	{
-		cxView* view = m_SubViews[i];
-		if ((event.x > view->m_Left) and (event.x < view->m_Right) and (event.y > view->m_Top) and (event.y < view->m_Bottom))
+		int x, y;
+		view->GetWindowPos(x, y);
+		view->OnMouseMove({ event.x - x, event.y - y, event.button });
+	}
+}
+
+cxView* cxWindowContainer::GetViewAtLocation(std::vector<cxView*>& views, int top, int left, int right, int bottom, int x, int y)
+{
+	for (int i = views.size() - 1; i >= 0; i--)
+	{
+		cxView* view = views[i];
+		if (!(view->m_Show))
+			continue;
+
+		int left1, top1, right1, bottom1;
+
+		left1 = left + view->m_Left;
+		top1 = top + view->m_Top;
+		right1 = left + view->m_Right;
+		bottom1 = top + view->m_Bottom;
+
+		if (right1 > right)
+			right1 = right;
+
+		if (bottom1 > bottom)
+			bottom1 = bottom;
+
+		if (left1 == right1 or top1 == bottom1)
+			continue;
+
+		if ((x > left1) and (x < right1) and (y > top1) and (y < bottom1))
 		{
-			view->OnMouseMove({ event.x - view->m_Left, event.y - view->m_Top, event.button });
-			break;
+			cxView* subview = GetViewAtLocation(view->m_SubViews, top1, left1, right1, bottom1, x, y);
+			if (subview)
+				return subview;
+			else
+				return view;
 		}
 	}
+	return nullptr;
 }

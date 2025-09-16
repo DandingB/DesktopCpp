@@ -1,11 +1,102 @@
 ﻿#include "cx.h"
 
+class TabControl : public cxView
+{
+	int m_SelPage = 0;
+
+	using cxView::cxView;
+
+	void OnSize() override
+	{
+		for (cxView* view : m_SubViews)
+		{
+			view->m_Left = 0;
+			view->m_Top = 30;
+			view->m_Right = m_Right;
+			view->m_Bottom = m_Bottom;
+			view->OnSize();
+		}
+	}
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		int x = 0;
+		for (int i = 0; i < m_SubViews.size(); i++)
+		{
+			cxView* view = m_SubViews[i];
+
+			float width, height;
+			m_TopParent->GetTextMetricsW(view->m_Title, 0, 100, 30, width, height);
+
+			if (event.x > x and event.x < x + width + 10)
+			{
+				m_SelPage = i;
+			}
+
+			view->m_Show = false;
+			x += width + 10;
+		}
+
+		if (m_SubViews.size() > 0)
+			m_SubViews[m_SelPage]->m_Show = true;
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 2);
+
+		int x = 0;
+		for (cxView* views : m_SubViews)
+		{
+			float width, height;
+			m_TopParent->GetTextMetricsW(views->m_Title, 0, 100, 30, width, height);
+			m_TopParent->DrawTextW(views->m_Title, 0, { x, 0, x+(int)width+10, 30 }, 3);
+			x += width + 10;
+		}
+	}
+};
+
+class MyView : public cxView
+{
+	using cxView::cxView;
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		cxLog(L"MyView %d %d", event.x, event.y);
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
+		m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
+		m_TopParent->DrawTextW(m_Title, 0, { 0,0,m_Right - m_Left,m_Bottom - m_Top }, 3);
+	}
+};
 
 class MyWindow : public cxWindowContainer
 {
 public:
 	MyWindow()
 	{
+		CreateSolidBrush(1.0, 1.0, 1.0, 1.0);
+		CreateSolidBrush(1.0, 0.0, 0.0, 1.0);
+		CreateSolidBrush(0.0, 1.0, 0.0, 1.0);
+		CreateSolidBrush(0.0, 0.0, 0.0, 1.0);
+		CreateFont(L"Segoe UI", 15.0);
+
+		//AddView();
+
+		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
+		AddView(tabctrl);
+
+		MyView* mv = new MyView(50, 50, 150, 100);
+		mv->m_Title = L"MyView";
+		tabctrl->AddView(mv);
+
+		MyView* mv2 = new MyView(50, 50, 150, 100);
+		mv2->m_Title = L"MyView2";
+		tabctrl->AddView(mv2);
+
 	}
 
 	void OnClosing() override
@@ -16,14 +107,15 @@ public:
 	void OnSize(int width, int height) override
 	{
 		cxWindowContainer::OnSize(width, height);
+		GetChildView(0)->m_Right = width;
+		GetChildView(0)->m_Bottom = height;
+		GetChildView(0)->OnSize();
 		Invalidate();
 	}
 
 	void OnPaint() override
 	{
-		StartPaint();
-
-		EndPaint();
+		cxWindowContainer::OnPaint();
 	}
 
 };
