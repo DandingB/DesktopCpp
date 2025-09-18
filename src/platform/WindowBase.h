@@ -4,6 +4,7 @@
 
 #include "../cx/Event.h"
 #include <vector>
+#include <map>
 
 enum cxCursorType
 {
@@ -34,8 +35,8 @@ class cxWindowBase
 #elif _WIN32
     HWND m_hWnd;
     ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
-    std::vector<ComPtr<ID2D1Brush>> m_pBrushes;
-    std::vector<ComPtr<IDWriteTextFormat>> m_pFonts;
+    std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
+    std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
 #endif
 
 public:
@@ -63,16 +64,16 @@ public:
     void SetDrawConstraints(cxRect rect);
     void RemoveDrawConstraints();
 
-    void CreateSolidBrush(float r, float g, float b, float a);
-    void CreateFont(std::wstring fontName, float size);
-    void GetTextMetrics(std::wstring str, int font, float maxWidth, float maxHeight, float& width, float& height);
+    void CreateSolidBrush(int value, float r, float g, float b, float a);
+    void CreateFont(int key, std::wstring fontName, float size);
+    void GetTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height);
 
     void FillRectangle(cxRect rect, int brush);
     void DrawRectangle(cxRect rect, int brush, float strokeWidth = 1.0);
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brush);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth = 1.0);
 
-    void DrawTextW(std::wstring str, int font, cxRect rect, int brush);
+    void DrawTextW(int key, std::wstring str, cxRect rect, int brush);
     
     float GetDPIScale();
 

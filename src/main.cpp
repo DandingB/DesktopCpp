@@ -1,5 +1,12 @@
 ﻿#include "cx.h"
 
+#define BRUSH_WHITE 0
+#define BRUSH_RED   1
+#define BRUSH_GREEN 2
+#define BRUSH_BLACK 3
+#define FONT_SMALL  0
+
+
 class TabControl : public cxView
 {
 	int m_SelPage = 0;
@@ -26,7 +33,7 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			m_TopParent->GetTextMetricsW(view->m_Title, 0, 100, 30, width, height);
+			m_TopParent->GetTextMetricsW(FONT_SMALL, view->m_Title, 100, 30, width, height);
 
 			if (event.x > x and event.x < x + width + 10)
 			{
@@ -43,15 +50,21 @@ class TabControl : public cxView
 
 	void OnPaint(cxWindowContainer* container) override
 	{
-		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 2);
+		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 2);
 
+		int i = 0;
 		int x = 0;
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			m_TopParent->GetTextMetricsW(views->m_Title, 0, 100, 30, width, height);
-			m_TopParent->DrawTextW(views->m_Title, 0, { x, 0, x+(int)width+10, 30 }, 3);
+			container->GetTextMetricsW(FONT_SMALL, views->m_Title, 100, 30, width, height);
+
+			if (i == m_SelPage) 
+				container->FillRectangle({x, 0, x + (int)width + 10, 30}, 0);
+
+			container->DrawTextW(FONT_SMALL, views->m_Title, { x, 0, x+(int)width+10, 30 }, BRUSH_BLACK);
 			x += width + 10;
+			i++;
 		}
 	}
 };
@@ -68,8 +81,8 @@ class MyView : public cxView
 	void OnPaint(cxWindowContainer* container) override
 	{
 		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
-		m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
-		m_TopParent->DrawTextW(m_Title, 0, { 0,0,m_Right - m_Left,m_Bottom - m_Top }, 3);
+		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
+		m_TopParent->DrawTextW(FONT_SMALL, m_Title, { 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_BLACK);
 	}
 };
 
@@ -78,13 +91,12 @@ class MyWindow : public cxWindowContainer
 public:
 	MyWindow()
 	{
-		CreateSolidBrush(1.0, 1.0, 1.0, 1.0);
-		CreateSolidBrush(1.0, 0.0, 0.0, 1.0);
-		CreateSolidBrush(0.0, 1.0, 0.0, 1.0);
-		CreateSolidBrush(0.0, 0.0, 0.0, 1.0);
-		CreateFont(L"Segoe UI", 15.0);
+		CreateSolidBrush(BRUSH_WHITE, 1.0, 1.0, 1.0, 1.0);
+		CreateSolidBrush(BRUSH_RED, 1.0, 0.0, 0.0, 1.0);
+		CreateSolidBrush(BRUSH_GREEN, 0.0, 1.0, 0.0, 1.0);
+		CreateSolidBrush(BRUSH_BLACK, 0.0, 0.0, 0.0, 1.0);
+		CreateFont(FONT_SMALL, L"Segoe UI", 15.0);
 
-		//AddView();
 
 		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
 		AddView(tabctrl);

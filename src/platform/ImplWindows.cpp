@@ -243,17 +243,17 @@ void cxWindowBase::RemoveDrawConstraints()
     m_pRenderTarget->PopAxisAlignedClip();
 }
 
-void cxWindowBase::CreateSolidBrush(float r, float g, float b, float a)
+void cxWindowBase::CreateSolidBrush(int key, float r, float g, float b, float a)
 {
     ComPtr<ID2D1SolidColorBrush> brush;
     m_pRenderTarget->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF(r, g, b, a)),
         &brush
     );
-    m_pBrushes.push_back(brush);
+    m_pBrushes.insert({ key, brush });
 }
 
-void cxWindowBase::CreateFont(std::wstring fontName, float size)
+void cxWindowBase::CreateFont(int key, std::wstring fontName, float size)
 {
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
@@ -270,15 +270,15 @@ void cxWindowBase::CreateFont(std::wstring fontName, float size)
     font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
     font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-    m_pFonts.push_back(font);
+    m_pFonts.insert({ key, font });
 }
 
-void cxWindowBase::GetTextMetrics(std::wstring str, int font, float maxWidth, float maxHeight, float& width, float& height)
+void cxWindowBase::GetTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
 {
     HRESULT hr = S_OK;
     ComPtr<IDWriteTextLayout> pTextLayout;
     // Create a text layout 
-    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), m_pFonts[font].Get(), maxWidth, maxHeight, pTextLayout.GetAddressOf());
+    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), m_pFonts[key].Get(), maxWidth, maxHeight, pTextLayout.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
@@ -312,13 +312,13 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
     m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brush].Get(), strokeWidth);
 }
 
-void cxWindowBase::DrawTextW(std::wstring str, int font, cxRect rect, int brush)
+void cxWindowBase::DrawTextW(int key, std::wstring str, cxRect rect, int brush)
 {
 
     m_pRenderTarget->DrawText(
         str.c_str(),
         str.length(),
-        m_pFonts[font].Get(),
+        m_pFonts[key].Get(),
         D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
         m_pBrushes[brush].Get()
     );
