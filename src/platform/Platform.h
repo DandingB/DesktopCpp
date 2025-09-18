@@ -4,11 +4,19 @@
 
 
 #ifdef __APPLE__
-//#include <OpenGL/gl3.h>
-#include <OpenGL/glu.h>
-#include <OpenGL/glext.h>
 
 #define CX_FUNC_MAIN int main(int argc, const char * argv[])
+
+struct cxSolidBrush
+{
+    float r,g,b,a;
+};
+
+struct cxFont
+{
+    std::wstring fontName;
+    float size;
+};
 
 #elif _WIN32
 

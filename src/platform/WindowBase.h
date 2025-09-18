@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include "Platform.h"
-
 #include "../cx/Event.h"
 #include <vector>
 #include <map>
@@ -31,7 +30,11 @@ struct cxRect
 class cxWindowBase
 {
 #ifdef __APPLE__
-    NSWindow asd;
+    void* m_NSWindow;
+    void* m_NSView;
+    std::map<int, cxSolidBrush> m_pBrushes;
+    std::map<int, cxFont> m_pFonts;
+
 #elif _WIN32
     HWND m_hWnd;
     ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
@@ -64,7 +67,7 @@ public:
     void SetDrawConstraints(cxRect rect);
     void RemoveDrawConstraints();
 
-    void MakeSolidBrush(int value, float r, float g, float b, float a);
+    void MakeSolidBrush(int key, float r, float g, float b, float a);
     void MakeFont(int key, std::wstring fontName, float size);
     void GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height);
 
@@ -89,7 +92,7 @@ public:
 
 
 #ifdef __APPLE__
-    NSWindow* GetPlatformWindow() { return m_Window; }
+    //void* GetPlatformWindow() { return m_NSWindow; }
 #elif _WIN32
     HWND GetPlatformWindow() { return m_hWnd; }
 #endif

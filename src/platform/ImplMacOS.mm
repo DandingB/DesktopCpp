@@ -1,19 +1,13 @@
 #ifdef __APPLE__
 
 #include "../cx.h"
-#include "../cx/WindowBase.h"
+#include "WindowBase.h"
 
 #include <Cocoa/Cocoa.h>
 #include <string>
 
-#define WND_NSWND ((MacWnd*)m_Window)->m_NSWindow
-#define WND_GLVIEW ((MacWnd*)m_Window)->m_GLView
-
-NSOpenGLView* g_Context;
-
-bool Init();
-bool g_Init = Init();
-
+#define GET_WND(wnd) ((Window*)wnd)
+#define GET_VIEW(view) ((CustomView*)view)
 
 @interface Window : NSWindow <NSWindowDelegate> //<NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
 {
@@ -38,109 +32,71 @@ bool g_Init = Init();
 
 
 
-@interface GLView : NSOpenGLView // <NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
+@interface CustomView : NSView // <NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
 {
 @public 
     cxWindowBase* ref;
 }
 @end
 
-@implementation GLView
 
-- (void)updateTrackingAreas
+@implementation CustomView
+
+- (void) viewWillMoveToWindow:(NSWindow *)newWindow
 {
-    NSRect screenRect = [[NSScreen mainScreen] frame];
-    NSTrackingAreaOptions options = (NSTrackingActiveAlways | NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved);
-    NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect:[self bounds] options:options owner:self userInfo:nil];
-    [self addTrackingArea: area];
-
-    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask handler:^(NSEvent* event) {
-        NSPoint curPoint = [event locationInWindow];
-        //NSLog(@"mouseMove x: %f, %f " , curPoint.x*2, curPoint.y*2);
-    }];
+    NSTrackingArea* trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] options:(NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:nil];
+    [self addTrackingArea:trackingArea];
 }
 
--(void)awakeFromNib
+- (void) setFrameSize:(NSSize)newSize
 {
-    NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
-    {
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-        NSOpenGLPFAMultisample,
-        NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, 8,
-        NSOpenGLPFAAccelerated,
-        NSOpenGLPFANoRecovery,
-        0
-    };
-
-    NSOpenGLContext* context = [g_Context openGLContext];
-
-    NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes];
-    NSOpenGLContext* glc = [[NSOpenGLContext  alloc]initWithFormat:pixelFormat shareContext:context];
-    [self setOpenGLContext: glc];
+    [super setFrameSize:newSize];
+    ref->OnSize(newSize.width, newSize.height);
 }
 
--(void)prepareOpenGL
-{
-    [super prepareOpenGL];
-}
-
-- (void)reshape
-{
-    [super reshape];
-    [self.openGLContext makeCurrentContext];
-    
-    // Get new viewport size
-    float scale = ref->GetDPIScale();
-    NSRect bounds = [self bounds];
-    ref->OnSize(bounds.size.width * scale, bounds.size.height * scale);
-}
-
-- (void)drawRect:(NSRect)dirtyRect
+- (void)drawRect:(NSRect)rect
 {
     ref->OnPaint();
 }
 
 - (void)mouseDown:(NSEvent*)event
 {
-    float scale = ref->GetDPIScale();
+    float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
     ref->OnMouseDown({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
-    float scale = ref->GetDPIScale();
+    float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
     ref->OnMouseDown({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), RIGHT });
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
-    float scale = ref->GetDPIScale();
+    float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
     ref->OnMouseUp({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
-    float scale = ref->GetDPIScale();
+    float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
     ref->OnMouseUp({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), RIGHT });
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
-    float scale = ref->GetDPIScale();
+    float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
     ref->OnMouseMove({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), NONE });
 }
 
 - (void)mouseDragged:(NSEvent*)event
 {
-    float scale = ref->GetDPIScale();
+    float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
     ref->OnMouseMove({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
 }
@@ -153,87 +109,79 @@ bool g_Init = Init();
 @end
 
 
-
-struct MacWnd
-{
-    Window* m_NSWindow;
-    GLView* m_GLView;
-};
-
-
 cxWindowBase::cxWindowBase()
 {
-    m_Window = new MacWnd;
-
     NSRect graphicsRect = NSMakeRect(0, 0, 500, 500);
     
-    WND_NSWND = [[Window alloc] initWithContentRect:graphicsRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO ];
-    [WND_NSWND setDelegate: WND_NSWND];
-    WND_NSWND->ref = this;
+    Window* window = [[Window alloc] initWithContentRect:graphicsRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO ];
+    [window setDelegate: window];
+    window->ref = this;
 
     // Window view
-    WND_GLVIEW = [[[GLView alloc] initWithFrame:graphicsRect] autorelease];
-    [WND_NSWND setContentView: WND_GLVIEW];
-    WND_GLVIEW->ref = this;
+    CustomView* view = [[[CustomView alloc] initWithFrame:graphicsRect] autorelease];
+    view->ref = this;
+    [window setContentView: view];
+    [window makeKeyAndOrderFront: nil];
 
-    [WND_GLVIEW.openGLContext makeCurrentContext];
+    m_NSWindow = window;
+    m_NSView = view;
 }
 
 cxWindowBase::~cxWindowBase()
 {
-    [WND_NSWND close];
+    // [WND_NSWND close];
     //delete m_Window;
 }
 
 void cxWindowBase::SetTitle(std::wstring title)
 {
     NSString* s = [[NSString alloc] initWithBytes:title.data() length:title.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
-    [WND_NSWND setTitle: s];
+    [GET_WND(m_NSWindow) setTitle: s];
 }
 
 void cxWindowBase::SetPosition(int x, int y)
 {
-    float scale = GetDPIScale();
-    NSRect frame = [WND_NSWND frame];
+    float scale = 1.0;
+    NSRect frame = [GET_WND(m_NSWindow) frame];
     frame.origin.x = x / scale;
     frame.origin.y = y / scale;
-    [WND_NSWND setFrame: frame display: YES animate: YES];
+    [GET_WND(m_NSWindow) setFrame: frame display: YES animate: YES];
 }
 
 void cxWindowBase::SetSize(int width, int height)
 {
-    float scale = GetDPIScale();
-    NSRect frame = [WND_NSWND frame];
+    float scale = 1.0;
+    NSRect frame = [GET_WND(m_NSWindow) frame];
     frame.size = NSMakeSize(width / scale, height / scale);
-    [WND_NSWND setFrame: frame display: YES animate: YES];
+    [GET_WND(m_NSWindow) setFrame: frame display: YES animate: YES];
 }
 
 void cxWindowBase::GetTitle(std::wstring& out)
 {
-    NSData* pSData = [[WND_NSWND title] dataUsingEncoding: NSUTF32LittleEndianStringEncoding];
+    NSData* pSData = [[GET_WND(m_NSWindow) title] dataUsingEncoding: NSUTF32LittleEndianStringEncoding];
     out = std::wstring((wchar_t*) [pSData bytes], [pSData length] / sizeof(wchar_t));
 }
 
 void cxWindowBase::GetPosition(int& x, int& y)
 {
-    float scale = GetDPIScale();
-    NSRect rect = [WND_NSWND frame];
+    float scale = 1.0;
+    NSRect rect = [GET_WND(m_NSWindow) frame];
     x = rect.origin.x * scale;
     y = rect.origin.y * scale;
 }
 
 void cxWindowBase::GetSize(int& width, int& height)
 {
-    float scale = GetDPIScale();
-    NSRect rect = [WND_NSWND frame];
+    float scale = 1.0;
+    NSRect rect = [GET_WND(m_NSWindow) frame];
     width = rect.size.width * scale;
     height = rect.size.height * scale;
 }
 
 void cxWindowBase::GetClientSize(int& width, int& height)
 {
-    float scale = GetDPIScale();
-    NSRect rect = [ [WND_NSWND contentView] frame ];
+    float scale = 1.0;
+    NSRect rect = [ [GET_WND(m_NSWindow) contentView] frame ];
     width = rect.size.width * scale;
     height = rect.size.height * scale;
 }
@@ -241,9 +189,9 @@ void cxWindowBase::GetClientSize(int& width, int& height)
 void cxWindowBase::Show(bool show)
 {
     if (show)
-        [WND_NSWND makeKeyAndOrderFront: nil];
+        [GET_WND(m_NSWindow) makeKeyAndOrderFront: nil];
     else
-        [WND_NSWND orderOut: nil];
+        [GET_WND(m_NSWindow) orderOut: nil];
 }
 
 void cxWindowBase::ShowCursor(bool show)
@@ -305,44 +253,106 @@ void cxWindowBase::ReleaseMouse()
 
 void cxWindowBase::Invalidate()
 {
-    [WND_GLVIEW setNeedsDisplay: YES];
+    [GET_VIEW(m_NSView) setNeedsDisplay: YES];
 }
 
-void cxWindowBase::SetContext()
+void cxWindowBase::SetDrawConstraints(cxRect rect)
 {
-    [WND_GLVIEW.openGLContext makeCurrentContext];
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextTranslateCTM(context, rect.left, rect.top);
 }
+
+void cxWindowBase::RemoveDrawConstraints()
+{
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextTranslateCTM(context, 0, 0);
+}
+
+void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
+{
+    m_pBrushes.insert({ key, {r,g,b,a} });
+}
+
+void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
+{
+    m_pFonts.insert({ key, {fontName, size} });
+}
+
+void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
+{
+    cxFont font = m_pFonts[fontKey];
+
+    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+    [style setAlignment:NSTextAlignmentCenter];
+
+    NSDictionary *attributes = @{
+        NSFontAttributeName: [NSFont fontWithName:@"Helvetica" size:font.size],
+        NSForegroundColorAttributeName: [NSColor blackColor],
+        NSParagraphStyleAttributeName: style
+    };
+
+    NSString * nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSAttributedString* currentText=[[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
+
+    NSSize attrSize = [currentText size];
+    width = attrSize.width;
+    height = attrSize.height;
+}
+
+void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
+{
+    cxSolidBrush brush = m_pBrushes[brushKey];
+    
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetRGBFillColor(context, brush.r, brush.g, brush.b, brush.a);
+    CGContextFillRect(context, CGRectMake(rect.left, rect.top, rect.right, rect.bottom));
+}
+
+void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
+{
+    cxSolidBrush brush = m_pBrushes[brushKey];
+
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetRGBStrokeColor(context, brush.r, brush.g, brush.b, brush.a);
+    CGContextSetLineWidth(context, strokeWidth);
+    CGContextStrokeRect(context, CGRectMake(rect.left, rect.top, rect.right, rect.bottom));
+}
+
+void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brush)
+{
+
+}
+
+void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth)
+{
+
+}
+
+void cxWindowBase::DrawText(int fontKey, std::wstring str, cxRect rect, int brush)
+{
+    cxFont font = m_pFonts[fontKey];
+
+    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+    [style setAlignment:NSTextAlignmentCenter];
+
+    NSDictionary *attributes = @{
+        NSFontAttributeName: [NSFont fontWithName:@"Helvetica" size:font.size],
+        NSForegroundColorAttributeName: [NSColor blackColor],
+        NSParagraphStyleAttributeName: style
+    };
+
+    NSString * nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSAttributedString* currentText=[[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
+
+    NSSize attrSize = [currentText size];
+    [currentText drawInRect:CGRectMake(rect.left, rect.top, rect.right, rect.bottom)];
+
+}
+
 
 float cxWindowBase::GetDPIScale()
 {
-    return [WND_NSWND backingScaleFactor];
-}
-
-
-bool Init()
-{
-    NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
-    {
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
-        NSOpenGLPFAMultisample,
-        NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, 8,
-        NSOpenGLPFAAccelerated,
-        NSOpenGLPFANoRecovery,
-        0
-    };
-
-    NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes];
-    NSOpenGLContext* glc = [[NSOpenGLContext alloc]initWithFormat:pixelFormat shareContext:nil];
-
-
-    NSRect graphicsRect = NSMakeRect(0, 0, 500, 500);
-    g_Context = [[[NSOpenGLView alloc] initWithFrame:graphicsRect] autorelease];
-    [g_Context setOpenGLContext: glc];
-
-    return true;
+    return [GET_WND(m_NSWindow) backingScaleFactor];
 }
 
 void cxInitApp()
@@ -420,11 +430,6 @@ void cxGetMousePosition(int& x, int& y)
             //NSLog(@"Retina Mouse Rect = %@", NSStringFromRect(retinaMouseRect));
         }
     }
-}
-
-void cxSetGlobalContext()
-{
-    [[g_Context openGLContext] makeCurrentContext];
 }
 
 #endif

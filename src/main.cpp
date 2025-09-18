@@ -46,6 +46,7 @@ class TabControl : public cxView
 
 		if (m_SubViews.size() > 0)
 			m_SubViews[m_SelPage]->m_Show = true;
+		m_TopParent->Invalidate();
 	}
 
 	void OnPaint(cxWindowContainer* container) override
@@ -122,7 +123,7 @@ public:
 		GetChildView(0)->m_Right = width;
 		GetChildView(0)->m_Bottom = height;
 		GetChildView(0)->OnSize();
-		Invalidate();
+		//Invalidate();
 	}
 
 	void OnPaint() override
