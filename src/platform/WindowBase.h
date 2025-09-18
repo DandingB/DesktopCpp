@@ -73,7 +73,7 @@ public:
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brush);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth = 1.0);
 
-    void DrawTextW(int key, std::wstring str, cxRect rect, int brush);
+    void DrawText(int key, std::wstring str, cxRect rect, int brush);
     
     float GetDPIScale();
 
