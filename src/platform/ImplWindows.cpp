@@ -243,7 +243,7 @@ void cxWindowBase::RemoveDrawConstraints()
     m_pRenderTarget->PopAxisAlignedClip();
 }
 
-void cxWindowBase::CreateSolidBrush(int key, float r, float g, float b, float a)
+void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 {
     ComPtr<ID2D1SolidColorBrush> brush;
     m_pRenderTarget->CreateSolidColorBrush(
@@ -253,7 +253,7 @@ void cxWindowBase::CreateSolidBrush(int key, float r, float g, float b, float a)
     m_pBrushes.insert({ key, brush });
 }
 
-void cxWindowBase::CreateFont(int key, std::wstring fontName, float size)
+void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 {
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
@@ -273,7 +273,7 @@ void cxWindowBase::CreateFont(int key, std::wstring fontName, float size)
     m_pFonts.insert({ key, font });
 }
 
-void cxWindowBase::GetTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
+void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
 {
     HRESULT hr = S_OK;
     ComPtr<IDWriteTextLayout> pTextLayout;

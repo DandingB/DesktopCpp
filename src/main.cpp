@@ -33,7 +33,7 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			m_TopParent->GetTextMetricsW(FONT_SMALL, view->m_Title, 100, 30, width, height);
+			m_TopParent->GetFontTextMetrics(FONT_SMALL, view->m_Title, 100, 30, width, height);
 
 			if (event.x > x and event.x < x + width + 10)
 			{
@@ -57,12 +57,12 @@ class TabControl : public cxView
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			container->GetTextMetricsW(FONT_SMALL, views->m_Title, 100, 30, width, height);
+			container->GetFontTextMetrics(FONT_SMALL, views->m_Title, 100, 30, width, height);
 
 			if (i == m_SelPage) 
 				container->FillRectangle({x, 0, x + (int)width + 10, 30}, 0);
 
-			container->DrawTextW(FONT_SMALL, views->m_Title, { x, 0, x+(int)width+10, 30 }, BRUSH_BLACK);
+			container->DrawText(FONT_SMALL, views->m_Title, { x, 0, x + (int)width + 10, 30 }, BRUSH_BLACK);
 			x += width + 10;
 			i++;
 		}
@@ -82,7 +82,7 @@ class MyView : public cxView
 	{
 		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
 		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
-		m_TopParent->DrawTextW(FONT_SMALL, m_Title, { 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_BLACK);
+		m_TopParent->DrawText(FONT_SMALL, m_Title, { 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_BLACK);
 	}
 };
 
@@ -91,11 +91,11 @@ class MyWindow : public cxWindowContainer
 public:
 	MyWindow()
 	{
-		CreateSolidBrush(BRUSH_WHITE, 1.0, 1.0, 1.0, 1.0);
-		CreateSolidBrush(BRUSH_RED, 1.0, 0.0, 0.0, 1.0);
-		CreateSolidBrush(BRUSH_GREEN, 0.0, 1.0, 0.0, 1.0);
-		CreateSolidBrush(BRUSH_BLACK, 0.0, 0.0, 0.0, 1.0);
-		CreateFont(FONT_SMALL, L"Segoe UI", 15.0);
+		MakeSolidBrush(BRUSH_WHITE, 1.0, 1.0, 1.0, 1.0);
+		MakeSolidBrush(BRUSH_RED, 1.0, 0.0, 0.0, 1.0);
+		MakeSolidBrush(BRUSH_GREEN, 0.0, 1.0, 0.0, 1.0);
+		MakeSolidBrush(BRUSH_BLACK, 0.0, 0.0, 0.0, 1.0);
+		MakeFont(FONT_SMALL, L"Segoe UI", 15.0);
 
 
 		TabControl* tabctrl = new TabControl(0, 0, 150, 100);

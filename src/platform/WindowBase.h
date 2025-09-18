@@ -64,9 +64,9 @@ public:
     void SetDrawConstraints(cxRect rect);
     void RemoveDrawConstraints();
 
-    void CreateSolidBrush(int value, float r, float g, float b, float a);
-    void CreateFont(int key, std::wstring fontName, float size);
-    void GetTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height);
+    void MakeSolidBrush(int value, float r, float g, float b, float a);
+    void MakeFont(int key, std::wstring fontName, float size);
+    void GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height);
 
     void FillRectangle(cxRect rect, int brush);
     void DrawRectangle(cxRect rect, int brush, float strokeWidth = 1.0);
