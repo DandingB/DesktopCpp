@@ -378,6 +378,7 @@ void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, c
 {
     float top = rect.top;
     cxFont font = p->m_pFonts[fontKey];
+    cxSolidBrush brush = p->m_pBrushes[brushKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
     switch (options.m_TextAlignment)
@@ -389,7 +390,7 @@ void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, c
 
     NSDictionary* attributes = @{
         NSFontAttributeName: [NSFont fontWithName:@"Via Sign Regular" size:font.size],
-        NSForegroundColorAttributeName: [NSColor blackColor],
+        NSForegroundColorAttributeName: [NSColor colorWithDeviceRed:brush.r green:brush.g blue:brush.b alpha:brush.a],
         NSParagraphStyleAttributeName: style
     };
 
