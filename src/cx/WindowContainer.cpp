@@ -1,5 +1,4 @@
 #include "WindowContainer.h"
-#include "../platform/Platform.h"
 
 bool cxView::PointInView(float x, float y)
 {

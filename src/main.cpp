@@ -1,9 +1,10 @@
 ﻿#include "cx.h"
 
-#define BRUSH_WHITE 0
-#define BRUSH_RED   1
-#define BRUSH_GREEN 2
-#define BRUSH_BLACK 3
+#define BRUSH_TEXTWHITE 0
+#define BRUSH_TEXTGREY  4
+#define BRUSH_DARKGREY   1
+#define BRUSH_DARKERGREY 2
+#define BRUSH_TABGREY 3
 #define FONT_SMALL  0
 
 
@@ -76,12 +77,12 @@ class TabControl : public cxView
 				height
 			);
 
-			if (i == m_SelPage) 
-				container->FillRectangle({x, 0, x + width + 10, 30}, 0);
+			if (i == m_SelPage)
+				container->FillRectangle({x, 0, x + width + 10, 30}, BRUSH_TABGREY);
 
 			container->DrawTextInRect(
 				FONT_SMALL, 
-				BRUSH_BLACK, 
+				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
 				{ x, 0, x + width + 10, 30 }, 
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
@@ -108,7 +109,7 @@ class MyView : public cxView
 		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
 		m_TopParent->DrawTextInRect(
 			FONT_SMALL,
-			BRUSH_BLACK,
+			BRUSH_TEXTWHITE,
 			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
 			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
@@ -121,10 +122,11 @@ class MyWindow : public cxWindowContainer
 public:
 	MyWindow()
 	{
-		MakeSolidBrush(BRUSH_WHITE, 1.0, 1.0, 1.0, 1.0);
-		MakeSolidBrush(BRUSH_RED, 1.0, 0.0, 0.0, 1.0);
-		MakeSolidBrush(BRUSH_GREEN, 0.0, 1.0, 0.0, 1.0);
-		MakeSolidBrush(BRUSH_BLACK, 0.0, 0.0, 0.0, 1.0);
+		MakeSolidBrush(BRUSH_TEXTWHITE, 1.0, 1.0, 1.0, 1.0);
+		MakeSolidBrush(BRUSH_TEXTGREY, 0.6, 0.6, 0.6, 1.0);
+		MakeSolidBrush(BRUSH_DARKGREY, 0.2, 0.2, 0.2, 1.0);
+		MakeSolidBrush(BRUSH_DARKERGREY, 0.1, 0.1, 0.1, 1.0);
+		MakeSolidBrush(BRUSH_TABGREY, 0.3, 0.3, 0.3, 1.0);
 		MakeFont(FONT_SMALL, L"Segoe UI", 15.0);
 
 
