@@ -55,27 +55,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_LBUTTONDOWN:
     {
-        wnd->OnMouseDown({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), LEFT });
+        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), LEFT });
         return 0;
     }
     case WM_LBUTTONUP:
     {
-        wnd->OnMouseUp({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), LEFT });
+        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), LEFT });
         return 0;
     }
     case WM_RBUTTONDOWN:
     {
-        wnd->OnMouseDown({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), RIGHT });
+        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), RIGHT });
         return 0;
     }
     case WM_RBUTTONUP:
     {
-        wnd->OnMouseUp({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), RIGHT });
+        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), RIGHT });
         return 0;
     }
     case WM_MOUSEMOVE:
     {
-        wnd->OnMouseMove({ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), NONE });
+        wnd->OnMouseMove({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), NONE });
         return 0;
     }
     case WM_DPICHANGED:
@@ -299,7 +299,7 @@ void cxWindowBase::FillRectangle(cxRect rect, int brush)
 
 void cxWindowBase::DrawRectangle(cxRect rect, int brush, float strokeWidth)
 {
-    m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5 + rect.left, 0.5 + rect.top, -0.5 + rect.right, -0.5 + rect.bottom), m_pBrushes[brush].Get(), strokeWidth);
+    m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5f + rect.left, 0.5f + rect.top, -0.5f + rect.right, -0.5f + rect.bottom), m_pBrushes[brush].Get(), strokeWidth);
 }
 
 void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brush)
