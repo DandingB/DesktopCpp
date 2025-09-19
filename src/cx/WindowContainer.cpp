@@ -105,27 +105,22 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, float left, f
 		if (!(view->m_Show))
 			continue;
 
-		float x, y, width, height;
+		float sub_left, sub_top, sub_right, sub_bottom;
 
-		x = left + view->m_Left;
-		y = top + view->m_Top;
-		width = view->m_Right - view->m_Left;
-		height = view->m_Bottom - view->m_Top;
+		sub_left = left + view->m_Left;
+		sub_top = top + view->m_Top;
+		sub_right = left + view->m_Right;
+		sub_bottom = top + view->m_Bottom;
 
-		if (x + width > right)
-			width = right - x;
-			
-		if (y + height > bottom)
-			height = bottom - y;
+		if (sub_right > right) sub_right = right;
+		if (sub_bottom > bottom) sub_bottom = bottom;
+		if ((sub_right - sub_left) <= 0 or (sub_bottom - sub_top) <= 0) continue;
 
-		if (width < 0 or height < 0)
-			continue;
-
-		SetDrawConstraints({ x, y, x + width, y + height });
+		SetDrawConstraints({ sub_left, sub_top, sub_right, sub_bottom });
 		view->OnPaint(this);
 		RemoveDrawConstraints();
 
-		PaintSubviews(view->m_SubViews, x, y, x + width, y + height);
+		PaintSubviews(view->m_SubViews, sub_left, sub_top, sub_right, sub_bottom);
 	}
 }
 

@@ -53,9 +53,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_PAINT:
     {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+
         wnd->StartPaint();
         wnd->OnPaint();
         wnd->EndPaint();
+
+        EndPaint(hwnd, &ps);
+
+        ValidateRect(hwnd, NULL);
         return 0;
     }
     case WM_SIZE:
