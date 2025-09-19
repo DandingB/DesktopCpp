@@ -27,6 +27,16 @@ struct cxRect
     float left, top, right, bottom;
 };
 
+struct cxTextOptions
+{
+    enum TextAlignment
+    {
+        TEXT_ALIGNMENT_LEFT,
+        TEXT_ALIGNMENT_CENTER,
+        TEXT_ALIGNMENT_RIGHT
+    } m_TextAlignment;
+};
+
 class cxWindowBase
 {
 #ifdef __APPLE__
@@ -69,14 +79,14 @@ public:
 
     void MakeSolidBrush(int key, float r, float g, float b, float a);
     void MakeFont(int key, std::wstring fontName, float size);
-    void GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height);
+    void GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height);
 
     void FillRectangle(cxRect rect, int brush);
     void DrawRectangle(cxRect rect, int brush, float strokeWidth = 1.0);
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brush);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth = 1.0);
 
-    void DrawText(int key, std::wstring str, cxRect rect, int brush);
+    void DrawText(int key, std::wstring str, cxRect rect, int brush, cxTextOptions options);
     
     float GetDPIScale();
 

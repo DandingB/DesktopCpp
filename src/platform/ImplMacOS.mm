@@ -278,12 +278,19 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
     m_pFonts.insert({ key, {fontName, size} });
 }
 
-void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
+void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
 {
     cxFont font = m_pFonts[fontKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-    [style setAlignment:NSTextAlignmentCenter];
+
+    switch (options.m_TextAlignment)
+    {
+        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [style setAlignment:NSTextAlignmentLeft]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
+    }
+    
 
     NSDictionary *attributes = @{
         NSFontAttributeName: [NSFont fontWithName:@"Helvetica" size:font.size],
@@ -332,12 +339,18 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
 
 }
 
-void cxWindowBase::DrawText(int fontKey, std::wstring str, cxRect rect, int brush)
+void cxWindowBase::DrawText(int fontKey, std::wstring str, cxRect rect, int brush, cxTextOptions options)
 {
     cxFont font = m_pFonts[fontKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-    [style setAlignment:NSTextAlignmentCenter];
+    switch (options.m_TextAlignment)
+    {
+        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [style setAlignment:NSTextAlignmentLeft]; break; 
+        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
+    }
+    
 
     NSDictionary *attributes = @{
         NSFontAttributeName: [NSFont fontWithName:@"Helvetica" size:font.size],
