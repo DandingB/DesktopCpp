@@ -4,6 +4,9 @@
 #include "WindowBase.h"
 
 #include <Cocoa/Cocoa.h>
+#include <CoreText/CoreText.h>
+#include <mach-o/dyld.h>
+
 #include <string>
 
 #define GET_WND(wnd) ((Window*)wnd)
@@ -265,7 +268,7 @@ void cxWindowBase::SetDrawConstraints(cxRect rect)
 void cxWindowBase::RemoveDrawConstraints()
 {
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
-    CGContextTranslateCTM(context, 0, 0);
+    CGContextRestoreGState(context); 
 }
 
 void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
@@ -275,6 +278,29 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 {
+    // Resolve relative path to absolute
+    char pathbuf[512];
+    uint32_t bufsize = sizeof(pathbuf);
+    if (_NSGetExecutablePath(pathbuf, &bufsize) != 0)
+    {
+        cxLog(L"_NSGetExecutablePath failed!");
+        exit(1);
+    }
+
+    NSString *execPath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathbuf length:strlen(pathbuf)];
+    NSString *execDir = [execPath stringByDeletingLastPathComponent];
+    NSString *fontPath = [execDir stringByAppendingPathComponent:@"VIASGRG_.TTF"];
+
+    NSURL* fontURL = [NSURL fileURLWithPath:fontPath];
+
+    CFErrorRef error;
+    if (!CTFontManagerRegisterFontsForURL((__bridge CFURLRef)fontURL, kCTFontManagerScopeProcess, &error)) 
+    {
+        CFStringRef errorDescription = CFErrorCopyDescription(error);
+        NSLog(@"Failed to load font: %@", (__bridge NSString *)errorDescription);
+        CFRelease(errorDescription);
+        exit(1);
+    }
     m_pFonts.insert({ key, {fontName, size} });
 }
 
@@ -291,9 +317,9 @@ void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWi
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
     
-
+    
     NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:@"Helvetica" size:font.size],
+        NSFontAttributeName: [NSFont fontWithName:@"Via Sign Regular" size:font.size],
         NSForegroundColorAttributeName: [NSColor blackColor],
         NSParagraphStyleAttributeName: style
     };
@@ -341,6 +367,7 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
 
 void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
+    float top = rect.top;
     cxFont font = m_pFonts[fontKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
@@ -350,20 +377,32 @@ void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect 
         case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
-    
 
-    NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:@"Helvetica" size:font.size],
+    NSDictionary* attributes = @{
+        NSFontAttributeName: [NSFont fontWithName:@"Via Sign Regular" size:font.size],
         NSForegroundColorAttributeName: [NSColor blackColor],
         NSParagraphStyleAttributeName: style
     };
 
-    NSString * nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
-    NSAttributedString* currentText=[[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
+    NSString* nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
 
-    NSSize attrSize = [currentText size];
-    [currentText drawInRect:CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)];
+    CGRect paragraphRect =
+        [currentText boundingRectWithSize:CGSizeMake(rect.right - rect.left, rect.bottom - rect.top)
+        options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
+        context:nil];
 
+
+    switch (options.m_ParagraphAlignment)
+    {
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: 
+            top += ((rect.bottom - rect.top) - paragraphRect.size.height)/2; 
+            break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: break;
+    }
+    
+    [currentText drawInRect:CGRectMake(rect.left, top, rect.right - rect.left, rect.bottom - rect.top)];
 }
 
 

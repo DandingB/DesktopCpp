@@ -111,7 +111,7 @@ class MyView : public cxView
 			BRUSH_BLACK,
 			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
-			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
 	}
 };
@@ -143,6 +143,9 @@ public:
 		mv3->m_Title = L"MyView3 asdasdasdas";
 		tabctrl->AddView(mv3);
 
+		GetChildView(0)->m_Right = 500;
+		GetChildView(0)->m_Bottom = 500;
+		GetChildView(0)->OnSize();
 	}
 
 	void OnClosing() override
