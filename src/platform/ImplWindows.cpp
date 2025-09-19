@@ -13,6 +13,15 @@ ID2D1Factory* m_pDirect2dFactory;
 IDWriteFactory* pDWriteFactory;
 
 
+struct cxWindowBase::Impl
+{
+    HWND m_hWnd;
+    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
+    std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
+    std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
+};
+
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     cxWindowBase* wnd = (cxWindowBase*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -29,27 +38,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_PAINT:
     {
-        wnd->GetWin32RenderTarget()->BeginDraw();
-        wnd->GetWin32RenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
-        wnd->GetWin32RenderTarget()->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-        D2D1_SIZE_F rtSize = wnd->GetWin32RenderTarget()->GetSize();
-        int width = static_cast<int>(rtSize.width);
-        int height = static_cast<int>(rtSize.height);
-
+        wnd->StartPaint();
         wnd->OnPaint();
-
-        wnd->GetWin32RenderTarget()->EndDraw();
-
+        wnd->EndPaint();
         return 0;
     }
     case WM_SIZE:
     {
-        if (wnd->GetWin32RenderTarget())
-        {
-            wnd->GetWin32RenderTarget()->Resize(D2D1::SizeU(LOWORD(lParam), HIWORD(lParam)));
-        }
-
         wnd->OnSize(LOWORD(lParam), HIWORD(lParam));
         return 0;
     }
@@ -98,25 +93,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-cxWindowBase::cxWindowBase()
+cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
 {
     HINSTANCE hInstance = GetModuleHandle(0);
 
-	m_hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, NULL, NULL, hInstance, this);
+	p->m_hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, NULL, NULL, hInstance, this);
 
-    if (m_hWnd == NULL)
+    if (p->m_hWnd == NULL)
         return;
 
     RECT rc;
-    GetClientRect(m_hWnd, &rc);
+    GetClientRect(p->m_hWnd, &rc);
 
     D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
 
     // Create a Direct2D render target.
     m_pDirect2dFactory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(m_hWnd, size),
-        &m_pRenderTarget
+        D2D1::HwndRenderTargetProperties(p->m_hWnd, size),
+        &p->m_pRenderTarget
     );
 
 
@@ -124,35 +119,35 @@ cxWindowBase::cxWindowBase()
 
 cxWindowBase::~cxWindowBase()
 {
-    DestroyWindow(m_hWnd);
+    DestroyWindow(p->m_hWnd);
 }
 
 void cxWindowBase::SetTitle(std::wstring title)
 {
-    SetWindowTextW(m_hWnd, title.c_str());
+    SetWindowTextW(p->m_hWnd, title.c_str());
 }
 
 void cxWindowBase::SetPosition(int x, int y)
 {
-    SetWindowPos(m_hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
+    SetWindowPos(p->m_hWnd, NULL, x, y, 0, 0, SWP_NOSIZE);
 }
 
 void cxWindowBase::SetSize(int width, int height)
 {
-    SetWindowPos(m_hWnd, NULL, 0, 0, width, height, SWP_NOMOVE);
+    SetWindowPos(p->m_hWnd, NULL, 0, 0, width, height, SWP_NOMOVE);
 }
 
 void cxWindowBase::GetTitle(std::wstring& out)
 {
     wchar_t buffer[128] = { '\0' };
-    GetWindowTextW(m_hWnd, buffer, 128);
+    GetWindowTextW(p->m_hWnd, buffer, 128);
     out = std::wstring(buffer);
 }
 
 void cxWindowBase::GetPosition(int& x, int& y)
 {
     RECT rect;
-    GetWindowRect(m_hWnd, &rect);
+    GetWindowRect(p->m_hWnd, &rect);
     x = rect.left;
     y = rect.top;
 }
@@ -160,7 +155,7 @@ void cxWindowBase::GetPosition(int& x, int& y)
 void cxWindowBase::GetSize(int& width, int& height)
 {
     RECT rect;
-    GetWindowRect(m_hWnd, &rect);
+    GetWindowRect(p->m_hWnd, &rect);
     width = rect.right - rect.left;
     height = rect.bottom - rect.top;
 }
@@ -168,14 +163,14 @@ void cxWindowBase::GetSize(int& width, int& height)
 void cxWindowBase::GetClientSize(int& width, int& height)
 {
     RECT rect;
-    GetClientRect(m_hWnd, &rect);
+    GetClientRect(p->m_hWnd, &rect);
     width = rect.right;
     height = rect.bottom;
 }
 
 void cxWindowBase::Show(bool show)
 {
-    ShowWindow(m_hWnd, show);
+    ShowWindow(p->m_hWnd, show);
 }
 
 void cxWindowBase::ShowCursor(bool show)
@@ -218,7 +213,7 @@ void cxWindowBase::SetCursor(cxCursorType type)
 
 void cxWindowBase::CaptureMouse()
 {
-    SetCapture(m_hWnd);
+    SetCapture(p->m_hWnd);
 }
 
 void cxWindowBase::ReleaseMouse()
@@ -229,28 +224,28 @@ void cxWindowBase::ReleaseMouse()
 
 void cxWindowBase::Invalidate()
 {
-    InvalidateRect(m_hWnd, NULL, TRUE);
+    InvalidateRect(p->m_hWnd, NULL, TRUE);
 }
 
 void cxWindowBase::SetDrawConstraints(cxRect rect)
 {
-    m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(rect.left, rect.top));
-    m_pRenderTarget->PushAxisAlignedClip(D2D1::RectF(0, 0, rect.right - rect.left, rect.bottom - rect.top), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+    p->m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(rect.left, rect.top));
+    p->m_pRenderTarget->PushAxisAlignedClip(D2D1::RectF(0, 0, rect.right - rect.left, rect.bottom - rect.top), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 }
 
 void cxWindowBase::RemoveDrawConstraints()
 {
-    m_pRenderTarget->PopAxisAlignedClip();
+    p->m_pRenderTarget->PopAxisAlignedClip();
 }
 
 void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 {
     ComPtr<ID2D1SolidColorBrush> brush;
-    m_pRenderTarget->CreateSolidColorBrush(
+    p->m_pRenderTarget->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF(r, g, b, a)),
         &brush
     );
-    m_pBrushes.insert({ key, brush });
+    p->m_pBrushes.insert({ key, brush });
 }
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
@@ -266,8 +261,6 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
     {
         OutputDebugString(L"Failed to retrieve system font collection.\n");
     }
-
-
 
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
@@ -285,14 +278,14 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
     font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
 
 
-    m_pFonts.insert({ key, font });
+    p->m_pFonts.insert({ key, font });
 }
 
 void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
 {
     HRESULT hr = S_OK;
 
-    IDWriteTextFormat* format = m_pFonts[key].Get();
+    IDWriteTextFormat* format = p->m_pFonts[key].Get();
 
     switch (options.m_TextAlignment)
     {
@@ -326,28 +319,28 @@ void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth,
 
 void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
 {
-    m_pRenderTarget->FillRectangle(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), m_pBrushes[brushKey].Get());
+    p->m_pRenderTarget->FillRectangle(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), p->m_pBrushes[brushKey].Get());
 }
 
 void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
 {
-    m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5f + rect.left, 0.5f + rect.top, -0.5f + rect.right, -0.5f + rect.bottom), m_pBrushes[brushKey].Get(), strokeWidth);
+    p->m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5f + rect.left, 0.5f + rect.top, -0.5f + rect.right, -0.5f + rect.bottom), p->m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
 void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey)
 {
-    m_pRenderTarget->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brushKey].Get());
+    p->m_pRenderTarget->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), p->m_pBrushes[brushKey].Get());
 }
 
 void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth)
 {
-    m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brushKey].Get(), strokeWidth);
+    p->m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), p->m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
 void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
 
-    IDWriteTextFormat* format = m_pFonts[fontKey].Get();
+    IDWriteTextFormat* format = p->m_pFonts[fontKey].Get();
 
     switch (options.m_TextAlignment)
     {
@@ -364,19 +357,45 @@ void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect 
     }
 
 
-    m_pRenderTarget->DrawText(
+    p->m_pRenderTarget->DrawText(
         str.c_str(),
         str.length(),
         format,
         D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
-        m_pBrushes[brushKey].Get()
+        p->m_pBrushes[brushKey].Get()
     );
 }
 
 
 float cxWindowBase::GetDPIScale()
 {
-    return (float)GetDpiForWindow(m_hWnd) / USER_DEFAULT_SCREEN_DPI;
+    return (float)GetDpiForWindow(p->m_hWnd) / USER_DEFAULT_SCREEN_DPI;
+}
+
+
+void cxWindowBase::OnSize(int width, int height)
+{
+    if (p->m_pRenderTarget)
+    {
+        p->m_pRenderTarget->Resize(D2D1::SizeU(width, height));
+    }
+}
+
+
+void cxWindowBase::StartPaint()
+{
+    p->m_pRenderTarget->BeginDraw();
+    p->m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+    p->m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+    D2D1_SIZE_F rtSize = p->m_pRenderTarget->GetSize();
+    int width = static_cast<int>(rtSize.width);
+    int height = static_cast<int>(rtSize.height);
+}
+
+void cxWindowBase::EndPaint()
+{
+    p->m_pRenderTarget->EndDraw();
 }
 
 

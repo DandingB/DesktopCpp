@@ -132,6 +132,7 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, float left, f
 
 void cxWindowContainer::OnSize(int width, int height)
 {
+	cxWindowBase::OnSize(width, height);
 }
 
 
@@ -147,15 +148,6 @@ void cxWindowContainer::OnMouseDown(cxMouseEvent event)
 		view->GetWindowPos(x, y);
 		view->OnMouseDown({ event.x - x, event.y - y, event.button });
 	}
-	//for (int i = m_SubViews.size() - 1; i >= 0; i--)
-	//{
-	//	cxView* view = m_SubViews[i];
-	//	if ((event.x > view->m_Left) and (event.x < view->m_Right) and (event.y > view->m_Top) and (event.y < view->m_Bottom))
-	//	{
-	//		view->OnMouseDown({ event.x - view->m_Left, event.y - view->m_Top, event.button});
-	//		break;
-	//	}
-	//}
 }
 
 void cxWindowContainer::OnMouseUp(cxMouseEvent event)

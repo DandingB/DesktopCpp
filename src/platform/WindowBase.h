@@ -46,16 +46,21 @@ struct cxTextOptions
 
 class cxWindowBase
 {
+    // PIMPL, platform types
+    struct Impl;
+    std::unique_ptr<Impl> p;
+
+
 #ifdef __APPLE__
     void* m_NSWindow;
     std::map<int, cxSolidBrush> m_pBrushes;
     std::map<int, cxFont> m_pFonts;
 
-#elif _WIN32
-    HWND m_hWnd;
-    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
-    std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
-    std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
+//#elif _WIN32
+//    HWND m_hWnd;
+//    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
+//    std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
+//    std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
 #endif
 
 public:
@@ -98,7 +103,7 @@ public:
 
     virtual void OnInit() {}
     virtual void OnClosing() {}
-    virtual void OnSize(int width, int height) {}
+    virtual void OnSize(int width, int height);
     virtual void OnPaint() {}
 
     virtual void OnMouseDown(cxMouseEvent event) {}
@@ -107,14 +112,9 @@ public:
     virtual void OnMouseDragged(cxMouseEvent event) {}
 
 
-#ifdef __APPLE__
-    //void* GetPlatformWindow() { return m_NSWindow; }
-#elif _WIN32
-    HWND GetPlatformWindow() { return m_hWnd; }
-#endif
-
 #ifdef _WIN32
-    ID2D1HwndRenderTarget* GetWin32RenderTarget() { return m_pRenderTarget.Get(); }
+    void StartPaint();
+    void EndPaint();
 #endif
 
 };
