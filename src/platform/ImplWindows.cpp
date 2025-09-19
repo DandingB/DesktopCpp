@@ -255,15 +255,29 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 {
+
+    IDWriteFontCollection* m_dwFontColl;
+    if (AddFontResourceEx(L"VIASGRG_.TTF", FR_PRIVATE, NULL) == 0)
+    {
+        OutputDebugString(L"Error adding font resource!\n");
+    }
+
+    if (FAILED(pDWriteFactory->GetSystemFontCollection(&m_dwFontColl, false)))
+    {
+        OutputDebugString(L"Failed to retrieve system font collection.\n");
+    }
+
+
+
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
-        fontName.c_str(),                // Font family name.
-        NULL,                       // Font collection (NULL sets it to use the system font collection).
-        DWRITE_FONT_WEIGHT_REGULAR,
+        L"Via Sign Regular",                // Font family name.
+        m_dwFontColl,                       // Font collection (NULL sets it to use the system font collection).
+        DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
         size,
-        L"en-us",
+        L"",
         &font
     );
 
