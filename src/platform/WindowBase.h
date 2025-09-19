@@ -81,12 +81,12 @@ public:
     void MakeFont(int key, std::wstring fontName, float size);
     void GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height);
 
-    void FillRectangle(cxRect rect, int brush);
-    void DrawRectangle(cxRect rect, int brush, float strokeWidth = 1.0);
-    void FillRoundedRectangle(cxRect rect, float r1, float r2, int brush);
-    void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth = 1.0);
+    void FillRectangle(cxRect rect, int brushKey);
+    void DrawRectangle(cxRect rect, int brushKey, float strokeWidth = 1.0);
+    void FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey);
+    void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth = 1.0);
 
-    void DrawText(int key, std::wstring str, cxRect rect, int brush, cxTextOptions options);
+    void DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
     
     float GetDPIScale();
 

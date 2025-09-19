@@ -273,12 +273,22 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
     m_pFonts.insert({ key, font });
 }
 
-void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
+void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
 {
     HRESULT hr = S_OK;
+
+    IDWriteTextFormat* format = m_pFonts[key].Get();
+
+    switch (options.m_TextAlignment)
+    {
+        case cxTextOptions::TEXT_ALIGNMENT_LEFT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
+        case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    }
+    
+
     ComPtr<IDWriteTextLayout> pTextLayout;
-    // Create a text layout 
-    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), m_pFonts[key].Get(), maxWidth, maxHeight, pTextLayout.GetAddressOf());
+    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), format, maxWidth, maxHeight, pTextLayout.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
@@ -292,35 +302,44 @@ void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth,
     }
 }
 
-void cxWindowBase::FillRectangle(cxRect rect, int brush)
+void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
 {
-    m_pRenderTarget->FillRectangle(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), m_pBrushes[brush].Get());
+    m_pRenderTarget->FillRectangle(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), m_pBrushes[brushKey].Get());
 }
 
-void cxWindowBase::DrawRectangle(cxRect rect, int brush, float strokeWidth)
+void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
 {
-    m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5f + rect.left, 0.5f + rect.top, -0.5f + rect.right, -0.5f + rect.bottom), m_pBrushes[brush].Get(), strokeWidth);
+    m_pRenderTarget->DrawRectangle(D2D1::RectF(0.5f + rect.left, 0.5f + rect.top, -0.5f + rect.right, -0.5f + rect.bottom), m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
-void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brush)
+void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey)
 {
-    m_pRenderTarget->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brush].Get());
+    m_pRenderTarget->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brushKey].Get());
 }
 
-void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth)
+void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth)
 {
-    m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brush].Get(), strokeWidth);
+    m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
-void cxWindowBase::DrawTextW(int key, std::wstring str, cxRect rect, int brush)
+void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
+
+    IDWriteTextFormat* format = m_pFonts[fontKey].Get();
+
+    switch (options.m_TextAlignment)
+    {
+        case cxTextOptions::TEXT_ALIGNMENT_LEFT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
+        case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING); break;
+    }
 
     m_pRenderTarget->DrawText(
         str.c_str(),
         str.length(),
-        m_pFonts[key].Get(),
+        format,
         D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
-        m_pBrushes[brush].Get()
+        m_pBrushes[brushKey].Get()
     );
 }
 
