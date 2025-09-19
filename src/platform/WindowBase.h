@@ -24,7 +24,7 @@ enum cxCursorType
 
 struct cxRect
 {
-    int left, top, right, bottom;
+    float left, top, right, bottom;
 };
 
 class cxWindowBase

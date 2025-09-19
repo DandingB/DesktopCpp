@@ -54,17 +54,17 @@ class TabControl : public cxView
 		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 2);
 
 		int i = 0;
-		int x = 0;
+		float x = 0;
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
 			container->GetFontTextMetrics(FONT_SMALL, views->m_Title, 100, 30, width, height);
 
 			if (i == m_SelPage) 
-				container->FillRectangle({x, 0, x + (int)width + 10, 30}, 0);
+				container->FillRectangle({x, 0, x + width, 30}, 0);
 
-			container->DrawText(FONT_SMALL, views->m_Title, { x, 0, x + (int)width + 10, 30 }, BRUSH_BLACK);
-			x += width + 10;
+			container->DrawText(FONT_SMALL, views->m_Title, { x, 0, x + width, 30 }, BRUSH_BLACK);
+			x += width;
 			i++;
 		}
 	}
@@ -110,6 +110,10 @@ public:
 		mv2->m_Title = L"MyView2";
 		tabctrl->AddView(mv2);
 
+		MyView* mv3 = new MyView(50, 50, 150, 100);
+		mv3->m_Title = L"MyView3 asdasdasdas";
+		tabctrl->AddView(mv3);
+
 	}
 
 	void OnClosing() override
@@ -146,4 +150,5 @@ CX_FUNC_MAIN
 	cxRunApp();
 
 	return 0;
+
 }

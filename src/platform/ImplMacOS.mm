@@ -63,42 +63,42 @@
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
+    ref->OnMouseDown({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), RIGHT });
+    ref->OnMouseDown({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), RIGHT });
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
+    ref->OnMouseUp({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), RIGHT });
+    ref->OnMouseUp({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), RIGHT });
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), NONE });
+    ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), NONE });
 }
 
 - (void)mouseDragged:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove({ (int)(curPoint.x * scale), (int)(curPoint.y * scale), LEFT });
+    ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
 }
 
 - (BOOL)isFlipped
@@ -291,12 +291,18 @@ void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWi
         NSParagraphStyleAttributeName: style
     };
 
-    NSString * nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
-    NSAttributedString* currentText=[[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
+    NSString* nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
 
     NSSize attrSize = [currentText size];
-    width = attrSize.width;
-    height = attrSize.height;
+
+    CGRect paragraphRect =
+        [currentText boundingRectWithSize:CGSizeMake(300.f, CGFLOAT_MAX)
+        options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
+        context:nil];
+
+    width = paragraphRect.size.width;
+    height = paragraphRect.size.height;
 }
 
 void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
@@ -305,7 +311,7 @@ void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
     
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
     CGContextSetRGBFillColor(context, brush.r, brush.g, brush.b, brush.a);
-    CGContextFillRect(context, CGRectMake(rect.left, rect.top, rect.right, rect.bottom));
+    CGContextFillRect(context, CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top));
 }
 
 void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
@@ -315,7 +321,7 @@ void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
     CGContextSetRGBStrokeColor(context, brush.r, brush.g, brush.b, brush.a);
     CGContextSetLineWidth(context, strokeWidth);
-    CGContextStrokeRect(context, CGRectMake(rect.left, rect.top, rect.right, rect.bottom));
+    CGContextStrokeRect(context, CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top));
 }
 
 void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brush)
@@ -345,7 +351,7 @@ void cxWindowBase::DrawText(int fontKey, std::wstring str, cxRect rect, int brus
     NSAttributedString* currentText=[[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
 
     NSSize attrSize = [currentText size];
-    [currentText drawInRect:CGRectMake(rect.left, rect.top, rect.right, rect.bottom)];
+    [currentText drawInRect:CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)];
 
 }
 
@@ -401,7 +407,7 @@ void cxLog(std::wstring str, ...)
     delete[] buffer;
 }
 
-void cxGetMousePosition(int& x, int& y)
+void cxGetMousePosition(float& x, float& y)
 {
     // float scale = 1;
 

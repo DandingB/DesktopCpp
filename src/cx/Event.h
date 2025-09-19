@@ -10,7 +10,7 @@ enum cxMouseButton
 
 struct cxMouseEvent
 {
-	int x, y;
+	float x, y;
 
 	cxMouseButton button;
 };
