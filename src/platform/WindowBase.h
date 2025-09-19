@@ -35,6 +35,13 @@ struct cxTextOptions
         TEXT_ALIGNMENT_CENTER,
         TEXT_ALIGNMENT_RIGHT
     } m_TextAlignment;
+
+    enum ParagraphAlignment
+    {
+        PARAGRAPH_ALIGNMENT_TOP,
+        PARAGRAPH_ALIGNMENT_CENTER,
+        PARAGRAPH_ALIGNMENT_BOTTOM
+    } m_ParagraphAlignment;
 };
 
 class cxWindowBase

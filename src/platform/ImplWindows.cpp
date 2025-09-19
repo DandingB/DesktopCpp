@@ -268,7 +268,8 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
     );
 
     font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-    font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+    font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+
 
     m_pFonts.insert({ key, font });
 }
@@ -286,6 +287,13 @@ void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth,
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
     }
     
+    switch (options.m_ParagraphAlignment)
+    {
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
+    }
+
 
     ComPtr<IDWriteTextLayout> pTextLayout;
     hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), format, maxWidth, maxHeight, pTextLayout.GetAddressOf());
@@ -333,6 +341,14 @@ void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect 
         case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING); break;
     }
+
+    switch (options.m_ParagraphAlignment)
+    {
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
+    }
+
 
     m_pRenderTarget->DrawText(
         str.c_str(),

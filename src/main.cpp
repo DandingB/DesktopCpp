@@ -33,7 +33,15 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			m_TopParent->GetFontTextMetrics(FONT_SMALL, view->m_Title, 200, 30, {cxTextOptions::TEXT_ALIGNMENT_CENTER}, width, height);
+			m_TopParent->GetFontTextMetrics(
+				FONT_SMALL, 
+				view->m_Title, 
+				200, 
+				30, 
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
+				width, 
+				height
+			);
 
 			if (event.x > x and event.x < x + width + 10)
 			{
@@ -63,7 +71,7 @@ class TabControl : public cxView
 				views->m_Title, 
 				200, 
 				30, 
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER }, 
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
 				width, 
 				height
 			);
@@ -76,7 +84,7 @@ class TabControl : public cxView
 				BRUSH_BLACK, 
 				views->m_Title, 
 				{ x, 0, x + width + 10, 30 }, 
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER }
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 			);
 
 			x += width + 10;
@@ -103,7 +111,7 @@ class MyView : public cxView
 			BRUSH_BLACK,
 			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
-			{ cxTextOptions::TEXT_ALIGNMENT_LEFT }
+			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
 	}
 };
