@@ -171,6 +171,15 @@ void cxWindowContainer::OnMouseMove(cxMouseEvent event)
 	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
 	if (view)
 	{
+		if (view != m_pMouseOver)
+		{
+			if (m_pMouseOver)
+				m_pMouseOver->OnMouseLeave();
+
+			view->OnMouseEnter();
+		}
+		m_pMouseOver = view;
+
 		float x, y;
 		view->GetWindowPos(x, y);
 		view->OnMouseMove({ event.x - x, event.y - y, event.button });
@@ -192,14 +201,9 @@ cxView* cxWindowContainer::GetViewAtLocation(std::vector<cxView*>& views, float 
 		right1 = left + view->m_Right;
 		bottom1 = top + view->m_Bottom;
 
-		if (right1 > right)
-			right1 = right;
-
-		if (bottom1 > bottom)
-			bottom1 = bottom;
-
-		if (left1 == right1 or top1 == bottom1)
-			continue;
+		if (right1 > right) right1 = right;
+		if (bottom1 > bottom) bottom1 = bottom;
+		if (left1 == right1 or top1 == bottom1) continue;
 
 		if ((x > left1) and (x < right1) and (y > top1) and (y < bottom1))
 		{

@@ -5,6 +5,8 @@
 #define BRUSH_DARKGREY   1
 #define BRUSH_DARKERGREY 2
 #define BRUSH_TABGREY 3
+#define BRUSH_BUTTON 5
+#define BRUSH_BUTTONHIGHLIGHT 6
 #define FONT_SMALL  0
 
 
@@ -117,6 +119,49 @@ class MyView : public cxView
 	}
 };
 
+class MyButton : public cxView
+{
+	using cxView::cxView;
+
+	bool m_Highlight = false;
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+	}
+
+	void OnMouseUp(cxMouseEvent event) override
+	{
+		cxLog(L"MyButton clicked %f %f", event.x, event.y);
+	}
+
+	void OnMouseEnter() override
+	{
+		m_Highlight = true;
+		m_TopParent->Invalidate();
+	}
+
+	void OnMouseLeave() override
+	{
+		m_Highlight = false;
+		m_TopParent->Invalidate();
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, m_Highlight ? BRUSH_BUTTONHIGHLIGHT : BRUSH_BUTTON);
+
+		container->DrawTextInRect(
+			FONT_SMALL,
+			BRUSH_TEXTWHITE,
+			L"Button",
+			{ 0,0,m_Right - m_Left,m_Bottom - m_Top },
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+		);
+
+	}
+};
+
+
 class MyWindow : public cxWindowContainer
 {
 public:
@@ -127,6 +172,8 @@ public:
 		MakeSolidBrush(BRUSH_DARKGREY, 0.2, 0.2, 0.2, 1.0);
 		MakeSolidBrush(BRUSH_DARKERGREY, 0.1, 0.1, 0.1, 1.0);
 		MakeSolidBrush(BRUSH_TABGREY, 0.3, 0.3, 0.3, 1.0);
+		MakeSolidBrush(BRUSH_BUTTON, 0.3, 0.3, 0.3, 1.0);
+		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4, 0.4, 0.4, 1.0);
 		MakeFont(FONT_SMALL, L"Segoe UI", 15.0);
 
 
@@ -136,13 +183,17 @@ public:
 		MyView* mv = new MyView(50, 50, 150, 100);
 		mv->m_Title = L"MyView";
 		tabctrl->AddView(mv);
+		mv->AddView(new MyButton(10, 10, 100, 40));
+
 
 		MyView* mv2 = new MyView(50, 50, 150, 100);
 		mv2->m_Title = L"MyView2";
+		mv2->m_Show = false;
 		tabctrl->AddView(mv2);
 
 		MyView* mv3 = new MyView(50, 50, 150, 100);
 		mv3->m_Title = L"MyView3 asdasdasdas";
+		mv3->m_Show = false;
 		tabctrl->AddView(mv3);
 
 		GetChildView(0)->m_Right = 500;

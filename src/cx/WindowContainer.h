@@ -32,6 +32,8 @@ public:
 	virtual void OnMouseDown(cxMouseEvent event) {}
 	virtual void OnMouseUp(cxMouseEvent event) {}
 	virtual void OnMouseMove(cxMouseEvent event) {}
+	virtual void OnMouseEnter() {}
+	virtual void OnMouseLeave() {}
 
 	friend cxWindowContainer;
 };
@@ -41,6 +43,9 @@ public:
 class cxWindowContainer : public cxWindowBase
 {
 	std::vector<cxView*> m_SubViews;
+
+	cxView* m_pMouseOver;
+	cxView* m_pHasCapture;
 
 public:
 	cxWindowContainer();
