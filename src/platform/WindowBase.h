@@ -1,67 +1,15 @@
 #pragma once
-#include <string>
-#include "Platform.h"
+#include "../cx/Types.h"
 #include "../cx/Event.h"
 #include <vector>
-#include <map>
+#include <string>
 
-enum cxCursorType
-{
-    cxArrow,
-    cxIBeam,
-    cxPointingHand,
-    cxHand,
-    cxGrab,
-    cxCrosshair,
-    cxSizeNWSE,
-    cxSizeNESW,
-    cxSizeWE,
-    cxSizeNS,
-    cxSizeAll,
-    cxNo,
-    
-};
-
-struct cxRect
-{
-    float left, top, right, bottom;
-};
-
-struct cxTextOptions
-{
-    enum TextAlignment
-    {
-        TEXT_ALIGNMENT_LEFT,
-        TEXT_ALIGNMENT_CENTER,
-        TEXT_ALIGNMENT_RIGHT
-    } m_TextAlignment;
-
-    enum ParagraphAlignment
-    {
-        PARAGRAPH_ALIGNMENT_TOP,
-        PARAGRAPH_ALIGNMENT_CENTER,
-        PARAGRAPH_ALIGNMENT_BOTTOM
-    } m_ParagraphAlignment;
-};
 
 class cxWindowBase
 {
     // PIMPL, platform types
     struct Impl;
     std::unique_ptr<Impl> p;
-
-
-#ifdef __APPLE__
-    void* m_NSWindow;
-    std::map<int, cxSolidBrush> m_pBrushes;
-    std::map<int, cxFont> m_pFonts;
-
-//#elif _WIN32
-//    HWND m_hWnd;
-//    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
-//    std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
-//    std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
-#endif
 
 public:
     cxWindowBase();

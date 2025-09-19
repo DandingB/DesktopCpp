@@ -1,16 +1,24 @@
 #ifdef __APPLE__
-
-#include "../cx.h"
 #include "WindowBase.h"
+#include "Platform.h"
 
 #include <Cocoa/Cocoa.h>
 #include <CoreText/CoreText.h>
 #include <mach-o/dyld.h>
 
+#include <map>
 #include <string>
 
-#define GET_WND(wnd) ((Window*)wnd)
-#define GET_VIEW(view) ((CustomView*)view)
+struct cxSolidBrush
+{
+    float r,g,b,a;
+};
+
+struct cxFont
+{
+    std::wstring fontName;
+    float size;
+};
 
 @interface Window : NSWindow <NSWindowDelegate> //<NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
 {
@@ -30,9 +38,7 @@
 {
     return YES;
 }
-
 @end
-
 
 
 @interface CustomView : NSView // <NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
@@ -111,22 +117,26 @@
 
 @end
 
+struct cxWindowBase::Impl
+{
+    Window* m_Window;
+    std::map<int, cxSolidBrush> m_pBrushes;
+    std::map<int, cxFont> m_pFonts;
+};
 
-cxWindowBase::cxWindowBase()
+cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
 {
     NSRect graphicsRect = NSMakeRect(0, 0, 500, 500);
     
-    Window* window = [[Window alloc] initWithContentRect:graphicsRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO ];
-    [window setDelegate: window];
-    window->ref = this;
+    p->m_Window = [[Window alloc] initWithContentRect:graphicsRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO ];
+    [p->m_Window setDelegate: p->m_Window];
+    p->m_Window->ref = this;
 
     // Window view
     CustomView* view = [[[CustomView alloc] initWithFrame:graphicsRect] autorelease];
     view->ref = this;
-    [window setContentView: view];
-    [window makeKeyAndOrderFront: nil];
-
-    m_NSWindow = window;
+    [p->m_Window setContentView: view];
+    [p->m_Window makeKeyAndOrderFront: nil];
 }
 
 cxWindowBase::~cxWindowBase()
@@ -138,36 +148,36 @@ cxWindowBase::~cxWindowBase()
 void cxWindowBase::SetTitle(std::wstring title)
 {
     NSString* s = [[NSString alloc] initWithBytes:title.data() length:title.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
-    [GET_WND(m_NSWindow) setTitle: s];
+    [p->m_Window setTitle: s];
 }
 
 void cxWindowBase::SetPosition(int x, int y)
 {
     float scale = 1.0;
-    NSRect frame = [GET_WND(m_NSWindow) frame];
+    NSRect frame = [p->m_Window frame];
     frame.origin.x = x / scale;
     frame.origin.y = y / scale;
-    [GET_WND(m_NSWindow) setFrame: frame display: YES animate: YES];
+    [p->m_Window setFrame: frame display: YES animate: YES];
 }
 
 void cxWindowBase::SetSize(int width, int height)
 {
     float scale = 1.0;
-    NSRect frame = [GET_WND(m_NSWindow) frame];
+    NSRect frame = [p->m_Window frame];
     frame.size = NSMakeSize(width / scale, height / scale);
-    [GET_WND(m_NSWindow) setFrame: frame display: YES animate: YES];
+    [p->m_Window setFrame: frame display: YES animate: YES];
 }
 
 void cxWindowBase::GetTitle(std::wstring& out)
 {
-    NSData* pSData = [[GET_WND(m_NSWindow) title] dataUsingEncoding: NSUTF32LittleEndianStringEncoding];
+    NSData* pSData = [ [ p->m_Window title ] dataUsingEncoding: NSUTF32LittleEndianStringEncoding ];
     out = std::wstring((wchar_t*) [pSData bytes], [pSData length] / sizeof(wchar_t));
 }
 
 void cxWindowBase::GetPosition(int& x, int& y)
 {
     float scale = 1.0;
-    NSRect rect = [GET_WND(m_NSWindow) frame];
+    NSRect rect = [p->m_Window frame];
     x = rect.origin.x * scale;
     y = rect.origin.y * scale;
 }
@@ -175,7 +185,7 @@ void cxWindowBase::GetPosition(int& x, int& y)
 void cxWindowBase::GetSize(int& width, int& height)
 {
     float scale = 1.0;
-    NSRect rect = [GET_WND(m_NSWindow) frame];
+    NSRect rect = [p->m_Window frame];
     width = rect.size.width * scale;
     height = rect.size.height * scale;
 }
@@ -183,7 +193,7 @@ void cxWindowBase::GetSize(int& width, int& height)
 void cxWindowBase::GetClientSize(int& width, int& height)
 {
     float scale = 1.0;
-    NSRect rect = [ [GET_WND(m_NSWindow) contentView] frame ];
+    NSRect rect = [ [p->m_Window contentView] frame ];
     width = rect.size.width * scale;
     height = rect.size.height * scale;
 }
@@ -191,9 +201,9 @@ void cxWindowBase::GetClientSize(int& width, int& height)
 void cxWindowBase::Show(bool show)
 {
     if (show)
-        [GET_WND(m_NSWindow) makeKeyAndOrderFront: nil];
+        [p->m_Window makeKeyAndOrderFront: nil];
     else
-        [GET_WND(m_NSWindow) orderOut: nil];
+        [p->m_Window orderOut: nil];
 }
 
 void cxWindowBase::ShowCursor(bool show)
@@ -255,7 +265,7 @@ void cxWindowBase::ReleaseMouse()
 
 void cxWindowBase::Invalidate()
 {
-    [[GET_WND(m_NSWindow) contentView ] setNeedsDisplay: YES];
+    [[p->m_Window contentView] setNeedsDisplay: YES];
 }
 
 void cxWindowBase::SetDrawConstraints(cxRect rect)
@@ -272,7 +282,7 @@ void cxWindowBase::RemoveDrawConstraints()
 
 void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 {
-    m_pBrushes.insert({ key, {r,g,b,a} });
+    p->m_pBrushes.insert({ key, {r,g,b,a} });
 }
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
@@ -300,12 +310,12 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
         CFRelease(errorDescription);
         exit(1);
     }
-    m_pFonts.insert({ key, {fontName, size} });
+    p->m_pFonts.insert({ key, {fontName, size} });
 }
 
 void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
 {
-    cxFont font = m_pFonts[fontKey];
+    cxFont font = p->m_pFonts[fontKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
 
@@ -337,7 +347,7 @@ void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWi
 
 void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
 {
-    cxSolidBrush brush = m_pBrushes[brushKey];
+    cxSolidBrush brush = p->m_pBrushes[brushKey];
     
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
     CGContextSetRGBFillColor(context, brush.r, brush.g, brush.b, brush.a);
@@ -346,7 +356,7 @@ void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
 
 void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
 {
-    cxSolidBrush brush = m_pBrushes[brushKey];
+    cxSolidBrush brush = p->m_pBrushes[brushKey];
 
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
     CGContextSetRGBStrokeColor(context, brush.r, brush.g, brush.b, brush.a);
@@ -367,7 +377,7 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
 void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
     float top = rect.top;
-    cxFont font = m_pFonts[fontKey];
+    cxFont font = p->m_pFonts[fontKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
     switch (options.m_TextAlignment)
@@ -407,8 +417,13 @@ void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect 
 
 float cxWindowBase::GetDPIScale()
 {
-    return [GET_WND(m_NSWindow) backingScaleFactor];
+    return [p->m_Window backingScaleFactor];
 }
+
+void cxWindowBase::OnSize(int width, int height)
+{
+}
+
 
 void cxInitApp()
 {

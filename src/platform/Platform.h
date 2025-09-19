@@ -7,17 +7,6 @@
 
 #define CX_FUNC_MAIN int main(int argc, const char * argv[])
 
-struct cxSolidBrush
-{
-    float r,g,b,a;
-};
-
-struct cxFont
-{
-    std::wstring fontName;
-    float size;
-};
-
 #elif _WIN32
 
 #define WINVER 0x0605
