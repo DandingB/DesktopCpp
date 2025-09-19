@@ -48,7 +48,6 @@ class cxWindowBase
 {
 #ifdef __APPLE__
     void* m_NSWindow;
-    void* m_NSView;
     std::map<int, cxSolidBrush> m_pBrushes;
     std::map<int, cxFont> m_pFonts;
 

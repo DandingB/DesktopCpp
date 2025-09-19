@@ -127,7 +127,6 @@ cxWindowBase::cxWindowBase()
     [window makeKeyAndOrderFront: nil];
 
     m_NSWindow = window;
-    m_NSView = view;
 }
 
 cxWindowBase::~cxWindowBase()
@@ -256,7 +255,7 @@ void cxWindowBase::ReleaseMouse()
 
 void cxWindowBase::Invalidate()
 {
-    [GET_VIEW(m_NSView) setNeedsDisplay: YES];
+    [[GET_WND(m_NSWindow) contentView ] setNeedsDisplay: YES];
 }
 
 void cxWindowBase::SetDrawConstraints(cxRect rect)
