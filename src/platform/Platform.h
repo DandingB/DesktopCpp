@@ -9,17 +9,7 @@
 
 #elif _WIN32
 
-#define WINVER 0x0605
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <windowsx.h>
-#include <wrl.h>
-#include <d2d1.h>
-#include <d2d1helper.h>
-#include <dwrite.h>
-
-using Microsoft::WRL::ComPtr;
-
+#include <Windows.h>
 #define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 
 #endif

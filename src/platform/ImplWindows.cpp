@@ -1,5 +1,20 @@
 #ifdef _WIN32
+
+#define WINVER 0x0605
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <windowsx.h>
+#include <wrl.h>
+#include <d2d1.h>
+#include <d2d1helper.h>
+#include <dwrite.h>
+
+#include <map>
+#include <string>
+
 #include "WindowBase.h"
+
+using Microsoft::WRL::ComPtr;
 
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
 HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
@@ -337,7 +352,7 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
     p->m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), p->m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
-void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
+void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
 
     IDWriteTextFormat* format = p->m_pFonts[fontKey].Get();

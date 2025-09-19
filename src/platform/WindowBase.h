@@ -1,6 +1,7 @@
 #pragma once
 #include "../cx/Types.h"
 #include "../cx/Event.h"
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -45,7 +46,7 @@ public:
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth = 1.0);
 
-    void DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
+    void DrawTextInRect(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
     
     float GetDPIScale();
 

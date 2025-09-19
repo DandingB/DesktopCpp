@@ -79,7 +79,7 @@ class TabControl : public cxView
 			if (i == m_SelPage) 
 				container->FillRectangle({x, 0, x + width + 10, 30}, 0);
 
-			container->DrawText(
+			container->DrawTextInRect(
 				FONT_SMALL, 
 				BRUSH_BLACK, 
 				views->m_Title, 
@@ -106,7 +106,7 @@ class MyView : public cxView
 	{
 		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
 		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
-		m_TopParent->DrawText(
+		m_TopParent->DrawTextInRect(
 			FONT_SMALL,
 			BRUSH_BLACK,
 			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 

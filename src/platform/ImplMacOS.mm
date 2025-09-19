@@ -374,7 +374,7 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
 
 }
 
-void cxWindowBase::DrawText(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
+void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
     float top = rect.top;
     cxFont font = p->m_pFonts[fontKey];
