@@ -33,7 +33,7 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			m_TopParent->GetFontTextMetrics(FONT_SMALL, view->m_Title, 100, 30, width, height);
+			m_TopParent->GetFontTextMetrics(FONT_SMALL, view->m_Title, 200, 30, width, height);
 
 			if (event.x > x and event.x < x + width + 10)
 			{
@@ -58,13 +58,13 @@ class TabControl : public cxView
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			container->GetFontTextMetrics(FONT_SMALL, views->m_Title, 100, 30, width, height);
+			container->GetFontTextMetrics(FONT_SMALL, views->m_Title, 200, 30, width, height);
 
 			if (i == m_SelPage) 
-				container->FillRectangle({x, 0, x + width, 30}, 0);
+				container->FillRectangle({x, 0, x + width + 10, 30}, 0);
 
-			container->DrawText(FONT_SMALL, views->m_Title, { x, 0, x + width, 30 }, BRUSH_BLACK);
-			x += width;
+			container->DrawText(FONT_SMALL, views->m_Title, { x, 0, x + width + 10, 30 }, BRUSH_BLACK);
+			x += width + 10;
 			i++;
 		}
 	}

@@ -294,10 +294,8 @@ void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWi
     NSString* nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
     NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
 
-    NSSize attrSize = [currentText size];
-
     CGRect paragraphRect =
-        [currentText boundingRectWithSize:CGSizeMake(300.f, CGFLOAT_MAX)
+        [currentText boundingRectWithSize:CGSizeMake(maxWidth, maxHeight)
         options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
         context:nil];
 
