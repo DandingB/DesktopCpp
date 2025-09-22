@@ -5,7 +5,7 @@ ifeq ($(OS),Windows_NT)
 ###########
 
 CXX = g++ -std=gnu++17
-LIBS = -lopengl32
+LIBS = -ld2d1 -ldwrite
 FLAGS = -mwindows -municode --static
 
 
