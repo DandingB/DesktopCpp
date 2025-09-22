@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+class cxFont;
+
 class cxWindowBase
 {
 private:
@@ -42,7 +44,7 @@ public:
     void DrawRectangle(cxRect rect, int brushKey, float strokeWidth = 1.0);
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth = 1.0);
-    void DrawTextInRect(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
+    void DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
     
     float GetDPIScale();
 
