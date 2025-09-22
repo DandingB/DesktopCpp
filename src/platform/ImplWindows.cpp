@@ -319,7 +319,7 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
         fontName.c_str(),                       // Font family name.
-        fontCollection.Get(),                           // Font collection (NULL sets it to use the system font collection).
+        NULL,                           // Font collection (NULL sets it to use the system font collection).
         DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
@@ -409,6 +409,7 @@ void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, c
         case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
     }
 
+    //format->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_DEFAULT, 30.f, 0.f);
 
     p->m_pRenderTarget->DrawTextW(
         str.c_str(),
