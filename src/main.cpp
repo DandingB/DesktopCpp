@@ -16,6 +16,7 @@ class TabControl : public cxView
 {
 	int m_SelPage = 0;
 	float m_TabPadding = 30.f;
+	float m_TabHeight = 40.f;
 
 	using cxView::cxView;
 
@@ -24,7 +25,7 @@ class TabControl : public cxView
 		for (cxView* view : m_SubViews)
 		{
 			view->m_Left = 0;
-			view->m_Top = 30;
+			view->m_Top = m_TabHeight;
 			view->m_Right = m_Right;
 			view->m_Bottom = m_Bottom;
 			view->OnSize();
@@ -64,7 +65,7 @@ class TabControl : public cxView
 
 	void OnPaint(cxWindowContainer* container) override
 	{
-		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 2);
+		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_DARKERGREY);
 
 		int i = 0;
 		float x = 0;
@@ -74,20 +75,20 @@ class TabControl : public cxView
 			font->GetFontTextMetrics( 
 				views->m_Title, 
 				200, 
-				30, 
+				m_TabHeight,
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
 				width, 
 				height
 			);
 
 			if (i == m_SelPage)
-				container->FillRectangle({x, 0, x + width + m_TabPadding, 30}, BRUSH_TABGREY);
+				container->FillRectangle({x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABGREY);
 
 			container->DrawTextInRect(
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
-				{ x, 0, x + width + m_TabPadding, 30 },
+				{ x, 0, x + width + m_TabPadding, m_TabHeight },
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 			);
 
