@@ -1,4 +1,5 @@
 #include "WindowContainer.h"
+#include "../platform/Platform.h"
 
 bool cxView::PointInView(float x, float y)
 {
@@ -175,6 +176,15 @@ void cxWindowContainer::OnMouseMove(cxMouseEvent event)
 		float x, y;
 		view->GetWindowPos(x, y);
 		view->OnMouseMove({ event.x - x, event.y - y, event.button });
+	}
+}
+
+void cxWindowContainer::OnMouseLeave()
+{
+	if (m_pMouseOver)
+	{
+		m_pMouseOver->OnMouseLeave();
+		m_pMouseOver = nullptr;
 	}
 }
 

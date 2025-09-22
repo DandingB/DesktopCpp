@@ -60,6 +60,7 @@ public:
 	void OnMouseDown(cxMouseEvent event) override;
 	void OnMouseUp(cxMouseEvent event) override;
 	void OnMouseMove(cxMouseEvent event) override;
+	void OnMouseLeave() override;
 
 	cxView* GetViewAtLocation(std::vector<cxView*>& views, float top, float left, float right, float bottom, float x, float y);
 

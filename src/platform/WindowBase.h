@@ -57,6 +57,7 @@ public:
     virtual void OnMouseUp(cxMouseEvent event) {}
     virtual void OnMouseMove(cxMouseEvent event) {}
     virtual void OnMouseDragged(cxMouseEvent event) {}
+    virtual void OnMouseLeave() {}
 
 
 #ifdef _WIN32

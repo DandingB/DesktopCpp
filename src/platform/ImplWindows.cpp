@@ -170,7 +170,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_MOUSEMOVE:
     {
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(tme);
+        tme.hwndTrack = hwnd;
+        tme.dwFlags = TME_HOVER | TME_LEAVE;
+        tme.dwHoverTime = HOVER_DEFAULT;
+        TrackMouseEvent(&tme);
+
         wnd->OnMouseMove({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), NONE });
+        return 0;
+    }
+    case WM_MOUSELEAVE:
+    {
+        cxLog(L"asdasdas");
+        wnd->OnMouseLeave();
         return 0;
     }
     case WM_DPICHANGED:

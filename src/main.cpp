@@ -94,11 +94,18 @@ class TabControl : public cxView
 			i++;
 		}
 	}
+	
+
 };
 
 class MyView : public cxView
 {
 	using cxView::cxView;
+
+	void OnMouseEnter() override
+	{
+		cxSetCursor(cxCursorType::cxArrow);
+	}
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
@@ -226,7 +233,7 @@ public:
 CX_FUNC_MAIN
 {
 	cxInitApp();
-	cxRegisterFontFile(L"pt-root-ui_vf.ttf");
+	//cxRegisterFontFile(L"pt-root-ui_vf.ttf");
 
 
 
