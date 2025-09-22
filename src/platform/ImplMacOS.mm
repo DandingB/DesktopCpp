@@ -1,5 +1,6 @@
 #ifdef __APPLE__
-#include "../cx/WindowBase.h"
+#include "WindowBase.h"
+#include "Font.h"
 #include "Platform.h"
 
 #include <Cocoa/Cocoa.h>
@@ -12,12 +13,6 @@
 struct cxSolidBrush
 {
     float r,g,b,a;
-};
-
-struct cxFont
-{
-    std::wstring fontName;
-    float size;
 };
 
 @interface Window : NSWindow <NSWindowDelegate> //<NSDraggingSource, NSDraggingDestination, NSPasteboardItemDataProvider>
@@ -128,6 +123,12 @@ struct cxWindowBase::Impl
     Window* m_Window;
     std::map<int, cxSolidBrush> m_pBrushes;
     std::map<int, cxFont> m_pFonts;
+};
+
+struct cxFont::Impl
+{
+    std::wstring fontName;
+    float size;
 };
 
 cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
@@ -245,45 +246,6 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
     p->m_pBrushes.insert({ key, {r,g,b,a} });
 }
 
-void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
-{
-    
-    p->m_pFonts.insert({ key, {fontName, size} });
-}
-
-void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
-{
-    cxFont font = p->m_pFonts[fontKey];
-
-    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-
-    switch (options.m_TextAlignment)
-    {
-        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [style setAlignment:NSTextAlignmentLeft]; break;
-        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
-        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
-    }
-    
-    NSString* nsStr1 = [[NSString alloc] initWithBytes:font.fontName.data() length:font.fontName.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
-
-    NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:nsStr1 size:font.size],
-        NSForegroundColorAttributeName: [NSColor blackColor],
-        NSParagraphStyleAttributeName: style
-    };
-
-    NSString* nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
-    NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
-
-    CGRect paragraphRect =
-        [currentText boundingRectWithSize:CGSizeMake(maxWidth, maxHeight)
-        options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
-        context:nil];
-
-    width = paragraphRect.size.width;
-    height = paragraphRect.size.height;
-}
-
 void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
 {
     cxSolidBrush brush = p->m_pBrushes[brushKey];
@@ -313,10 +275,9 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
 
 }
 
-void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
+void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
     float top = rect.top;
-    cxFont font = p->m_pFonts[fontKey];
     cxSolidBrush brush = p->m_pBrushes[brushKey];
 
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
@@ -327,9 +288,9 @@ void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, c
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
 
-    NSString* nsStr1 = [[NSString alloc] initWithBytes:font.fontName.data() length:font.fontName.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSString* nsStr1 = [[NSString alloc] initWithBytes:font->p->fontName.data() length:font->p->fontName.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
     NSDictionary* attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:nsStr1 size:font.size],
+        NSFontAttributeName: [NSFont fontWithName:nsStr1 size:font->p->size],
         NSForegroundColorAttributeName: [NSColor colorWithDeviceRed:brush.r green:brush.g blue:brush.b alpha:brush.a],
         NSParagraphStyleAttributeName: style
     };
@@ -365,6 +326,50 @@ void cxWindowBase::OnSize(int width, int height)
 {
 }
 
+
+
+cxFont::cxFont(std::wstring fontName, float size) : p(std::make_unique<Impl>())
+{
+    p->fontName = fontName;
+    p->size = size;
+}
+
+cxFont::~cxFont()
+{
+
+}
+
+void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
+{
+    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
+
+    switch (options.m_TextAlignment)
+    {
+        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [style setAlignment:NSTextAlignmentLeft]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
+    }
+    
+    NSString* nsStr1 = [[NSString alloc] initWithBytes:p->fontName.data() length:p->fontName.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+
+    NSDictionary *attributes = @{
+        NSFontAttributeName: [NSFont fontWithName:nsStr1 size: p->size],
+        NSForegroundColorAttributeName: [NSColor blackColor],
+        NSParagraphStyleAttributeName: style
+    };
+
+    NSString* nsStr = [[NSString alloc] initWithBytes:str.data() length:str.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+    NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:nsStr attributes: attributes];
+
+    CGRect paragraphRect =
+        [currentText boundingRectWithSize:CGSizeMake(maxWidth, maxHeight)
+        options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading)
+        context:nil];
+
+    width = paragraphRect.size.width;
+    height = paragraphRect.size.height;
+
+}
 
 void cxInitApp()
 {
