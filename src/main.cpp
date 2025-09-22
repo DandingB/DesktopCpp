@@ -15,6 +15,7 @@ std::unique_ptr<cxFont> font;
 class TabControl : public cxView
 {
 	int m_SelPage = 0;
+	float m_TabPadding = 30.f;
 
 	using cxView::cxView;
 
@@ -32,7 +33,7 @@ class TabControl : public cxView
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
-		int x = 0;
+		float x = 0;
 		for (int i = 0; i < m_SubViews.size(); i++)
 		{
 			cxView* view = m_SubViews[i];
@@ -47,13 +48,13 @@ class TabControl : public cxView
 				height
 			);
 
-			if (event.x > x and event.x < x + width + 20)
+			if (event.x > x and event.x < x + width + m_TabPadding)
 			{
 				m_SelPage = i;
 			}
 
 			view->m_Show = false;
-			x += width + 20.f;
+			x += width + m_TabPadding;
 		}
 
 		if (m_SubViews.size() > 0)
@@ -80,17 +81,17 @@ class TabControl : public cxView
 			);
 
 			if (i == m_SelPage)
-				container->FillRectangle({x, 0, x + width + 20, 30}, BRUSH_TABGREY);
+				container->FillRectangle({x, 0, x + width + m_TabPadding, 30}, BRUSH_TABGREY);
 
 			container->DrawTextInRect(
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
-				{ x, 0, x + width + 20, 30 }, 
+				{ x, 0, x + width + m_TabPadding, 30 },
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 			);
 
-			x += width + 20;
+			x += width + m_TabPadding;
 			i++;
 		}
 	}
