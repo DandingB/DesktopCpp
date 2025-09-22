@@ -1,5 +1,6 @@
 ﻿#include "cx.h"
 #include <functional>
+#include <fstream>
 
 #define BRUSH_TEXTWHITE 0
 #define BRUSH_TEXTGREY  4
@@ -46,13 +47,13 @@ class TabControl : public cxView
 				height
 			);
 
-			if (event.x > x and event.x < x + width + 10)
+			if (event.x > x and event.x < x + width + 20)
 			{
 				m_SelPage = i;
 			}
 
 			view->m_Show = false;
-			x += width + 10.f;
+			x += width + 20.f;
 		}
 
 		if (m_SubViews.size() > 0)
@@ -79,17 +80,17 @@ class TabControl : public cxView
 			);
 
 			if (i == m_SelPage)
-				container->FillRectangle({x, 0, x + width + 10, 30}, BRUSH_TABGREY);
+				container->FillRectangle({x, 0, x + width + 20, 30}, BRUSH_TABGREY);
 
 			container->DrawTextInRect(
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
-				{ x, 0, x + width + 10, 30 }, 
+				{ x, 0, x + width + 20, 30 }, 
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 			);
 
-			x += width + 10;
+			x += width + 20;
 			i++;
 		}
 	}
@@ -100,6 +101,8 @@ class TabControl : public cxView
 class MyView : public cxView
 {
 	using cxView::cxView;
+public:
+	std::wstring text;
 
 	void OnMouseEnter() override
 	{
@@ -118,7 +121,7 @@ class MyView : public cxView
 		m_TopParent->DrawTextInRect(
 			font.get(),
 			BRUSH_TEXTWHITE,
-			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 
+			text,
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
 			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
@@ -161,7 +164,7 @@ public:
 		container->DrawTextInRect(
 			font.get(),
 			BRUSH_TEXTWHITE,
-			L"Button",
+			m_Title,
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top },
 			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
@@ -169,16 +172,13 @@ public:
 	}
 };
 
-
-void ButtonClick()
-{
-	std::wstring filename;
-	cxOpenFileDialog(filename);
-	cxLog(filename);
-}
-
 class MyWindow : public cxWindowContainer
 {
+	TabControl* tabctrl;
+
+	MyView* mv;
+	MyView* mv2;
+	MyView* mv3;
 public:
 	MyWindow()
 	{
@@ -190,30 +190,52 @@ public:
 		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
 
-		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
+		tabctrl = new TabControl(0, 0, 150, 100);
 		AddView(tabctrl);
 
-		MyView* mv = new MyView(50, 50, 150, 100);
-		mv->m_Title = L"MyView";
+		mv = new MyView(50, 50, 150, 100);
+		mv->m_Title = L"File name";
 		tabctrl->AddView(mv);
 		MyButton* btn = new MyButton(10, 10, 100, 40);
-		btn->callback = ButtonClick;
+		btn->callback = std::bind(&MyWindow::OpenFile, this);
+		btn->m_Title = L"Open File";
 		mv->AddView(btn);
 
 
-		MyView* mv2 = new MyView(50, 50, 150, 100);
-		mv2->m_Title = L"MyView2";
+		mv2 = new MyView(50, 50, 150, 100);
+		mv2->m_Title = L"File contents";
 		mv2->m_Show = false;
 		tabctrl->AddView(mv2);
 
-		MyView* mv3 = new MyView(50, 50, 150, 100);
-		mv3->m_Title = L"MyView3 asdasdasdas";
+		mv3 = new MyView(50, 50, 150, 100);
+		mv3->m_Title = L"MyView3asdasdasdas";
 		mv3->m_Show = false;
 		tabctrl->AddView(mv3);
 
 		GetChildView(0)->m_Right = 500;
 		GetChildView(0)->m_Bottom = 500;
 		GetChildView(0)->OnSize();
+	}
+
+	void OpenFile()
+	{
+		std::wstring filename;
+		cxOpenFileDialog(filename);
+		mv->text = filename;
+
+		std::wifstream file(filename);
+		std::wstring contents;
+		std::wstring str;
+		while (std::getline(file, str))
+		{
+			contents += str;
+		}
+
+		cxLog(contents);
+
+		mv2->text = contents;
+
+		Invalidate();
 	}
 
 	void OnClosing() override
