@@ -1,7 +1,6 @@
 #ifdef _WIN32
 
 #define WINVER 0x0605
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
 #include <wrl.h>
@@ -530,32 +529,6 @@ void cxSetCursor(cxCursorType type)
 
 void cxRegisterFontFile(std::wstring file)
 {
-    //// Load font file
-    //ComPtr<IDWriteFontFile> fontFile;
-    //if (FAILED(pDWriteFactory->CreateFontFileReference(file.c_str(), nullptr, &fontFile)))
-    //{
-    //    OutputDebugStringW(L"CreateFontFileReference Failed.");
-    //    exit(1);
-    //}
-
-    //// Create a font face from the file
-    //BOOL isSupported;
-    //DWRITE_FONT_FILE_TYPE fileType;
-    //DWRITE_FONT_FACE_TYPE faceType;
-    //UINT32 numFaces;
-
-    //fontFile->Analyze(&isSupported, &fileType, &faceType, &numFaces);
-
-    //ComPtr<IDWriteFontFace> fontFace;
-    //pDWriteFactory->CreateFontFace(
-    //    faceType,
-    //    1,
-    //    fontFile.GetAddressOf(),
-    //    0,
-    //    DWRITE_FONT_SIMULATIONS_NONE,
-    //    &fontFace
-    //);
-
     //if (AddFontResourceExW(file.c_str(), FR_PRIVATE, NULL) == 0)
     //{
     //    OutputDebugStringW(L"Error adding font resource!\n");
@@ -594,6 +567,32 @@ void cxRegisterFontFile(std::wstring file)
 }
 
 
+void cxOpenFileDialog(std::wstring& filename)
+{
+    OPENFILENAME ofn;       // common dialog box structure
+    WCHAR szFile[260];     // buffer for file name
+
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+    // use the contents of szFile to initialize itself.
+    ofn.lpstrFile[0] = L'\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = L"All supported files\0*.wav\0Wave (.wav)\0*.wav\0QuickTime (.mov)\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileNameW(&ofn) == TRUE)
+    {
+        filename = std::wstring(ofn.lpstrFile);
+    }
+}
 
 
 #endif

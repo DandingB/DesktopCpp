@@ -31,3 +31,5 @@ void cxShowCursor(bool show = true);
 void cxSetCursor(cxCursorType type);
 
 void cxRegisterFontFile(std::wstring file);
+
+void cxOpenFileDialog(std::wstring& filename);

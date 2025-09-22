@@ -1,4 +1,5 @@
 ﻿#include "cx.h"
+#include <functional>
 
 #define BRUSH_TEXTWHITE 0
 #define BRUSH_TEXTGREY  4
@@ -128,7 +129,9 @@ class MyButton : public cxView
 {
 	using cxView::cxView;
 
+public:
 	bool m_Highlight = false;
+	std::function<void()> callback;
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
@@ -136,7 +139,7 @@ class MyButton : public cxView
 
 	void OnMouseUp(cxMouseEvent event) override
 	{
-		cxLog(L"MyButton clicked %f %f", event.x, event.y);
+		callback();
 	}
 
 	void OnMouseEnter() override
@@ -167,6 +170,13 @@ class MyButton : public cxView
 };
 
 
+void ButtonClick()
+{
+	std::wstring filename;
+	cxOpenFileDialog(filename);
+	cxLog(filename);
+}
+
 class MyWindow : public cxWindowContainer
 {
 public:
@@ -186,7 +196,9 @@ public:
 		MyView* mv = new MyView(50, 50, 150, 100);
 		mv->m_Title = L"MyView";
 		tabctrl->AddView(mv);
-		mv->AddView(new MyButton(10, 10, 100, 40));
+		MyButton* btn = new MyButton(10, 10, 100, 40);
+		btn->callback = ButtonClick;
+		mv->AddView(btn);
 
 
 		MyView* mv2 = new MyView(50, 50, 150, 100);
