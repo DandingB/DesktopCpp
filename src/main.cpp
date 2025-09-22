@@ -174,7 +174,7 @@ public:
 		MakeSolidBrush(BRUSH_TABGREY, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
-		MakeFont(FONT_SMALL, L"PT Root UI VF Light", 15.0f);
+		MakeFont(FONT_SMALL, L"PT Root UI VF", 15.0f);
 
 
 		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
@@ -227,6 +227,8 @@ CX_FUNC_MAIN
 {
 	cxInitApp();
 	cxRegisterFontFile(L"pt-root-ui_vf.ttf");
+
+
 
 	MyWindow* window = new MyWindow;
 

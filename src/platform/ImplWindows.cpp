@@ -29,6 +29,82 @@ bool g_ClassRegistered = RegisterWindowClass();
 ID2D1Factory* m_pDirect2dFactory;
 IDWriteFactory* pDWriteFactory;
 
+ComPtr<IDWriteFontCollection> fontCollection;
+
+
+
+class SingleFileFontLoader : public IDWriteFontCollectionLoader, public IDWriteFontFileEnumerator {
+public:
+    SingleFileFontLoader(IDWriteFactory* factory, const std::wstring& path)
+        : refCount(1), factory(factory), path(path), hasEnumerated(false) {
+    }
+
+    // IUnknown
+    IFACEMETHOD(QueryInterface)(REFIID riid, void** ppvObject) override {
+        if (riid == __uuidof(IUnknown) ||
+            riid == __uuidof(IDWriteFontCollectionLoader)) {
+            *ppvObject = static_cast<IDWriteFontCollectionLoader*>(this);
+        }
+        else if (riid == __uuidof(IDWriteFontFileEnumerator)) {
+            *ppvObject = static_cast<IDWriteFontFileEnumerator*>(this);
+        }
+        else {
+            *ppvObject = nullptr;
+            return E_NOINTERFACE;
+        }
+        AddRef();
+        return S_OK;
+    }
+
+    IFACEMETHOD_(ULONG, AddRef)() override { return InterlockedIncrement(&refCount); }
+    IFACEMETHOD_(ULONG, Release)() override {
+        ULONG c = InterlockedDecrement(&refCount);
+        if (c == 0) delete this;
+        return c;
+    }
+
+    // IDWriteFontCollectionLoader
+    IFACEMETHOD(CreateEnumeratorFromKey)(
+        IDWriteFactory* factory,
+        void const* /*collectionKey*/,
+        UINT32 /*collectionKeySize*/,
+        IDWriteFontFileEnumerator** fontFileEnumerator) override
+    {
+        *fontFileEnumerator = this;
+        AddRef();
+        return S_OK;
+    }
+
+    // IDWriteFontFileEnumerator
+    IFACEMETHOD(MoveNext)(BOOL* hasCurrentFile) override {
+        if (!hasEnumerated) {
+            factory->CreateFontFileReference(path.c_str(), nullptr, &currentFile);
+            *hasCurrentFile = TRUE;
+            hasEnumerated = true;
+        }
+        else {
+            *hasCurrentFile = FALSE;
+        }
+        return S_OK;
+    }
+
+    IFACEMETHOD(GetCurrentFontFile)(IDWriteFontFile** fontFile) override {
+        *fontFile = currentFile.Get();
+        (*fontFile)->AddRef();
+        return S_OK;
+    }
+
+private:
+    ~SingleFileFontLoader() = default;
+
+    LONG refCount;
+    ComPtr<IDWriteFactory> factory;
+    std::wstring path;
+    bool hasEnumerated;
+    ComPtr<IDWriteFontFile> currentFile;
+};
+
+
 
 struct cxWindowBase::Impl
 {
@@ -137,8 +213,6 @@ cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
         D2D1::HwndRenderTargetProperties(p->m_hWnd, size),
         &p->m_pRenderTarget
     );
-
-
 }
 
 cxWindowBase::~cxWindowBase()
@@ -236,6 +310,7 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 {
+    //IDWriteFontCollection* m_dwFontColl;
     //if (FAILED(pDWriteFactory->GetSystemFontCollection(&m_dwFontColl, false)))
     //{
     //    OutputDebugString(L"Failed to retrieve system font collection.\n");
@@ -243,13 +318,13 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
-        fontName.c_str(),                 // Font family name.
-        NULL,                                   // Font collection (NULL sets it to use the system font collection).
-        DWRITE_FONT_WEIGHT_LIGHT,
+        fontName.c_str(),                       // Font family name.
+        fontCollection.Get(),                           // Font collection (NULL sets it to use the system font collection).
+        DWRITE_FONT_WEIGHT_NORMAL,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
         size,
-        L"",
+        L"en-US",
         &font
     );
 
@@ -335,7 +410,7 @@ void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, c
     }
 
 
-    p->m_pRenderTarget->DrawText(
+    p->m_pRenderTarget->DrawTextW(
         str.c_str(),
         str.length(),
         format,
@@ -406,8 +481,6 @@ bool RegisterWindowClass()
         __uuidof(IDWriteFactory),
         reinterpret_cast<IUnknown**>(&pDWriteFactory)
     );
-
-    //HWND hDesktop = CreateWindowEx(0, L"Main_Window", L"", NULL, 0, 0, 500, 500, NULL, NULL, hInstance, NULL);
 
     return true;
 }
@@ -503,12 +576,67 @@ void cxSetCursor(cxCursorType type)
 
 void cxRegisterFontFile(std::wstring file)
 {
-    IDWriteFontCollection* m_dwFontColl;
-    if (AddFontResourceEx(file.c_str(), FR_PRIVATE, NULL) == 0)
-    {
-        OutputDebugString(L"Error adding font resource!\n");
-        exit(1);
-    }
+    //// Load font file
+    //ComPtr<IDWriteFontFile> fontFile;
+    //if (FAILED(pDWriteFactory->CreateFontFileReference(file.c_str(), nullptr, &fontFile)))
+    //{
+    //    OutputDebugStringW(L"CreateFontFileReference Failed.");
+    //    exit(1);
+    //}
+
+    //// Create a font face from the file
+    //BOOL isSupported;
+    //DWRITE_FONT_FILE_TYPE fileType;
+    //DWRITE_FONT_FACE_TYPE faceType;
+    //UINT32 numFaces;
+
+    //fontFile->Analyze(&isSupported, &fileType, &faceType, &numFaces);
+
+    //ComPtr<IDWriteFontFace> fontFace;
+    //pDWriteFactory->CreateFontFace(
+    //    faceType,
+    //    1,
+    //    fontFile.GetAddressOf(),
+    //    0,
+    //    DWRITE_FONT_SIMULATIONS_NONE,
+    //    &fontFace
+    //);
+
+    //if (AddFontResourceExW(file.c_str(), FR_PRIVATE, NULL) == 0)
+    //{
+    //    OutputDebugStringW(L"Error adding font resource!\n");
+    //    exit(1);
+    //}
+
+
+
+    // Create and register the loader
+    auto loader = new SingleFileFontLoader(pDWriteFactory, file);
+    pDWriteFactory->RegisterFontCollectionLoader(loader);
+
+    // The "key" can be anything, we don't use it in our loader
+    pDWriteFactory->CreateCustomFontCollection(
+        loader,
+        nullptr, // collectionKey
+        0,       // collectionKeySize
+        &fontCollection
+    );
+
+    // Extract family name
+    ComPtr<IDWriteFontFamily> family;
+    fontCollection->GetFontFamily(0, &family);
+
+    ComPtr<IDWriteLocalizedStrings> names;
+    family->GetFamilyNames(&names);
+
+    UINT32 index = 0;
+    BOOL exists = FALSE;
+    names->FindLocaleName(L"en-us", &index, &exists);
+    if (!exists) index = 0;
+
+    WCHAR familyName[100];
+    names->GetString(index, familyName, ARRAYSIZE(familyName));
+
 }
 
 
