@@ -198,6 +198,15 @@ void cxWindowBase::GetClientSize(int& width, int& height)
     height = rect.size.height * scale;
 }
 
+void cxWindowBase::GetClientSize(float& width, float& height)
+{
+    float scale = 1.0;
+    NSRect rect = [ [p->m_Window contentView] frame ];
+    width = (float)rect.size.width * scale;
+    height = (float)rect.size.height * scale;
+}
+
+
 void cxWindowBase::Show(bool show)
 {
     if (show)
@@ -205,53 +214,6 @@ void cxWindowBase::Show(bool show)
     else
         [p->m_Window orderOut: nil];
 }
-
-void cxWindowBase::ShowCursor(bool show)
-{
-    if (show)
-        [NSCursor unhide];
-    else
-        [NSCursor hide];
-}
-
-
-void cxWindowBase::SetCursor(cxCursorType type)
-{
-    switch(type)
-    {
-        case cxArrow:
-            [[NSCursor arrowCursor] set];
-            return;
-        case cxIBeam:
-            [[NSCursor IBeamCursor] set];
-            return;
-        case cxPointingHand:
-            [[NSCursor pointingHandCursor] set];
-            return;
-        case cxHand:
-            [[NSCursor openHandCursor] set];
-            return;
-        case cxGrab:
-            [[NSCursor closedHandCursor] set];
-            return;
-        case cxCrosshair:
-            [[NSCursor crosshairCursor] set];
-            return;
-        case cxSizeWE:
-            [[NSCursor resizeLeftRightCursor] set];
-            return;
-        case cxSizeNS:
-            [[NSCursor resizeUpDownCursor] set];
-            return;
-        case cxNo:
-            [[NSCursor operationNotAllowedCursor] set];
-            return;
-        default:
-            [[NSCursor arrowCursor] set];
-            return;
-    }
-}
-
 
 void cxWindowBase::CaptureMouse()
 {
@@ -502,5 +464,52 @@ void cxGetMousePosition(float& x, float& y)
         }
     }
 }
+
+void cxShowCursor(bool show)
+{
+    if (show)
+        [NSCursor unhide];
+    else
+        [NSCursor hide];
+}
+
+void cxSetCursor(cxCursorType type)
+{
+    switch(type)
+    {
+        case cxArrow:
+            [[NSCursor arrowCursor] set];
+            return;
+        case cxIBeam:
+            [[NSCursor IBeamCursor] set];
+            return;
+        case cxPointingHand:
+            [[NSCursor pointingHandCursor] set];
+            return;
+        case cxHand:
+            [[NSCursor openHandCursor] set];
+            return;
+        case cxGrab:
+            [[NSCursor closedHandCursor] set];
+            return;
+        case cxCrosshair:
+            [[NSCursor crosshairCursor] set];
+            return;
+        case cxSizeWE:
+            [[NSCursor resizeLeftRightCursor] set];
+            return;
+        case cxSizeNS:
+            [[NSCursor resizeUpDownCursor] set];
+            return;
+        case cxNo:
+            [[NSCursor operationNotAllowedCursor] set];
+            return;
+        default:
+            [[NSCursor arrowCursor] set];
+            return;
+    }
+
+}
+
 
 #endif

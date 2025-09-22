@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdarg>
 #include <iostream>
+#include "../cx/Types.h"
 
 
 #ifdef __APPLE__
@@ -23,3 +24,6 @@ void cxMessageBox(std::wstring text);
 void cxLog(std::wstring str, ...);
 
 void cxGetMousePosition(float& x, float& y);
+
+void cxShowCursor(bool show = true);
+void cxSetCursor(cxCursorType type);

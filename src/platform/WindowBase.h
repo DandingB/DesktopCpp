@@ -24,11 +24,10 @@ public:
     void GetPosition(int& x, int& y);
     void GetSize(int& width, int& height);
     void GetClientSize(int& width, int& height);
+    void GetClientSize(float& width, float& height);
 
     void Show(bool show = true);
 
-    void ShowCursor(bool show = true);
-    void SetCursor(cxCursorType type);
     void CaptureMouse();
     void ReleaseMouse();
 

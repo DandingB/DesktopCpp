@@ -1,5 +1,6 @@
 #ifdef _WIN32
 
+#pragma once
 #define WINVER 0x0605
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -190,47 +191,17 @@ void cxWindowBase::GetClientSize(int& width, int& height)
     height = rect.bottom;
 }
 
+void cxWindowBase::GetClientSize(float& width, float& height)
+{
+    RECT rect;
+    GetClientRect(p->m_hWnd, &rect);
+    width = (float)rect.right;
+    height = (float)rect.bottom;
+}
+
 void cxWindowBase::Show(bool show)
 {
     ShowWindow(p->m_hWnd, show);
-}
-
-void cxWindowBase::ShowCursor(bool show)
-{
-    ::ShowCursor(show);
-}
-
-void cxWindowBase::SetCursor(cxCursorType type)
-{
-    switch (type)
-    {
-    case cxArrow:
-    {
-        ::SetCursor(cArrow);
-        return;
-    }
-    case cxIBeam:
-        return;
-    case cxPointingHand:
-        return;
-    case cxHand:
-        return;
-    case cxGrab:
-        return;
-    case cxCrosshair:
-        return;
-    case cxSizeWE:
-    {   
-        ::SetCursor(cSizeWE);
-        return;
-    }
-    case cxSizeNS:
-        return;
-    case cxNo:
-        return;
-    default:
-        return;
-    }
 }
 
 void cxWindowBase::CaptureMouse()
@@ -505,5 +476,45 @@ void cxGetMousePosition(int& x, int& y)
     x = pt.x;
     y = pt.y;
 }
+
+void cxShowCursor(bool show)
+{
+    ::ShowCursor(show);
+}
+
+void cxSetCursor(cxCursorType type)
+{
+    switch (type)
+    {
+    case cxArrow:
+    {
+        ::SetCursor(cArrow);
+        return;
+    }
+    case cxIBeam:
+        return;
+    case cxPointingHand:
+        return;
+    case cxHand:
+        return;
+    case cxGrab:
+        return;
+    case cxCrosshair:
+        return;
+    case cxSizeWE:
+    {
+        ::SetCursor(cSizeWE);
+        return;
+    }
+    case cxSizeNS:
+        return;
+    case cxNo:
+        return;
+    default:
+        return;
+    }
+
+}
+
 
 #endif

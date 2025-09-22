@@ -1,4 +1,5 @@
-﻿#include "cx.h"
+﻿#pragma once
+#include "cx.h"
 
 #define BRUSH_TEXTWHITE 0
 #define BRUSH_TEXTGREY  4
@@ -52,7 +53,7 @@ class TabControl : public cxView
 			}
 
 			view->m_Show = false;
-			x += width + 10;
+			x += width + 10.f;
 		}
 
 		if (m_SubViews.size() > 0)
@@ -167,14 +168,14 @@ class MyWindow : public cxWindowContainer
 public:
 	MyWindow()
 	{
-		MakeSolidBrush(BRUSH_TEXTWHITE, 1.0, 1.0, 1.0, 1.0);
-		MakeSolidBrush(BRUSH_TEXTGREY, 0.6, 0.6, 0.6, 1.0);
-		MakeSolidBrush(BRUSH_DARKGREY, 0.2, 0.2, 0.2, 1.0);
-		MakeSolidBrush(BRUSH_DARKERGREY, 0.1, 0.1, 0.1, 1.0);
-		MakeSolidBrush(BRUSH_TABGREY, 0.3, 0.3, 0.3, 1.0);
-		MakeSolidBrush(BRUSH_BUTTON, 0.3, 0.3, 0.3, 1.0);
-		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4, 0.4, 0.4, 1.0);
-		MakeFont(FONT_SMALL, L"Segoe UI", 15.0);
+		MakeSolidBrush(BRUSH_TEXTWHITE, 1.0f, 1.0f, 1.0f, 1.0f);
+		MakeSolidBrush(BRUSH_TEXTGREY, 0.6f, 0.6f, 0.6f, 1.0f);
+		MakeSolidBrush(BRUSH_DARKGREY, 0.2f, 0.2f, 0.2f, 1.0f);
+		MakeSolidBrush(BRUSH_DARKERGREY, 0.1f, 0.1f, 0.1f, 1.0f);
+		MakeSolidBrush(BRUSH_TABGREY, 0.3f, 0.3f, 0.3f, 1.0f);
+		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
+		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
+		MakeFont(FONT_SMALL, L"Segoe UI", 15.0f);
 
 
 		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
