@@ -258,9 +258,10 @@ void cxWindowBase::GetFontTextMetrics(int fontKey, std::wstring str, float maxWi
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
     
-    
+    NSString* nsStr1 = [[NSString alloc] initWithBytes:font.fontName.data() length:font.fontName.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
+
     NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:@"Via Sign Regular" size:font.size],
+        NSFontAttributeName: [NSFont fontWithName:nsStr1 size:font.size],
         NSForegroundColorAttributeName: [NSColor blackColor],
         NSParagraphStyleAttributeName: style
     };
@@ -320,8 +321,9 @@ void cxWindowBase::DrawTextInRect(int fontKey, int brushKey, std::wstring str, c
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
 
+    NSString* nsStr1 = [[NSString alloc] initWithBytes:font.fontName.data() length:font.fontName.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
     NSDictionary* attributes = @{
-        NSFontAttributeName: [NSFont fontWithName:@"Via Sign Regular" size:font.size],
+        NSFontAttributeName: [NSFont fontWithName:nsStr1 size:font.size],
         NSForegroundColorAttributeName: [NSColor colorWithDeviceRed:brush.r green:brush.g blue:brush.b alpha:brush.a],
         NSParagraphStyleAttributeName: style
     };
