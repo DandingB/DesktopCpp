@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#include "WindowBase.h"
+#include "../cx/WindowBase.h"
 #include "Platform.h"
 
 #include <Cocoa/Cocoa.h>

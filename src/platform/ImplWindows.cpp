@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 
-#include "WindowBase.h"
+#include "../cx/WindowBase.h"
 #include "Platform.h"
 
 using Microsoft::WRL::ComPtr;
@@ -26,83 +26,9 @@ bool RegisterWindowClass();
 const wchar_t CLASS_NAME[] = L"Main_Window";
 bool g_ClassRegistered = RegisterWindowClass();
 
-ID2D1Factory* m_pDirect2dFactory;
+ID2D1Factory* pD2DFactory;
 IDWriteFactory* pDWriteFactory;
 
-ComPtr<IDWriteFontCollection> fontCollection;
-
-
-
-class SingleFileFontLoader : public IDWriteFontCollectionLoader, public IDWriteFontFileEnumerator {
-public:
-    SingleFileFontLoader(IDWriteFactory* factory, const std::wstring& path)
-        : refCount(1), factory(factory), path(path), hasEnumerated(false) {
-    }
-
-    // IUnknown
-    IFACEMETHOD(QueryInterface)(REFIID riid, void** ppvObject) override {
-        if (riid == __uuidof(IUnknown) ||
-            riid == __uuidof(IDWriteFontCollectionLoader)) {
-            *ppvObject = static_cast<IDWriteFontCollectionLoader*>(this);
-        }
-        else if (riid == __uuidof(IDWriteFontFileEnumerator)) {
-            *ppvObject = static_cast<IDWriteFontFileEnumerator*>(this);
-        }
-        else {
-            *ppvObject = nullptr;
-            return E_NOINTERFACE;
-        }
-        AddRef();
-        return S_OK;
-    }
-
-    IFACEMETHOD_(ULONG, AddRef)() override { return InterlockedIncrement(&refCount); }
-    IFACEMETHOD_(ULONG, Release)() override {
-        ULONG c = InterlockedDecrement(&refCount);
-        if (c == 0) delete this;
-        return c;
-    }
-
-    // IDWriteFontCollectionLoader
-    IFACEMETHOD(CreateEnumeratorFromKey)(
-        IDWriteFactory* factory,
-        void const* /*collectionKey*/,
-        UINT32 /*collectionKeySize*/,
-        IDWriteFontFileEnumerator** fontFileEnumerator) override
-    {
-        *fontFileEnumerator = this;
-        AddRef();
-        return S_OK;
-    }
-
-    // IDWriteFontFileEnumerator
-    IFACEMETHOD(MoveNext)(BOOL* hasCurrentFile) override {
-        if (!hasEnumerated) {
-            factory->CreateFontFileReference(path.c_str(), nullptr, &currentFile);
-            *hasCurrentFile = TRUE;
-            hasEnumerated = true;
-        }
-        else {
-            *hasCurrentFile = FALSE;
-        }
-        return S_OK;
-    }
-
-    IFACEMETHOD(GetCurrentFontFile)(IDWriteFontFile** fontFile) override {
-        *fontFile = currentFile.Get();
-        (*fontFile)->AddRef();
-        return S_OK;
-    }
-
-private:
-    ~SingleFileFontLoader() = default;
-
-    LONG refCount;
-    ComPtr<IDWriteFactory> factory;
-    std::wstring path;
-    bool hasEnumerated;
-    ComPtr<IDWriteFontFile> currentFile;
-};
 
 
 
@@ -220,7 +146,7 @@ cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
     D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left,rc.bottom - rc.top);
 
     // Create a Direct2D render target.
-    m_pDirect2dFactory->CreateHwndRenderTarget(
+    pD2DFactory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
         D2D1::HwndRenderTargetProperties(p->m_hWnd, size),
         &p->m_pRenderTarget
@@ -487,7 +413,7 @@ bool RegisterWindowClass()
     RegisterClassEx(&wc);
 
     // Create a Direct2D factory.
-    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&m_pDirect2dFactory));
+    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&pD2DFactory));
 
     hr = DWriteCreateFactory(
         DWRITE_FACTORY_TYPE_SHARED,
@@ -623,32 +549,32 @@ void cxRegisterFontFile(std::wstring file)
 
 
 
-    // Create and register the loader
-    auto loader = new SingleFileFontLoader(pDWriteFactory, file);
-    pDWriteFactory->RegisterFontCollectionLoader(loader);
+    //// Create and register the loader
+    //auto loader = new SingleFileFontLoader(pDWriteFactory, file);
+    //pDWriteFactory->RegisterFontCollectionLoader(loader);
 
-    // The "key" can be anything, we don't use it in our loader
-    pDWriteFactory->CreateCustomFontCollection(
-        loader,
-        nullptr, // collectionKey
-        0,       // collectionKeySize
-        &fontCollection
-    );
+    //// The "key" can be anything, we don't use it in our loader
+    //pDWriteFactory->CreateCustomFontCollection(
+    //    loader,
+    //    nullptr, // collectionKey
+    //    0,       // collectionKeySize
+    //    &fontCollection
+    //);
 
-    // Extract family name
-    ComPtr<IDWriteFontFamily> family;
-    fontCollection->GetFontFamily(0, &family);
+    //// Extract family name
+    //ComPtr<IDWriteFontFamily> family;
+    //fontCollection->GetFontFamily(0, &family);
 
-    ComPtr<IDWriteLocalizedStrings> names;
-    family->GetFamilyNames(&names);
+    //ComPtr<IDWriteLocalizedStrings> names;
+    //family->GetFamilyNames(&names);
 
-    UINT32 index = 0;
-    BOOL exists = FALSE;
-    names->FindLocaleName(L"en-us", &index, &exists);
-    if (!exists) index = 0;
+    //UINT32 index = 0;
+    //BOOL exists = FALSE;
+    //names->FindLocaleName(L"en-us", &index, &exists);
+    //if (!exists) index = 0;
 
-    WCHAR familyName[100];
-    names->GetString(index, familyName, ARRAYSIZE(familyName));
+    //WCHAR familyName[100];
+    //names->GetString(index, familyName, ARRAYSIZE(familyName));
 
 }
 

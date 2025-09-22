@@ -21,7 +21,7 @@
     <ClInclude Include="..\src\cx\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\platform\WindowBase.h">
+    <ClInclude Include="..\src\cx\WindowBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
