@@ -110,6 +110,12 @@ struct cxFont
     ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
 }
 
+- (void)mouseExited:(NSEvent*)event
+{
+    ref->OnMouseLeave();
+}
+
+
 - (BOOL)isFlipped
 {
     return YES;
