@@ -182,7 +182,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_MOUSELEAVE:
     {
-        cxLog(L"asdasdas");
         wnd->OnMouseLeave();
         return 0;
     }

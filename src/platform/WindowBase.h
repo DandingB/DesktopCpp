@@ -8,6 +8,7 @@
 
 class cxWindowBase
 {
+private:
     // PIMPL, platform types
     struct Impl;
     std::unique_ptr<Impl> p;
@@ -43,7 +44,6 @@ public:
     void DrawRectangle(cxRect rect, int brushKey, float strokeWidth = 1.0);
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth = 1.0);
-
     void DrawTextInRect(int fontKey, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
     
     float GetDPIScale();
