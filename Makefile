@@ -20,8 +20,8 @@ else
 # MacOS #
 #########
 
-CXX = g++ -std=gnu++17 -mmacosx-version-min=10.10
-FRAMEWORKS = -framework Cocoa -framework AppKit -framework OpenGL -framework System
+CXX = g++ -std=gnu++17
+FRAMEWORKS = -framework Cocoa -framework AppKit -framework System
 
 
 default: compile

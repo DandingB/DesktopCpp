@@ -153,7 +153,7 @@ cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
 {
     NSRect graphicsRect = NSMakeRect(0, 0, 500, 500);
     
-    p->m_Window = [[Window alloc] initWithContentRect:graphicsRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO ];
+    p->m_Window = [[Window alloc] initWithContentRect:graphicsRect styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO ];
     [p->m_Window setDelegate: p->m_Window];
     p->m_Window->ref = this;
 
@@ -537,6 +537,8 @@ void cxRegisterFontFile(std::wstring file)
 void cxOpenFileDialog(std::wstring& filename)
 {
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    //[openDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithFormat:@"file:///"]]];
+
     [openDlg setCanChooseFiles:YES];
     [openDlg setAllowsMultipleSelection: NO];
     [openDlg setCanChooseDirectories: NO];
@@ -544,7 +546,9 @@ void cxOpenFileDialog(std::wstring& filename)
     if ( [openDlg runModal] == NSModalResponseOK )
     {
         NSArray* files = [openDlg URLs];
-        NSString* file = [[files objectAtIndex:0] absoluteString];
+        NSString* file = [[files objectAtIndex:0] path];
+
+        
  
         filename = NSStringToStringW(file); 
 
