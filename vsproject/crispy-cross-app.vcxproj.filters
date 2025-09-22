@@ -18,10 +18,10 @@
     <ClInclude Include="..\src\cx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\cx\WindowBase.h">
+    <ClInclude Include="..\src\cx\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\cx\Event.h">
+    <ClInclude Include="..\src\platform\WindowBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClCompile Include="..\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\platform\Windows.cpp">
+    <ClCompile Include="..\src\platform\ImplWindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\cx\WindowContainer.cpp">
@@ -37,6 +37,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\platform\MacOS.mm" />
+    <None Include="..\src\platform\ImplMacOS.mm" />
   </ItemGroup>
 </Project>

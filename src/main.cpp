@@ -1,33 +1,204 @@
 ﻿#include "cx.h"
 
-void cxFillRect(int x, int y, int width, int height, float r, float g, float b, float a)
+#define BRUSH_TEXTWHITE 0
+#define BRUSH_TEXTGREY  4
+#define BRUSH_DARKGREY   1
+#define BRUSH_DARKERGREY 2
+#define BRUSH_TABGREY 3
+#define BRUSH_BUTTON 5
+#define BRUSH_BUTTONHIGHLIGHT 6
+#define FONT_SMALL  0
+
+
+class TabControl : public cxView
 {
-	glBegin(GL_QUADS);
-	glColor4f(r, g, b, a);
-	glVertex2f(x, y);
-	glVertex2f(x + width, y);
-	glVertex2f(x + width, y + height);
-	glVertex2f(x, y + height);
-	glEnd();
-}
+	int m_SelPage = 0;
 
+	using cxView::cxView;
 
+	void OnSize() override
+	{
+		for (cxView* view : m_SubViews)
+		{
+			view->m_Left = 0;
+			view->m_Top = 30;
+			view->m_Right = m_Right;
+			view->m_Bottom = m_Bottom;
+			view->OnSize();
+		}
+	}
 
-static GLfloat pixels[] =
-{
-	1, 0, 0, 1,
-	0, 1, 0, 1,
-	0, 0, 1, 1,
-	1, 1, 1, 1
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		int x = 0;
+		for (int i = 0; i < m_SubViews.size(); i++)
+		{
+			cxView* view = m_SubViews[i];
+
+			float width, height;
+			m_TopParent->GetFontTextMetrics(
+				FONT_SMALL, 
+				view->m_Title, 
+				200, 
+				30, 
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
+				width, 
+				height
+			);
+
+			if (event.x > x and event.x < x + width + 10)
+			{
+				m_SelPage = i;
+			}
+
+			view->m_Show = false;
+			x += width + 10.f;
+		}
+
+		if (m_SubViews.size() > 0)
+			m_SubViews[m_SelPage]->m_Show = true;
+		m_TopParent->Invalidate();
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 2);
+
+		int i = 0;
+		float x = 0;
+		for (cxView* views : m_SubViews)
+		{
+			float width, height;
+			container->GetFontTextMetrics(
+				FONT_SMALL, 
+				views->m_Title, 
+				200, 
+				30, 
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
+				width, 
+				height
+			);
+
+			if (i == m_SelPage)
+				container->FillRectangle({x, 0, x + width + 10, 30}, BRUSH_TABGREY);
+
+			container->DrawTextInRect(
+				FONT_SMALL, 
+				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
+				views->m_Title, 
+				{ x, 0, x + width + 10, 30 }, 
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			);
+
+			x += width + 10;
+			i++;
+		}
+	}
 };
 
-GLuint m_Texture = -1;
+class MyView : public cxView
+{
+	using cxView::cxView;
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		cxLog(L"MyView %d %d", event.x, event.y);
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
+		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
+		m_TopParent->DrawTextInRect(
+			FONT_SMALL,
+			BRUSH_TEXTWHITE,
+			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 
+			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+		);
+	}
+};
+
+class MyButton : public cxView
+{
+	using cxView::cxView;
+
+	bool m_Highlight = false;
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+	}
+
+	void OnMouseUp(cxMouseEvent event) override
+	{
+		cxLog(L"MyButton clicked %f %f", event.x, event.y);
+	}
+
+	void OnMouseEnter() override
+	{
+		m_Highlight = true;
+		m_TopParent->Invalidate();
+	}
+
+	void OnMouseLeave() override
+	{
+		m_Highlight = false;
+		m_TopParent->Invalidate();
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, m_Highlight ? BRUSH_BUTTONHIGHLIGHT : BRUSH_BUTTON);
+
+		container->DrawTextInRect(
+			FONT_SMALL,
+			BRUSH_TEXTWHITE,
+			L"Button",
+			{ 0,0,m_Right - m_Left,m_Bottom - m_Top },
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+		);
+
+	}
+};
+
 
 class MyWindow : public cxWindowContainer
 {
 public:
 	MyWindow()
 	{
+		MakeSolidBrush(BRUSH_TEXTWHITE, 1.0f, 1.0f, 1.0f, 1.0f);
+		MakeSolidBrush(BRUSH_TEXTGREY, 0.6f, 0.6f, 0.6f, 1.0f);
+		MakeSolidBrush(BRUSH_DARKGREY, 0.2f, 0.2f, 0.2f, 1.0f);
+		MakeSolidBrush(BRUSH_DARKERGREY, 0.1f, 0.1f, 0.1f, 1.0f);
+		MakeSolidBrush(BRUSH_TABGREY, 0.3f, 0.3f, 0.3f, 1.0f);
+		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
+		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
+		MakeFont(FONT_SMALL, SYSTEM_FONT, 15.0f);
+
+
+		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
+		AddView(tabctrl);
+
+		MyView* mv = new MyView(50, 50, 150, 100);
+		mv->m_Title = L"MyView";
+		tabctrl->AddView(mv);
+		mv->AddView(new MyButton(10, 10, 100, 40));
+
+
+		MyView* mv2 = new MyView(50, 50, 150, 100);
+		mv2->m_Title = L"MyView2";
+		mv2->m_Show = false;
+		tabctrl->AddView(mv2);
+
+		MyView* mv3 = new MyView(50, 50, 150, 100);
+		mv3->m_Title = L"MyView3 asdasdasdas";
+		mv3->m_Show = false;
+		tabctrl->AddView(mv3);
+
+		GetChildView(0)->m_Right = 500;
+		GetChildView(0)->m_Bottom = 500;
+		GetChildView(0)->OnSize();
 	}
 
 	void OnClosing() override
@@ -38,115 +209,34 @@ public:
 	void OnSize(int width, int height) override
 	{
 		cxWindowContainer::OnSize(width, height);
-		Invalidate();
+		GetChildView(0)->m_Right = width;
+		GetChildView(0)->m_Bottom = height;
+		GetChildView(0)->OnSize();
+		//Invalidate();
 	}
 
 	void OnPaint() override
 	{
-		StartPaint();
-
-		cxFillRect(0, 0, 500, 500, 0.2, 0.2, 0.2, 1.0);
-
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-		glColor3f(1, 1, 1);
-
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(10, 10);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(100, 10);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(100, 100);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(10, 100);
-		glEnd();
-
-		glDisable(GL_TEXTURE_2D);
-
-		EndPaint();
+		cxWindowContainer::OnPaint();
 	}
 
 };
 
-class MyWindow2 : public cxWindowContainer
-{
-public:
-	MyWindow2()
-	{
-	}
-
-	void OnClosing() override
-	{
-		cxQuitApp();
-	}
-
-	void OnSize(int width, int height) override
-	{
-		cxWindowContainer::OnSize(width, height);
-		Invalidate();
-	}
-
-	void OnPaint() override
-	{
-		StartPaint();
-
-		cxFillRect(0, 0, 500, 500, 0.2, 0.2, 0.2, 1.0);
-
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-		glColor3f(1, 1, 1);
-
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(10, 10);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(200, 10);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(200, 200);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(10, 200);
-		glEnd();
-
-		glDisable(GL_TEXTURE_2D);
-
-		EndPaint();
-	}
-
-};
-
-struct Win32Wnd
-{
-	HWND hWnd;	// Window handle
-	HDC dc;		// Device context
-	HGLRC rc;	// Render context
-};
 
 CX_FUNC_MAIN
 {
 	cxInitApp();
+	cxRegisterFontFile(L"pt-root-ui_vf.ttf");
+
+
 
 	MyWindow* window = new MyWindow;
-	MyWindow2* window2 = new MyWindow2;
-
-	//Win32Wnd* test = (Win32Wnd*)window2->GetPlatformWindow();
-	//wglMakeCurrent(test->dc, test->rc);
-
-	//cxSetGlobalContext();
-
-	glGenTextures(1, &m_Texture);
-	glBindTexture(GL_TEXTURE_2D, m_Texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_FLOAT, pixels);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
 
 	window->SetTitle(L"Test");
 	window->Show();
-	window2->Show();
 
 	cxRunApp();
 
 	return 0;
+
 }

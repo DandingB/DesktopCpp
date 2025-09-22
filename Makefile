@@ -5,14 +5,14 @@ ifeq ($(OS),Windows_NT)
 ###########
 
 CXX = g++ -std=gnu++17
-LIBS = -lopengl32
+LIBS = -ld2d1 -ldwrite
 FLAGS = -mwindows -municode --static
 
 
 default: compile
 
 compile:
-	$(CXX) src/main.cpp src/cx/WindowContainer.cpp src/platform/Windows.cpp $(LIBS) $(FLAGS) -o bin/App.exe
+	$(CXX) src/main.cpp src/cx/WindowContainer.cpp src/platform/ImplWindows.cpp $(LIBS) $(FLAGS) -o bin/App.exe
 
 else
 
@@ -27,7 +27,7 @@ FRAMEWORKS = -framework Cocoa -framework AppKit -framework OpenGL -framework Sys
 default: compile
 
 compile:
-	$(CXX) src/main.cpp src/cx/WindowContainer.cpp src/platform/MacOS.mm $(FRAMEWORKS) -o bin/App
+	$(CXX) src/main.cpp src/cx/WindowContainer.cpp src/platform/ImplMacOS.mm $(FRAMEWORKS) -o bin/App
 
 bundle:
 	mkdir -p bin/App.app/Contents
