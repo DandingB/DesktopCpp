@@ -14,6 +14,7 @@
 #include <string>
 
 #include "WindowBase.h"
+#include "Platform.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -235,23 +236,16 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 {
-
-    IDWriteFontCollection* m_dwFontColl;
-    if (AddFontResourceEx(L"VIASGRG_.TTF", FR_PRIVATE, NULL) == 0)
-    {
-        OutputDebugString(L"Error adding font resource!\n");
-    }
-
-    if (FAILED(pDWriteFactory->GetSystemFontCollection(&m_dwFontColl, false)))
-    {
-        OutputDebugString(L"Failed to retrieve system font collection.\n");
-    }
+    //if (FAILED(pDWriteFactory->GetSystemFontCollection(&m_dwFontColl, false)))
+    //{
+    //    OutputDebugString(L"Failed to retrieve system font collection.\n");
+    //}
 
     ComPtr<IDWriteTextFormat> font;
     pDWriteFactory->CreateTextFormat(
-        L"Via Sign Regular",                // Font family name.
-        m_dwFontColl,                       // Font collection (NULL sets it to use the system font collection).
-        DWRITE_FONT_WEIGHT_NORMAL,
+        fontName.c_str(),                 // Font family name.
+        NULL,                                   // Font collection (NULL sets it to use the system font collection).
+        DWRITE_FONT_WEIGHT_LIGHT,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
         size,
@@ -261,7 +255,6 @@ void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 
     font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
     font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
-
 
     p->m_pFonts.insert({ key, font });
 }
@@ -506,6 +499,16 @@ void cxSetCursor(cxCursorType type)
         return;
     }
 
+}
+
+void cxRegisterFontFile(std::wstring file)
+{
+    IDWriteFontCollection* m_dwFontColl;
+    if (AddFontResourceEx(file.c_str(), FR_PRIVATE, NULL) == 0)
+    {
+        OutputDebugString(L"Error adding font resource!\n");
+        exit(1);
+    }
 }
 
 

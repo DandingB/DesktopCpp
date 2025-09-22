@@ -241,29 +241,7 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
 
 void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
 {
-    // Resolve relative path to absolute
-    char pathbuf[512];
-    uint32_t bufsize = sizeof(pathbuf);
-    if (_NSGetExecutablePath(pathbuf, &bufsize) != 0)
-    {
-        cxLog(L"_NSGetExecutablePath failed!");
-        exit(1);
-    }
-
-    NSString *execPath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathbuf length:strlen(pathbuf)];
-    NSString *execDir = [execPath stringByDeletingLastPathComponent];
-    NSString *fontPath = [execDir stringByAppendingPathComponent:@"VIASGRG_.TTF"];
-
-    NSURL* fontURL = [NSURL fileURLWithPath:fontPath];
-
-    CFErrorRef error;
-    if (!CTFontManagerRegisterFontsForURL((__bridge CFURLRef)fontURL, kCTFontManagerScopeProcess, &error)) 
-    {
-        CFStringRef errorDescription = CFErrorCopyDescription(error);
-        NSLog(@"Failed to load font: %@", (__bridge NSString *)errorDescription);
-        CFRelease(errorDescription);
-        exit(1);
-    }
+    
     p->m_pFonts.insert({ key, {fontName, size} });
 }
 
@@ -503,5 +481,31 @@ void cxSetCursor(cxCursorType type)
 
 }
 
+void cxRegisterFontFile(std::wstring file)
+{
+    // Resolve relative path to absolute
+    char pathbuf[512];
+    uint32_t bufsize = sizeof(pathbuf);
+    if (_NSGetExecutablePath(pathbuf, &bufsize) != 0)
+    {
+        cxLog(L"_NSGetExecutablePath failed!");
+        exit(1);
+    }
+
+    NSString *execPath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:pathbuf length:strlen(pathbuf)];
+    NSString *execDir = [execPath stringByDeletingLastPathComponent];
+    NSString *fontPath = [execDir stringByAppendingPathComponent: [[NSString alloc] initWithBytes: file.data() length: file.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding]];
+
+    NSURL* fontURL = [NSURL fileURLWithPath:fontPath];
+
+    CFErrorRef error;
+    if (!CTFontManagerRegisterFontsForURL((__bridge CFURLRef)fontURL, kCTFontManagerScopeProcess, &error)) 
+    {
+        CFStringRef errorDescription = CFErrorCopyDescription(error);
+        NSLog(@"Failed to load font: %@", (__bridge NSString *)errorDescription);
+        CFRelease(errorDescription);
+        exit(1);
+    }
+}
 
 #endif

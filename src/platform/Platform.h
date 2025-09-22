@@ -27,3 +27,5 @@ void cxGetMousePosition(float& x, float& y);
 
 void cxShowCursor(bool show = true);
 void cxSetCursor(cxCursorType type);
+
+void cxRegisterFontFile(std::wstring file);
