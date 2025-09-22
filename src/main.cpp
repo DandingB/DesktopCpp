@@ -7,8 +7,8 @@
 #define BRUSH_TABGREY 3
 #define BRUSH_BUTTON 5
 #define BRUSH_BUTTONHIGHLIGHT 6
-#define FONT_SMALL  0
 
+std::unique_ptr<cxFont> font;
 
 class TabControl : public cxView
 {
@@ -36,8 +36,7 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			m_TopParent->GetFontTextMetrics(
-				FONT_SMALL, 
+			font->GetFontTextMetrics(
 				view->m_Title, 
 				200, 
 				30, 
@@ -69,8 +68,7 @@ class TabControl : public cxView
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			container->GetFontTextMetrics(
-				FONT_SMALL, 
+			font->GetFontTextMetrics( 
 				views->m_Title, 
 				200, 
 				30, 
@@ -83,7 +81,7 @@ class TabControl : public cxView
 				container->FillRectangle({x, 0, x + width + 10, 30}, BRUSH_TABGREY);
 
 			container->DrawTextInRect(
-				FONT_SMALL, 
+				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
 				{ x, 0, x + width + 10, 30 }, 
@@ -117,7 +115,7 @@ class MyView : public cxView
 		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
 		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
 		m_TopParent->DrawTextInRect(
-			FONT_SMALL,
+			font.get(),
 			BRUSH_TEXTWHITE,
 			m_Title + L" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", 
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
@@ -158,7 +156,7 @@ class MyButton : public cxView
 		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, m_Highlight ? BRUSH_BUTTONHIGHLIGHT : BRUSH_BUTTON);
 
 		container->DrawTextInRect(
-			FONT_SMALL,
+			font.get(),
 			BRUSH_TEXTWHITE,
 			L"Button",
 			{ 0,0,m_Right - m_Left,m_Bottom - m_Top },
@@ -181,8 +179,6 @@ public:
 		MakeSolidBrush(BRUSH_TABGREY, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
-		MakeFont(FONT_SMALL, SYSTEM_FONT, 15.0f);
-
 
 		TabControl* tabctrl = new TabControl(0, 0, 150, 100);
 		AddView(tabctrl);
@@ -235,7 +231,7 @@ CX_FUNC_MAIN
 	cxInitApp();
 	//cxRegisterFontFile(L"pt-root-ui_vf.ttf");
 
-
+	font = std::make_unique<cxFont>(CX_SYSTEM_FONT, 15.f);
 
 	MyWindow* window = new MyWindow;
 

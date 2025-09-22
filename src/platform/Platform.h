@@ -7,13 +7,13 @@
 #ifdef __APPLE__
 
 #define CX_FUNC_MAIN int main(int argc, const char * argv[])
-#define SYSTEM_FONT L"Helvetica"
+#define CX_SYSTEM_FONT L"Helvetica"
 
 #elif _WIN32
 
 #include <Windows.h>
 #define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
-#define SYSTEM_FONT L"Segoe UI"
+#define CX_SYSTEM_FONT L"Segoe UI"
 
 #endif
 

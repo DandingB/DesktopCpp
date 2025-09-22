@@ -13,8 +13,8 @@
 #include <map>
 #include <string>
 
-#include "../cx/WindowBase.h"
-#include "../cx/Font.h"
+#include "WindowBase.h"
+#include "Font.h"
 #include "Platform.h"
 
 using Microsoft::WRL::ComPtr;
@@ -31,14 +31,17 @@ ID2D1Factory* pD2DFactory;
 IDWriteFactory* pDWriteFactory;
 
 
-
-
 struct cxWindowBase::Impl
 {
     HWND m_hWnd;
     ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
     std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
     std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
+};
+
+struct cxFont::Impl
+{
+    ComPtr<IDWriteTextFormat> m_pTextFormat;
 };
 
 
@@ -247,68 +250,6 @@ void cxWindowBase::MakeSolidBrush(int key, float r, float g, float b, float a)
     p->m_pBrushes.insert({ key, brush });
 }
 
-void cxWindowBase::MakeFont(int key, std::wstring fontName, float size)
-{
-    //IDWriteFontCollection* m_dwFontColl;
-    //if (FAILED(pDWriteFactory->GetSystemFontCollection(&m_dwFontColl, false)))
-    //{
-    //    OutputDebugString(L"Failed to retrieve system font collection.\n");
-    //}
-
-    ComPtr<IDWriteTextFormat> font;
-    pDWriteFactory->CreateTextFormat(
-        fontName.c_str(),                       // Font family name.
-        NULL,                           // Font collection (NULL sets it to use the system font collection).
-        DWRITE_FONT_WEIGHT_NORMAL,
-        DWRITE_FONT_STYLE_NORMAL,
-        DWRITE_FONT_STRETCH_NORMAL,
-        size,
-        L"en-US",
-        &font
-    );
-
-    font->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-    font->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
-
-    p->m_pFonts.insert({ key, font });
-}
-
-void cxWindowBase::GetFontTextMetrics(int key, std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
-{
-    HRESULT hr = S_OK;
-
-    IDWriteTextFormat* format = p->m_pFonts[key].Get();
-
-    switch (options.m_TextAlignment)
-    {
-        case cxTextOptions::TEXT_ALIGNMENT_LEFT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
-        case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
-        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
-    }
-    
-    switch (options.m_ParagraphAlignment)
-    {
-        case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
-        case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
-        case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
-    }
-
-
-    ComPtr<IDWriteTextLayout> pTextLayout;
-    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), format, maxWidth, maxHeight, pTextLayout.GetAddressOf());
-
-    if (SUCCEEDED(hr))
-    {
-        // Get text size  
-        DWRITE_TEXT_METRICS textMetrics;
-        hr = pTextLayout->GetMetrics(&textMetrics);
-        D2D1_SIZE_F size = D2D1::SizeF(ceil(textMetrics.widthIncludingTrailingWhitespace), ceil(textMetrics.height));
-
-        width = size.width;
-        height = size.height;
-    }
-}
-
 void cxWindowBase::FillRectangle(cxRect rect, int brushKey)
 {
     p->m_pRenderTarget->FillRectangle(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), p->m_pBrushes[brushKey].Get());
@@ -331,7 +272,18 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
 
 void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
 {
+    if (!font)
+    {
+        cxLog(L"DrawTextInRect(): font was NULL");
+        return;
+    }
+
     IDWriteTextFormat* format = font->p->m_pTextFormat.Get();
+    if (!format)
+    {
+        cxLog(L"DrawTextInRect(): m_pTextFormat was NULL");
+        return;
+    }
 
     switch (options.m_TextAlignment)
     {
@@ -346,8 +298,6 @@ void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, 
         case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
         case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
     }
-
-    //format->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_DEFAULT, 30.f, 0.f);
 
     p->m_pRenderTarget->DrawTextW(
         str.c_str(),
@@ -392,11 +342,73 @@ void cxWindowBase::EndPaint()
 
 
 
+cxFont::cxFont(std::wstring fontName, float size) : p(std::make_unique<Impl>())
+{
+    //IDWriteFontCollection* m_dwFontColl;
+    //if (FAILED(pDWriteFactory->GetSystemFontCollection(&m_dwFontColl, false)))
+    //{
+    //    OutputDebugString(L"Failed to retrieve system font collection.\n");
+    //}
+
+    pDWriteFactory->CreateTextFormat(
+        fontName.c_str(),                       // Font family name.
+        NULL,                                   // Font collection (NULL sets it to use the system font collection).
+        DWRITE_FONT_WEIGHT_NORMAL,
+        DWRITE_FONT_STYLE_NORMAL,
+        DWRITE_FONT_STRETCH_NORMAL,
+        size,
+        L"en-US",
+        &p->m_pTextFormat
+    );
+
+    p->m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    p->m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+}
+
+cxFont::~cxFont()
+{
+
+}
+
+void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
+{
+    HRESULT hr;
+
+    IDWriteTextFormat* format = p->m_pTextFormat.Get();
+
+    switch (options.m_TextAlignment)
+    {
+    case cxTextOptions::TEXT_ALIGNMENT_LEFT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
+    case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    }
+
+    switch (options.m_ParagraphAlignment)
+    {
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
+    }
+
+
+    ComPtr<IDWriteTextLayout> pTextLayout;
+    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), format, maxWidth, maxHeight, pTextLayout.GetAddressOf());
+
+    if (SUCCEEDED(hr))
+    {
+        // Get text size  
+        DWRITE_TEXT_METRICS textMetrics;
+        hr = pTextLayout->GetMetrics(&textMetrics);
+        D2D1_SIZE_F size = D2D1::SizeF(ceil(textMetrics.widthIncludingTrailingWhitespace), ceil(textMetrics.height));
+
+        width = size.width;
+        height = size.height;
+    }
+}
+
 
 bool RegisterWindowClass()
 {
-    HRESULT hr = S_OK;
-
     HINSTANCE hInstance = GetModuleHandle(0);
 
     WNDCLASSEXW wc = { };
@@ -412,14 +424,18 @@ bool RegisterWindowClass()
 
     RegisterClassEx(&wc);
 
-    // Create a Direct2D factory.
-    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&pD2DFactory));
 
-    hr = DWriteCreateFactory(
-        DWRITE_FACTORY_TYPE_SHARED,
-        __uuidof(IDWriteFactory),
-        reinterpret_cast<IUnknown**>(&pDWriteFactory)
-    );
+    if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&pD2DFactory))))
+    {
+        cxLog(L"D2D1CreateFactory() failed");
+        return false;
+    }
+
+    if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&pDWriteFactory))))
+    {
+        cxLog(L"DWriteCreateFactory() failed");
+        return false;
+    }
 
     return true;
 }
@@ -431,12 +447,12 @@ void cxInitApp()
 
 void cxRunApp()
 {
-	MSG msg;
-	while (GetMessage(&msg, nullptr, 0, 0))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 }
 
 void cxQuitApp(int exitCode)
@@ -578,70 +594,6 @@ void cxRegisterFontFile(std::wstring file)
 
 }
 
-
-
-struct cxFont::Impl
-{
-    ComPtr<IDWriteTextFormat> m_pTextFormat;
-};
-
-cxFont::cxFont(std::wstring fontName, float size)
-{
-    pDWriteFactory->CreateTextFormat(
-        fontName.c_str(),                       // Font family name.
-        NULL,                                   // Font collection (NULL sets it to use the system font collection).
-        DWRITE_FONT_WEIGHT_NORMAL,
-        DWRITE_FONT_STYLE_NORMAL,
-        DWRITE_FONT_STRETCH_NORMAL,
-        size,
-        L"en-US",
-        &p->m_pTextFormat
-    );
-
-    p->m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-    p->m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
-}
-
-cxFont::~cxFont()
-{
-
-}
-
-void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
-{
-    HRESULT hr;
-
-    IDWriteTextFormat* format = p->m_pTextFormat.Get();
-
-    switch (options.m_TextAlignment)
-    {
-    case cxTextOptions::TEXT_ALIGNMENT_LEFT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
-    case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
-    case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
-    }
-
-    switch (options.m_ParagraphAlignment)
-    {
-    case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
-    case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
-    case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
-    }
-
-
-    ComPtr<IDWriteTextLayout> pTextLayout;
-    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), format, maxWidth, maxHeight, pTextLayout.GetAddressOf());
-
-    if (SUCCEEDED(hr))
-    {
-        // Get text size  
-        DWRITE_TEXT_METRICS textMetrics;
-        hr = pTextLayout->GetMetrics(&textMetrics);
-        D2D1_SIZE_F size = D2D1::SizeF(ceil(textMetrics.widthIncludingTrailingWhitespace), ceil(textMetrics.height));
-
-        width = size.width;
-        height = size.height;
-    }
-}
 
 
 
