@@ -183,14 +183,6 @@ void cxWindowBase::GetSize(int& width, int& height)
     height = rect.bottom - rect.top;
 }
 
-void cxWindowBase::GetClientSize(int& width, int& height)
-{
-    RECT rect;
-    GetClientRect(p->m_hWnd, &rect);
-    width = rect.right;
-    height = rect.bottom;
-}
-
 void cxWindowBase::GetClientSize(float& width, float& height)
 {
     RECT rect;

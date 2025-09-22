@@ -23,7 +23,6 @@ public:
     void GetTitle(std::wstring& out);
     void GetPosition(int& x, int& y);
     void GetSize(int& width, int& height);
-    void GetClientSize(int& width, int& height);
     void GetClientSize(float& width, float& height);
 
     void Show(bool show = true);

@@ -88,7 +88,7 @@ cxView* cxWindowContainer::GetChildView(int i)
 
 void cxWindowContainer::OnPaint()
 {
-	int width, height;
+	float width, height;
 	GetClientSize(width, height);
 
 	PaintSubviews(m_SubViews, 0, 0, width, height);
@@ -97,9 +97,6 @@ void cxWindowContainer::OnPaint()
 
 void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, float left, float top, float right, float bottom)
 {
-	int clientWidth, clientHeight;
-	GetClientSize(clientWidth, clientHeight);
-
 	for (cxView* view : views)
 	{
 		if (!(view->m_Show))
@@ -132,7 +129,7 @@ void cxWindowContainer::OnSize(int width, int height)
 
 void cxWindowContainer::OnMouseDown(cxMouseEvent event)
 {
-	int width, height;
+	float width, height;
 	GetClientSize(width, height);
 
 	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
@@ -146,7 +143,7 @@ void cxWindowContainer::OnMouseDown(cxMouseEvent event)
 
 void cxWindowContainer::OnMouseUp(cxMouseEvent event)
 {
-	int width, height;
+	float width, height;
 	GetClientSize(width, height);
 
 	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
@@ -160,7 +157,7 @@ void cxWindowContainer::OnMouseUp(cxMouseEvent event)
 
 void cxWindowContainer::OnMouseMove(cxMouseEvent event)
 {
-	int width, height;
+	float width, height;
 	GetClientSize(width, height);
 
 	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
@@ -189,7 +186,7 @@ cxView* cxWindowContainer::GetViewAtLocation(std::vector<cxView*>& views, float 
 		if (!(view->m_Show))
 			continue;
 
-		int left1, top1, right1, bottom1;
+		float left1, top1, right1, bottom1;
 
 		left1 = left + view->m_Left;
 		top1 = top + view->m_Top;

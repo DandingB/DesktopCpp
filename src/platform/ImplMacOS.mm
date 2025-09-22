@@ -190,14 +190,6 @@ void cxWindowBase::GetSize(int& width, int& height)
     height = rect.size.height * scale;
 }
 
-void cxWindowBase::GetClientSize(int& width, int& height)
-{
-    float scale = 1.0;
-    NSRect rect = [ [p->m_Window contentView] frame ];
-    width = rect.size.width * scale;
-    height = rect.size.height * scale;
-}
-
 void cxWindowBase::GetClientSize(float& width, float& height)
 {
     float scale = 1.0;
