@@ -1,8 +1,11 @@
 #ifdef __APPLE__
 
+#import <Foundation/Foundation.h>
 #include <Cocoa/Cocoa.h>
 #include <CoreText/CoreText.h>
 #include <mach-o/dyld.h>
+#include <codecvt>
+#include <locale>
 
 #include <map>
 #include <string>
@@ -15,6 +18,15 @@ NSString* WStringToNSString(std::wstring wstr)
 {
     return [[NSString alloc] initWithBytes:wstr.data() length:wstr.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
 }
+
+std::wstring NSStringToStringW(NSString* Str)   
+{   
+    NSStringEncoding pEncode = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE);   
+    NSData* pSData = [ Str dataUsingEncoding : pEncode ];    
+   
+    return std::wstring ((wchar_t*) [ pSData bytes ], [ pSData length] / sizeof ( wchar_t ));   
+}   
+   
 
 struct cxSolidBrush
 {
@@ -519,6 +531,29 @@ void cxRegisterFontFile(std::wstring file)
         NSLog(@"Failed to load font: %@", (__bridge NSString *)errorDescription);
         CFRelease(errorDescription);
         exit(1);
+    }
+}
+
+void cxOpenFileDialog(std::wstring& filename)
+{
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setAllowsMultipleSelection: NO];
+    [openDlg setCanChooseDirectories: NO];
+
+    if ( [openDlg runModal] == NSModalResponseOK )
+    {
+        NSArray* files = [openDlg URLs];
+        NSString* file = [[files objectAtIndex:0] absoluteString];
+ 
+        filename = NSStringToStringW(file); 
+
+        //filename = NSStringToWString(file);
+
+        // for (int i = 0; i < [urls count]; i++)
+        // {
+        //     NSString* file = [urls objectAtIndex:i];
+        // }
     }
 }
 
