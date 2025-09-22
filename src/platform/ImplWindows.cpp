@@ -1,6 +1,5 @@
 #ifdef _WIN32
 
-#pragma once
 #define WINVER 0x0605
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
