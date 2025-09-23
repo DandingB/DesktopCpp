@@ -36,11 +36,12 @@ class TabControl : public cxView
 		}
 	}
 
-	void GetTabIndex(float xPos, int& index, bool& isClose)
+	void GetTabIndex(float xPos, float yPos, int& index, bool& isClose)
 	{
 		index = -1;
 		isClose = false;
 
+		float tabMiddle = m_TabHeight * 0.5f;
 		float x = 0;
 		for (int i = 0; i < m_SubViews.size(); i++)
 		{
@@ -59,7 +60,7 @@ class TabControl : public cxView
 			if (xPos > x and xPos < x + width + m_TabPadding)
 			{
 				index = i;
-				if (xPos > x + width + m_TabPadding - 20.f and xPos < x + width + m_TabPadding - 10.f)
+				if (xPos > x + width + m_TabPadding - 20.f and xPos < x + width + m_TabPadding - 10.f and yPos > tabMiddle - 5.f and yPos < tabMiddle + 5.f)
 					isClose = true;
 			}
 			x += width + m_TabPadding;
@@ -70,7 +71,7 @@ class TabControl : public cxView
 	{
 		int iTab;
 		bool isClose;
-		GetTabIndex(event.x, iTab, isClose);
+		GetTabIndex(event.x, event.y, iTab, isClose);
 		m_PageHover = iTab;
 		m_HoverClose = isClose;
 		m_TopParent->Invalidate();
@@ -80,24 +81,32 @@ class TabControl : public cxView
 	{
 		int iTab;
 		bool isClose;
-		GetTabIndex(event.x, iTab, isClose);
+		GetTabIndex(event.x, event.y, iTab, isClose);
 		if (iTab != -1)
 		{
+			m_SelPage = iTab;
+
 			if (isClose)
 			{
-				cxLog(L"Closing %d", iTab);
+				m_SubViews.erase(m_SubViews.begin() + iTab);
+				if (m_SelPage >= m_SubViews.size())
+					m_SelPage--;
 			}
-			else
-			{
-				m_SelPage = iTab;
-				for (cxView* view : m_SubViews)
-					view->m_Show = false;
-				if (m_SubViews.size() > 0)
-					m_SubViews[iTab]->m_Show = true;
-			}
+
+				
+			for (cxView* view : m_SubViews)
+				view->m_Show = false;
+			if (m_SubViews.size() > 0)
+				m_SubViews[m_SelPage]->m_Show = true;
+			
 
 		}
 		m_TopParent->Invalidate();
+	}
+
+	void OnMouseEnter() override
+	{
+		cxSetCursor(cxCursorType::cxArrow);
 	}
 
 	void OnMouseLeave() override
@@ -138,6 +147,7 @@ class TabControl : public cxView
 				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight },
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 			);
+
 			float tabMiddle = m_TabHeight * 0.5f;
 			float closePadding = 10.f;
 			container->DrawLine(
@@ -343,6 +353,11 @@ public:
 
 };
 
+void MenuCommand(int command)
+{
+	cxLog(L"Command %d", command);
+}
+
 
 CX_FUNC_MAIN
 {
@@ -353,6 +368,22 @@ CX_FUNC_MAIN
 
 	MyWindow* window = new MyWindow;
 
+	std::vector<cxMenuItem> fileMenu;
+	fileMenu.push_back({ L"New\tAlt+F4", 0 });
+	fileMenu.push_back({ L"Open", 1 });
+
+	std::vector<cxMenuItem> editMenu;
+	editMenu.push_back({ L"Undo", 2 });
+	editMenu.push_back({ L"Redo", 3 });
+
+	std::vector<cxMenuItem> menu;
+	menu.push_back({L"File", NULL, fileMenu });
+	menu.push_back({L"Edit", NULL, editMenu });
+
+
+
+	window->SetMenu(menu);
+	window->SetMenuCallback(MenuCommand);
 	window->SetTitle(L"Test");
 	window->Show();
 

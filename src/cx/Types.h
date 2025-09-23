@@ -1,4 +1,7 @@
 #pragma once
+#include <string>
+#include <vector>
+
 enum cxMouseButton
 {
 	LEFT,
@@ -50,6 +53,14 @@ struct cxTextOptions
         PARAGRAPH_ALIGNMENT_CENTER,
         PARAGRAPH_ALIGNMENT_BOTTOM
     } m_ParagraphAlignment;
+};
+
+struct cxMenuItem
+{
+    std::wstring title;
+    int command;
+
+    std::vector<cxMenuItem> subitems;
 };
 
 struct cxRect

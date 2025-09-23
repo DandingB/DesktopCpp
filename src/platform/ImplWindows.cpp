@@ -126,6 +126,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         return 0; 
     }
+    case WM_COMMAND:
+    {
+        std::function<void(int)> callback;
+        wnd->GetMenuCallback(callback);
+        if (callback != nullptr)
+            callback(wParam);
+        return 0;
+    }
     case WM_CLOSE:
     {
         wnd->OnClosing();
@@ -145,9 +153,11 @@ cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
     HINSTANCE hInstance = GetModuleHandle(0);
 
 	p->m_hWnd = CreateWindowEx(0, CLASS_NAME, L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, NULL, NULL, hInstance, this);
-
     if (p->m_hWnd == NULL)
-        return;
+    {
+        cxLog(L"m_hWnd could not be created. Closing");
+        exit(1);
+    }
 
     RECT rc;
     GetClientRect(p->m_hWnd, &rc);
@@ -218,6 +228,38 @@ void cxWindowBase::Show(bool show)
     ShowWindow(p->m_hWnd, show);
 }
 
+void EnumerateMenu(HMENU hMenu, std::vector<cxMenuItem>& menu)
+{
+    for (cxMenuItem& item : menu)
+    {
+        HMENU subMenu = NULL;
+        if (item.subitems.size() > 0)
+        {
+            subMenu = CreateMenu();
+            EnumerateMenu(subMenu, item.subitems);
+        }
+        AppendMenuW(hMenu, subMenu ? MF_POPUP : MF_STRING, (subMenu ? (UINT_PTR)subMenu : item.command), item.title.c_str());
+    }
+}
+
+void cxWindowBase::SetMenu(std::vector<cxMenuItem>& menu)
+{
+    HMENU hMenu = CreateMenu();
+    EnumerateMenu(hMenu, menu);
+
+    ::SetMenu(p->m_hWnd, hMenu);
+}
+
+void cxWindowBase::SetMenuCallback(std::function<void(int)> callback)
+{
+    m_MenuCallback = callback;
+}
+
+void cxWindowBase::GetMenuCallback(std::function<void(int)>& callback)
+{
+    callback = m_MenuCallback;
+}
+
 void cxWindowBase::CaptureMouse()
 {
     SetCapture(p->m_hWnd);
@@ -227,7 +269,6 @@ void cxWindowBase::ReleaseMouse()
 {
     ReleaseCapture();
 }
-
 
 void cxWindowBase::Invalidate()
 {
@@ -273,6 +314,11 @@ void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int bru
 void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth)
 {
     p->m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), p->m_pBrushes[brushKey].Get(), strokeWidth);
+}
+
+void cxWindowBase::DrawLine(cxPoint p1, cxPoint p2, int brushKey, float strokeWidth)
+{
+    p->m_pRenderTarget->DrawLine(D2D1::Point2F(p1.x, p1.y), D2D1::Point2F(p2.x, p2.y), p->m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
 void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
@@ -588,7 +634,7 @@ void cxOpenFileDialog(std::wstring& filename)
     // use the contents of szFile to initialize itself.
     ofn.lpstrFile[0] = L'\0';
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"All supported files\0*.wav\0Wave (.wav)\0*.wav\0QuickTime (.mov)\0*.*\0";
+    ofn.lpstrFilter = L"All files\0*.*\0";
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;

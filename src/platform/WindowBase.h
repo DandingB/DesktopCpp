@@ -3,6 +3,8 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <functional>
+
 
 class cxFont;
 
@@ -12,6 +14,8 @@ private:
     // PIMPL, platform types
     struct Impl;
     std::unique_ptr<Impl> p;
+
+    std::function<void(int)> m_MenuCallback;
 
 public:
     cxWindowBase();
@@ -27,6 +31,10 @@ public:
     void GetClientSize(float& width, float& height);
 
     void Show(bool show = true);
+
+    void SetMenu(std::vector<cxMenuItem>& menu);
+    void SetMenuCallback(std::function<void(int)> callback);
+    void GetMenuCallback(std::function<void(int)>& callback);
 
     void CaptureMouse();
     void ReleaseMouse();
