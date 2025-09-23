@@ -123,6 +123,11 @@ struct cxSolidBrush
     ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
 }
 
+- (void)scrollWheel:(NSEvent *) event
+{
+    ref->OnMouseScroll({(float)[event scrollingDeltaX], (float)[event scrollingDeltaY]});
+}
+
 - (void)mouseExited:(NSEvent*)event
 {
     ref->OnMouseLeave();

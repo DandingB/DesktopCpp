@@ -188,6 +188,19 @@ void cxWindowContainer::OnMouseLeave()
 	}
 }
 
+void cxWindowContainer::OnMouseScroll(cxMouseScrollEvent event)
+{
+	float width, height;
+	GetClientSize(width, height);
+
+	//cxLog(L"%f %f", event.scrollX, event.scrollY);
+	if (m_pMouseOver)
+	{
+		m_pMouseOver->OnMouseScroll(event);
+	}
+}
+
+
 cxView* cxWindowContainer::GetViewAtLocation(std::vector<cxView*>& views, float top, float left, float right, float bottom, float x, float y)
 {
 	for (int i = views.size() - 1; i >= 0; i--)

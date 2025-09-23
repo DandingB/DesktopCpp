@@ -10,8 +10,12 @@ enum cxMouseButton
 struct cxMouseEvent
 {
 	float x, y;
-
 	cxMouseButton button;
+};
+
+struct cxMouseScrollEvent
+{
+	float scrollX, scrollY;
 };
 
 enum cxCursorType

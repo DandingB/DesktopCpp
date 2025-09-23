@@ -105,6 +105,7 @@ class MyView : public cxView
 	using cxView::cxView;
 public:
 	std::wstring text;
+	float scroll = 0.0f;
 
 	void OnMouseEnter() override
 	{
@@ -113,7 +114,13 @@ public:
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
-		cxLog(L"MyView %d %d", event.x, event.y);
+		cxLog(L"MyView %f %f", event.x, event.y);
+	}
+
+	void OnMouseScroll(cxMouseScrollEvent event) override
+	{
+		scroll -= event.scrollX * 2.f;
+		m_TopParent->Invalidate();
 	}
 
 	void OnPaint(cxWindowContainer* container) override
@@ -124,7 +131,7 @@ public:
 			font.get(),
 			BRUSH_TEXTWHITE,
 			text,
-			{ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 
+			{ 0,scroll,m_Right - m_Left,m_Bottom - m_Top+scroll }, 
 			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
 	}

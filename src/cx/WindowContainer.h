@@ -34,6 +34,7 @@ public:
 	virtual void OnMouseMove(cxMouseEvent event) {}
 	virtual void OnMouseEnter() {}
 	virtual void OnMouseLeave() {}
+	virtual void OnMouseScroll(cxMouseScrollEvent event) {}
 
 	friend cxWindowContainer;
 };
@@ -61,6 +62,7 @@ public:
 	void OnMouseUp(cxMouseEvent event) override;
 	void OnMouseMove(cxMouseEvent event) override;
 	void OnMouseLeave() override;
+	void OnMouseScroll(cxMouseScrollEvent event) override;
 
 	cxView* GetViewAtLocation(std::vector<cxView*>& views, float top, float left, float right, float bottom, float x, float y);
 
