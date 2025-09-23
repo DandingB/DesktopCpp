@@ -256,6 +256,8 @@ void cxWindowBase::SetDrawConstraints(cxRect rect)
 {
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
     CGContextTranslateCTM(context, rect.left, rect.top);
+
+    CGContextClipToRect(context, CGRectMake(0, 0, rect.right - rect.left, rect.bottom - rect.top));
 }
 
 void cxWindowBase::RemoveDrawConstraints()
@@ -288,14 +290,41 @@ void cxWindowBase::DrawRectangle(cxRect rect, int brushKey, float strokeWidth)
     CGContextStrokeRect(context, CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top));
 }
 
-void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brush)
+void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey)
 {
+    cxSolidBrush brush = p->m_pBrushes[brushKey];
 
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGPathRef roundedRectPath = CGPathCreateWithRoundedRect(CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top), r1, r2, NULL);
+    CGContextSetRGBFillColor(context, brush.r, brush.g, brush.b, brush.a);
+    CGContextAddPath(context, roundedRectPath);
+    CGContextFillPath(context);
+    CGPathRelease(roundedRectPath);
 }
 
-void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brush, float strokeWidth)
+void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth)
 {
+    cxSolidBrush brush = p->m_pBrushes[brushKey];
 
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGPathRef roundedRectPath = CGPathCreateWithRoundedRect(CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top), r1, r2, NULL);
+    CGContextSetRGBStrokeColor(context, brush.r, brush.g, brush.b, brush.a);
+    CGContextSetLineWidth(context, strokeWidth);
+    CGContextAddPath(context, roundedRectPath);
+    CGContextStrokePath(context);
+    CGPathRelease(roundedRectPath);
+}
+
+void cxWindowBase::DrawLine(cxPoint p1, cxPoint p2, int brushKey, float strokeWidth)
+{
+    cxSolidBrush brush = p->m_pBrushes[brushKey];
+
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetRGBStrokeColor(context, brush.r, brush.g, brush.b, brush.a);
+    CGContextSetLineWidth(context, strokeWidth);
+    CGContextMoveToPoint(context, p1.x, p1.y);
+    CGContextAddLineToPoint(context, p2.x, p2.y);
+    CGContextStrokePath(context);
 }
 
 void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
@@ -544,16 +573,17 @@ void cxOpenFileDialog(std::wstring& filename)
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
     //[openDlg setDirectoryURL:[NSURL URLWithString:[NSString stringWithFormat:@"file:///"]]];
 
+    //NSArray* fileTypes = [NSArray arrayWithObjects:@"txt", @"TXT", @"pdf", @"PDF", nil];
+
     [openDlg setCanChooseFiles:YES];
     [openDlg setAllowsMultipleSelection: NO];
     [openDlg setCanChooseDirectories: NO];
+    //[openDlg setAllowedFileTypes:fileTypes];
 
     if ( [openDlg runModal] == NSModalResponseOK )
     {
         NSArray* files = [openDlg URLs];
         NSString* file = [[files objectAtIndex:0] path];
-
-        
  
         filename = NSStringToStringW(file); 
 

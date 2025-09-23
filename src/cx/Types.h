@@ -35,11 +35,6 @@ enum cxCursorType
     
 };
 
-struct cxRect
-{
-    float left, top, right, bottom;
-};
-
 struct cxTextOptions
 {
     enum TextAlignment
@@ -55,4 +50,14 @@ struct cxTextOptions
         PARAGRAPH_ALIGNMENT_CENTER,
         PARAGRAPH_ALIGNMENT_BOTTOM
     } m_ParagraphAlignment;
+};
+
+struct cxRect
+{
+    float left, top, right, bottom;
+};
+
+struct cxPoint
+{
+    float x, y;
 };

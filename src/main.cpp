@@ -3,19 +3,23 @@
 #include <fstream>
 
 #define BRUSH_TEXTWHITE 0
-#define BRUSH_TEXTGREY  4
-#define BRUSH_DARKGREY   1
-#define BRUSH_DARKERGREY 2
-#define BRUSH_TABGREY 3
-#define BRUSH_BUTTON 5
-#define BRUSH_BUTTONHIGHLIGHT 6
+#define BRUSH_TEXTGREY  1
+#define BRUSH_DARKGREY   2
+#define BRUSH_DARKERGREY 3
+#define BRUSH_TABGREY 4
+#define BRUSH_TABHOVERGREY 5
+#define BRUSH_BUTTON 6
+#define BRUSH_BUTTONHIGHLIGHT 7
 
 std::unique_ptr<cxFont> font;
 
 class TabControl : public cxView
 {
 	int m_SelPage = 0;
-	float m_TabPadding = 30.f;
+	int m_PageHover = -1;
+	bool m_HoverClose = false;
+
+	float m_TabPadding = 50.f;
 	float m_TabHeight = 40.f;
 
 	using cxView::cxView;
@@ -32,8 +36,11 @@ class TabControl : public cxView
 		}
 	}
 
-	void OnMouseDown(cxMouseEvent event) override
+	void GetTabIndex(float xPos, int& index, bool& isClose)
 	{
+		index = -1;
+		isClose = false;
+
 		float x = 0;
 		for (int i = 0; i < m_SubViews.size(); i++)
 		{
@@ -49,17 +56,54 @@ class TabControl : public cxView
 				height
 			);
 
-			if (event.x > x and event.x < x + width + m_TabPadding)
+			if (xPos > x and xPos < x + width + m_TabPadding)
 			{
-				m_SelPage = i;
+				index = i;
+				if (xPos > x + width + m_TabPadding - 20.f and xPos < x + width + m_TabPadding - 10.f)
+					isClose = true;
 			}
-
-			view->m_Show = false;
 			x += width + m_TabPadding;
 		}
+	}
 
-		if (m_SubViews.size() > 0)
-			m_SubViews[m_SelPage]->m_Show = true;
+	void OnMouseMove(cxMouseEvent event) override
+	{
+		int iTab;
+		bool isClose;
+		GetTabIndex(event.x, iTab, isClose);
+		m_PageHover = iTab;
+		m_HoverClose = isClose;
+		m_TopParent->Invalidate();
+	}
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		int iTab;
+		bool isClose;
+		GetTabIndex(event.x, iTab, isClose);
+		if (iTab != -1)
+		{
+			if (isClose)
+			{
+				cxLog(L"Closing %d", iTab);
+			}
+			else
+			{
+				m_SelPage = iTab;
+				for (cxView* view : m_SubViews)
+					view->m_Show = false;
+				if (m_SubViews.size() > 0)
+					m_SubViews[iTab]->m_Show = true;
+			}
+
+		}
+		m_TopParent->Invalidate();
+	}
+
+	void OnMouseLeave() override
+	{
+		m_HoverClose = false;
+		m_PageHover = -1;
 		m_TopParent->Invalidate();
 	}
 
@@ -81,6 +125,9 @@ class TabControl : public cxView
 				height
 			);
 
+			if (i == m_PageHover)
+				container->FillRectangle({x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABHOVERGREY);
+
 			if (i == m_SelPage)
 				container->FillRectangle({x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABGREY);
 
@@ -88,8 +135,35 @@ class TabControl : public cxView
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
-				{ x, 0, x + width + m_TabPadding, m_TabHeight },
+				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight },
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			);
+			float tabMiddle = m_TabHeight * 0.5f;
+			float closePadding = 10.f;
+			container->DrawLine(
+				{
+					x + width + m_TabPadding - closePadding, 
+					tabMiddle + 5.f
+				}, 
+				{
+					x + width + m_TabPadding - 10.f - closePadding, 
+					tabMiddle - 5.f
+				}, 
+				i == m_PageHover and m_HoverClose ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY, 
+				2.f
+			);
+			
+			container->DrawLine(
+				{
+					x + width + m_TabPadding - 10.f - closePadding, 
+					tabMiddle + 5.f
+				}, 
+				{
+					x + width + m_TabPadding - closePadding, 
+					tabMiddle - 5.f
+				}, 
+				i == m_PageHover and m_HoverClose ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY, 
+				2.f
 			);
 
 			x += width + m_TabPadding;
@@ -120,20 +194,22 @@ public:
 	void OnMouseScroll(cxMouseScrollEvent event) override
 	{
 		scroll -= event.scrollY;
+		if (scroll < 0.f) scroll = 0.f;
 		m_TopParent->Invalidate();
 	}
 
 	void OnPaint(cxWindowContainer* container) override
 	{
-		m_TopParent->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, 1);
+		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_DARKGREY);
 		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
-		m_TopParent->DrawTextInRect(
+		container->DrawTextInRect(
 			font.get(),
 			BRUSH_TEXTWHITE,
 			text,
-			{ 0, -scroll ,m_Right - m_Left,m_Bottom - m_Top - scroll }, 
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			{ 0, -scroll ,m_Right - m_Left,1000.f }, 
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_TOP }
 		);
+
 	}
 };
 
@@ -196,6 +272,7 @@ public:
 		MakeSolidBrush(BRUSH_DARKGREY, 0.2f, 0.2f, 0.2f, 1.0f);
 		MakeSolidBrush(BRUSH_DARKERGREY, 0.1f, 0.1f, 0.1f, 1.0f);
 		MakeSolidBrush(BRUSH_TABGREY, 0.3f, 0.3f, 0.3f, 1.0f);
+		MakeSolidBrush(BRUSH_TABHOVERGREY, 0.2f, 0.2f, 0.2f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
 
@@ -239,8 +316,6 @@ public:
 		{
 			contents += str;
 		}
-
-		cxLog(contents);
 
 		mv2->text = contents;
 
