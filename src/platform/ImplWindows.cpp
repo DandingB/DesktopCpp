@@ -115,7 +115,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_MOUSEWHEEL:
     {
-        float wheel = (SHORT)-HIWORD(wParam);
+        float wheel = (SHORT)HIWORD(wParam);
 
         wnd->OnMouseScroll({0, wheel});
         return 0;
