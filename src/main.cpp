@@ -88,6 +88,7 @@ class TabControl : public cxView
 
 			if (isClose)
 			{
+				delete m_SubViews[iTab];
 				m_SubViews.erase(m_SubViews.begin() + iTab);
 				if (m_SelPage >= m_SubViews.size())
 					m_SelPage--;
@@ -272,10 +273,6 @@ class MyWindow : public cxWindowContainer
 public:
 	TabControl* tabctrl;
 
-	MyView* mv;
-	MyView* mv2;
-	MyView* mv3;
-
 	MyWindow()
 	{
 		MakeSolidBrush(BRUSH_TEXTWHITE, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -290,24 +287,13 @@ public:
 		tabctrl = new TabControl(0, 0, 150, 100);
 		AddView(tabctrl);
 
-		mv = new MyView(50, 50, 150, 100);
-		mv->m_Title = L"File name";
-		tabctrl->AddView(mv);
-		MyButton* btn = new MyButton(10, 10, 100, 40);
-		btn->callback = std::bind(&MyWindow::OpenFile, this);
-		btn->m_Title = L"Open File";
-		mv->AddView(btn);
-
-
-		mv2 = new MyView(50, 50, 150, 100);
-		mv2->m_Title = L"File contents";
-		mv2->m_Show = false;
-		tabctrl->AddView(mv2);
-
-		mv3 = new MyView(50, 50, 150, 100);
-		mv3->m_Title = L"MyView3asdasdasdas";
-		mv3->m_Show = false;
-		tabctrl->AddView(mv3);
+		//mv = new MyView(50, 50, 150, 100);
+		//mv->m_Title = L"Open File";
+		//tabctrl->AddView(mv);
+		//MyButton* btn = new MyButton(10, 10, 100, 40);
+		//btn->callback = std::bind(&MyWindow::OpenFile, this);
+		//btn->m_Title = L"Open File";
+		//mv->AddView(btn);
 
 		GetChildView(0)->m_Right = 500;
 		GetChildView(0)->m_Bottom = 500;
@@ -318,7 +304,6 @@ public:
 	{
 		std::wstring filename;
 		cxOpenFileDialog(filename);
-		mv->text = filename;
 
 		std::wifstream file(filename);
 		std::wstring contents;
@@ -328,7 +313,15 @@ public:
 			contents += str;
 		}
 
+		std::wstring base_filename = filename.substr(filename.find_last_of(L"/\\") + 1);
+
+		MyView* mv2 = new MyView(50, 50, 150, 100);
+		mv2->m_Title = base_filename;
+		mv2->m_Show = false;
 		mv2->text = contents;
+		tabctrl->AddView(mv2);
+
+		GetChildView(0)->OnSize();
 
 		Invalidate();
 	}
@@ -344,7 +337,6 @@ public:
 		GetChildView(0)->m_Right = width;
 		GetChildView(0)->m_Bottom = height;
 		GetChildView(0)->OnSize();
-		//Invalidate();
 	}
 
 	void OnPaint() override
@@ -362,12 +354,6 @@ void MenuCommand(int command)
 	{
 	case 1:
 		window->OpenFile();
-		break;
-	case 2:
-		window->tabctrl->AddView(window->mv);
-		break;
-	case 3:
-		window->tabctrl->AddView(window->mv2);
 		break;
 	default:
 		break;
@@ -392,16 +378,12 @@ CX_FUNC_MAIN
 	std::vector<cxMenuItem> fileMenu;
 	fileMenu.push_back({ L"Open", 1 });
 
-	std::vector<cxMenuItem> windowMenu;
-	windowMenu.push_back({ L"File Window", 2 });
-	windowMenu.push_back({ L"Content Window", 3 });
 
 	std::vector<cxMenuItem> menu;
 #ifdef __APPLE__
 	menu.push_back({L"", 0, appMenu });
 #endif
 	menu.push_back({L"File", 0, fileMenu });
-	menu.push_back({L"Window", 0, windowMenu });
 
 
 
