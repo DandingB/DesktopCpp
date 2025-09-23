@@ -1,6 +1,7 @@
 #pragma once
-#include "../platform/WindowBase.h"
+#include "platform/WindowBase.h"
 #include <vector>
+#include <memory>
 
 class cxWindowContainer;
 

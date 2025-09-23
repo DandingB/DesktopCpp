@@ -137,19 +137,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\cx.h" />
+    <ClInclude Include="..\src\cx\cx.h" />
     <ClInclude Include="..\src\cx\Types.h" />
-    <ClInclude Include="..\src\platform\Font.h" />
-    <ClInclude Include="..\src\platform\Platform.h" />
-    <ClInclude Include="..\src\platform\WindowBase.h" />
+    <ClInclude Include="..\src\cx\platform\Font.h" />
+    <ClInclude Include="..\src\cx\platform\Platform.h" />
+    <ClInclude Include="..\src\cx\platform\WindowBase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\cx\WindowContainer.cpp" />
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\platform\ImplWindows.cpp" />
+    <ClCompile Include="..\src\cx\platform\ImplWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\platform\ImplMacOS.mm" />
+    <None Include="..\src\cx\platform\ImplMacOS.mm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

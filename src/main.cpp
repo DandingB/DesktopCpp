@@ -1,4 +1,4 @@
-﻿#include "cx.h"
+﻿#include "cx/cx.h"
 #include <functional>
 #include <fstream>
 
@@ -23,18 +23,6 @@ class TabControl : public cxView
 	float m_TabHeight = 40.f;
 
 	using cxView::cxView;
-
-	void OnSize() override
-	{
-		for (cxView* view : m_SubViews)
-		{
-			view->m_Left = 0;
-			view->m_Top = m_TabHeight;
-			view->m_Right = m_Right;
-			view->m_Bottom = m_Bottom;
-			view->OnSize();
-		}
-	}
 
 	void GetTabIndex(float xPos, float yPos, int& index, bool& isClose)
 	{
@@ -66,6 +54,19 @@ class TabControl : public cxView
 			x += width + m_TabPadding;
 		}
 	}
+
+	void OnSize() override
+	{
+		for (cxView* view : m_SubViews)
+		{
+			view->m_Left = 0;
+			view->m_Top = m_TabHeight;
+			view->m_Right = m_Right;
+			view->m_Bottom = m_Bottom;
+			view->OnSize();
+		}
+	}
+
 
 	void OnMouseMove(cxMouseEvent event) override
 	{
@@ -182,7 +183,21 @@ class TabControl : public cxView
 		}
 	}
 	
+public:
+	void SetSelectedPage(int page)
+	{
+		if (page >= 0 and page < m_SubViews.size())
+		{
+			m_SelPage = page;
 
+			for (cxView* view : m_SubViews)
+				view->m_Show = false;
+			if (m_SubViews.size() > 0)
+				m_SubViews[m_SelPage]->m_Show = true;
+
+			m_TopParent->Invalidate();
+		}
+	}
 };
 
 class MyView : public cxView
@@ -320,8 +335,8 @@ public:
 		mv2->m_Show = false;
 		mv2->text = contents;
 		tabctrl->AddView(mv2);
-
 		GetChildView(0)->OnSize();
+		tabctrl->SetSelectedPage(0);
 
 		Invalidate();
 	}

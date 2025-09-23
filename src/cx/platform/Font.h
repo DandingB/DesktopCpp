@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include "../cx/Types.h"
+#include "../Types.h"
 
 class cxFont
 {
