@@ -119,7 +119,7 @@ public:
 
 	void OnMouseScroll(cxMouseScrollEvent event) override
 	{
-		scroll -= event.scrollX * 2.f;
+		scroll -= event.scrollX;
 		m_TopParent->Invalidate();
 	}
 

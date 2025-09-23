@@ -113,6 +113,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         wnd->OnMouseLeave();
         return 0;
     }
+    case WM_MOUSEWHEEL:
+    {
+        float wheel = (SHORT)-HIWORD(wParam);
+
+        wnd->OnMouseScroll({wheel, 0});
+        return 0;
+    }
     case WM_DPICHANGED:
     {
         int dpi = HIWORD(wParam);
