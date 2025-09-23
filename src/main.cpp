@@ -119,7 +119,7 @@ public:
 
 	void OnMouseScroll(cxMouseScrollEvent event) override
 	{
-		scroll -= event.scrollX;
+		scroll -= event.scrollY;
 		m_TopParent->Invalidate();
 	}
 
@@ -131,7 +131,7 @@ public:
 			font.get(),
 			BRUSH_TEXTWHITE,
 			text,
-			{ 0,scroll,m_Right - m_Left,m_Bottom - m_Top+scroll }, 
+			{ 0, -scroll ,m_Right - m_Left,m_Bottom - m_Top - scroll }, 
 			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
 	}

@@ -117,7 +117,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         float wheel = (SHORT)-HIWORD(wParam);
 
-        wnd->OnMouseScroll({wheel, 0});
+        wnd->OnMouseScroll({0, wheel});
         return 0;
     }
     case WM_DPICHANGED:
