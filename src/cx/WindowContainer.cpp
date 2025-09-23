@@ -60,6 +60,10 @@ void cxView::AddView(cxView* view)
 	m_SubViews.push_back(view);
 	view->m_Parent = this;
 	view->m_TopParent = m_TopParent;
+	if (view->m_TopParent)
+	{
+		view->m_TopParent->Invalidate();
+	}
 }
 
 cxWindowContainer::cxWindowContainer()

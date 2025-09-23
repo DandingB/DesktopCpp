@@ -51,6 +51,17 @@ struct cxSolidBrush
 {
     return YES;
 }
+
+-(void)menuItemClicked:(id)sender
+{
+    NSInteger command = [[sender representedObject] integerValue];
+
+    std::function<void(int)> callback;
+    ref->GetMenuCallback(callback);
+    if (callback != nullptr)
+        callback(command);
+}
+
 @end
 
 
@@ -235,6 +246,44 @@ void cxWindowBase::Show(bool show)
         [p->m_Window makeKeyAndOrderFront: nil];
     else
         [p->m_Window orderOut: nil];
+}
+
+void EnumerateMenu(NSMenu* nsMenu, std::vector<cxMenuItem>& menu, Window* window)
+{
+    for (cxMenuItem& item : menu)
+    {
+        NSMenuItem* menuItem = [[NSMenuItem alloc] initWithTitle: WStringToNSString(item.title) action:@selector(menuItemClicked:) keyEquivalent:@""];
+
+        NSMenu* submenu;
+        if (item.subitems.size() > 0)
+        {
+            submenu = [[NSMenu alloc]init];
+            EnumerateMenu(submenu, item.subitems, window);
+            [menuItem setSubmenu:submenu];
+        }
+        [menuItem setTarget:window];
+        [menuItem setRepresentedObject:[NSNumber numberWithInteger: item.command]];
+        [nsMenu addItem: menuItem];
+    }
+}
+
+void cxWindowBase::SetMenu(std::vector<cxMenuItem>& menu)
+{
+    NSMenu* nsMenu = [[NSMenu alloc]init];
+    [nsMenu setTitle: @"Menu1"];
+    EnumerateMenu(nsMenu, menu, p->m_Window);
+
+    [NSApp setMainMenu: nsMenu];
+}
+
+void cxWindowBase::SetMenuCallback(std::function<void(int)> callback)
+{
+    m_MenuCallback = callback;
+}
+
+void cxWindowBase::GetMenuCallback(std::function<void(int)>& callback)
+{
+    callback = m_MenuCallback;
 }
 
 void cxWindowBase::CaptureMouse()

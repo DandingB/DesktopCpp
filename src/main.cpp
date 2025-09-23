@@ -269,12 +269,13 @@ public:
 
 class MyWindow : public cxWindowContainer
 {
+public:
 	TabControl* tabctrl;
 
 	MyView* mv;
 	MyView* mv2;
 	MyView* mv3;
-public:
+
 	MyWindow()
 	{
 		MakeSolidBrush(BRUSH_TEXTWHITE, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -353,11 +354,25 @@ public:
 
 };
 
+MyWindow* window;
+
 void MenuCommand(int command)
 {
-	cxLog(L"Command %d", command);
+	switch (command)
+	{
+	case 1:
+		window->OpenFile();
+		break;
+	case 2:
+		window->tabctrl->AddView(window->mv);
+		break;
+	case 3:
+		window->tabctrl->AddView(window->mv2);
+		break;
+	default:
+		break;
+	}
 }
-
 
 CX_FUNC_MAIN
 {
@@ -366,19 +381,27 @@ CX_FUNC_MAIN
 
 	font = std::make_unique<cxFont>(CX_SYSTEM_FONT, 15.f);
 
-	MyWindow* window = new MyWindow;
+	window = new MyWindow;
+
+#ifdef __APPLE__
+	std::vector<cxMenuItem> appMenu;
+	appMenu.push_back({ L"Thingy", 4 });
+	appMenu.push_back({ L"Lol", 5 });
+#endif
 
 	std::vector<cxMenuItem> fileMenu;
-	fileMenu.push_back({ L"New\tAlt+F4", 0 });
 	fileMenu.push_back({ L"Open", 1 });
 
-	std::vector<cxMenuItem> editMenu;
-	editMenu.push_back({ L"Undo", 2 });
-	editMenu.push_back({ L"Redo", 3 });
+	std::vector<cxMenuItem> windowMenu;
+	windowMenu.push_back({ L"File Window", 2 });
+	windowMenu.push_back({ L"Content Window", 3 });
 
 	std::vector<cxMenuItem> menu;
-	menu.push_back({L"File", NULL, fileMenu });
-	menu.push_back({L"Edit", NULL, editMenu });
+#ifdef __APPLE__
+	menu.push_back({L"", 0, appMenu });
+#endif
+	menu.push_back({L"File", 0, fileMenu });
+	menu.push_back({L"Window", 0, windowMenu });
 
 
 
