@@ -143,6 +143,9 @@
     <ClInclude Include="..\..\src\cx\platform\Platform.h" />
     <ClInclude Include="..\..\src\cx\platform\WindowBase.h" />
     <ClInclude Include="..\..\src\cx\WindowContainer.h" />
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="TabControl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\cx\WindowContainer.cpp" />

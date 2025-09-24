@@ -28,6 +28,9 @@
     <ClInclude Include="..\..\src\cx\WindowContainer.h">
       <Filter>cx</Filter>
     </ClInclude>
+    <ClInclude Include="Audio.h" />
+    <ClInclude Include="TabControl.h" />
+    <ClInclude Include="Common.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cx">
