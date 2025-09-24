@@ -26,6 +26,7 @@ public:
 	bool PointInView(float x, float y);
 	void GetWindowPos(float& x, float& y);
 	void GetWindowRect(float& left, float& top, float& right, float& bottom);
+	void GetSize(float& width, float& height);
 
 	virtual void OnPaint(cxWindowContainer* container) {};
 	virtual void OnSize() {};

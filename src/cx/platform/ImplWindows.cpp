@@ -141,7 +141,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
     {
         wnd->OnClosing();
-        delete wnd;
         return 0;
     }
     return 0;

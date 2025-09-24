@@ -55,6 +55,12 @@ void cxView::GetWindowRect(float& left, float& top, float& right, float& bottom)
 	}
 }
 
+void cxView::GetSize(float& width, float& height)
+{
+	width = m_Right - m_Left;
+	height = m_Bottom - m_Top;
+}
+
 void cxView::AddView(cxView* view)
 {
 	m_SubViews.push_back(view);
