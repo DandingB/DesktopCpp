@@ -114,7 +114,5 @@ void LoadWaveFile(std::wstring path, AudioPeakData& out)
 			MIPSample += 1;
 		}
 	}
-
-
 }
 

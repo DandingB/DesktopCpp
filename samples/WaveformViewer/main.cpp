@@ -233,7 +233,7 @@ public:
 	{
 		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_DARKGREY);
 
-		float center = m_Bottom / 2.f;
+		float center = (m_Bottom - m_Top) / 2.f;
 		for (uint32_t i = 0; i < data.m_Peaks.size(); i++)
 		{
 			AudioPeakData::Peak peak = data.m_Peaks[i];
