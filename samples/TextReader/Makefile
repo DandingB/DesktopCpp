@@ -4,7 +4,7 @@ ifeq ($(OS),Windows_NT)
 # Windows #
 ###########
 
-CXX = g++ -std=gnu++17
+CXX = g++ -std=gnu++17 -I../../src
 LIBS = -ld2d1 -ldwrite
 FLAGS = -mwindows -municode --static -g
 
@@ -20,7 +20,7 @@ else
 # MacOS #
 #########
 
-CXX = g++ -std=gnu++17
+CXX = g++ -std=gnu++17 -I../../src
 FRAMEWORKS = -framework Cocoa -framework AppKit -framework System
 
 
