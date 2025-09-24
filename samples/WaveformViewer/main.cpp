@@ -27,37 +27,6 @@ class TabControl : public cxView
 
 	using cxView::cxView;
 
-	void GetTabIndex(float xPos, float yPos, int& index, bool& isClose)
-	{
-		index = -1;
-		isClose = false;
-
-		float tabMiddle = m_TabHeight * 0.5f;
-		float x = 0;
-		for (int i = 0; i < m_SubViews.size(); i++)
-		{
-			cxView* view = m_SubViews[i];
-
-			float width, height;
-			font->GetFontTextMetrics(
-				view->m_Title,
-				200,
-				30,
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
-				width,
-				height
-			);
-
-			if (xPos > x and xPos < x + width + m_TabPadding)
-			{
-				index = i;
-				if (xPos > x + width + m_TabPadding - 20.f and xPos < x + width + m_TabPadding - 10.f and yPos > tabMiddle - 5.f and yPos < tabMiddle + 5.f)
-					isClose = true;
-			}
-			x += width + m_TabPadding;
-		}
-	}
-
 	void OnSize() override
 	{
 		for (cxView* view : m_SubViews)
@@ -68,57 +37,6 @@ class TabControl : public cxView
 			view->m_Bottom = m_Bottom;
 			view->OnSize();
 		}
-	}
-
-
-	void OnMouseMove(cxMouseEvent event) override
-	{
-		int iTab;
-		bool isClose;
-		GetTabIndex(event.x, event.y, iTab, isClose);
-		m_PageHover = iTab;
-		m_HoverClose = isClose;
-		m_TopParent->Invalidate();
-	}
-
-	void OnMouseDown(cxMouseEvent event) override
-	{
-		int iTab;
-		bool isClose;
-		GetTabIndex(event.x, event.y, iTab, isClose);
-		if (iTab != -1)
-		{
-			m_SelPage = iTab;
-
-			if (isClose)
-			{
-				delete m_SubViews[iTab];
-				m_SubViews.erase(m_SubViews.begin() + iTab);
-				if (m_SelPage >= m_SubViews.size())
-					m_SelPage--;
-			}
-
-
-			for (cxView* view : m_SubViews)
-				view->m_Show = false;
-			if (m_SubViews.size() > 0)
-				m_SubViews[m_SelPage]->m_Show = true;
-
-
-		}
-		m_TopParent->Invalidate();
-	}
-
-	void OnMouseEnter() override
-	{
-		cxSetCursor(cxCursorType::cxArrow);
-	}
-
-	void OnMouseLeave() override
-	{
-		m_HoverClose = false;
-		m_PageHover = -1;
-		m_TopParent->Invalidate();
 	}
 
 	void OnPaint(cxWindowContainer* container) override
@@ -186,6 +104,84 @@ class TabControl : public cxView
 		}
 	}
 
+	void OnMouseMove(cxMouseEvent event) override
+	{
+		int iTab;
+		bool isClose;
+		GetTabIndex(event.x, event.y, iTab, isClose);
+		m_PageHover = iTab;
+		m_HoverClose = isClose;
+		m_TopParent->Invalidate();
+	}
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		int iTab;
+		bool isClose;
+		GetTabIndex(event.x, event.y, iTab, isClose);
+		if (iTab != -1)
+		{
+			m_SelPage = iTab;
+
+			if (isClose)
+			{
+				delete m_SubViews[iTab];
+				m_SubViews.erase(m_SubViews.begin() + iTab);
+				if (m_SelPage >= m_SubViews.size())
+					m_SelPage--;
+			}
+
+			for (cxView* view : m_SubViews)
+				view->m_Show = false;
+			if (m_SubViews.size() > 0)
+				m_SubViews[m_SelPage]->m_Show = true;
+		}
+		m_TopParent->Invalidate();
+	}
+
+	void OnMouseEnter() override
+	{
+		cxSetCursor(cxCursorType::cxArrow);
+	}
+
+	void OnMouseLeave() override
+	{
+		m_HoverClose = false;
+		m_PageHover = -1;
+		m_TopParent->Invalidate();
+	}
+
+	void GetTabIndex(float xPos, float yPos, int& index, bool& isClose)
+	{
+		index = -1;
+		isClose = false;
+
+		float tabMiddle = m_TabHeight * 0.5f;
+		float x = 0;
+		for (int i = 0; i < m_SubViews.size(); i++)
+		{
+			cxView* view = m_SubViews[i];
+
+			float width, height;
+			font->GetFontTextMetrics(
+				view->m_Title,
+				200,
+				30,
+				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
+				width,
+				height
+			);
+
+			if (xPos > x and xPos < x + width + m_TabPadding)
+			{
+				index = i;
+				if (xPos > x + width + m_TabPadding - 20.f and xPos < x + width + m_TabPadding - 10.f and yPos > tabMiddle - 5.f and yPos < tabMiddle + 5.f)
+					isClose = true;
+			}
+			x += width + m_TabPadding;
+		}
+	}
+
 public:
 	void SetSelectedPage(int page)
 	{
@@ -238,7 +234,10 @@ public:
 		{
 			AudioPeakData::Peak peak = data.m_Peaks[i];
 
-			container->FillRectangle({(float)i - m_hScroll, center - peak.high * 80.f, (float)i+1 - m_hScroll, center - peak.low * 80.f }, BRUSH_TEXTWHITE);
+			if ((float)i - m_hScroll < 0 or (float)i - m_hScroll > m_Right - m_Left)
+				continue;
+
+			container->FillRectangle({(float)i - m_hScroll, center - peak.high * 100.f, (float)i+1 - m_hScroll, center - peak.low * 100.f }, BRUSH_TEXTWHITE);
 		}
 	}
 };

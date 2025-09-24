@@ -95,7 +95,7 @@ void LoadWaveFile(std::wstring path, AudioPeakData& out)
 			if (audio[0][i] < lowest) { lowest = audio[0][i]; }
 		}
 
-		if (MIPSample == 512 - 1)
+		if (MIPSample == 256 - 1)
 		{
 			out.m_Peaks.push_back({ highest, lowest });
 			MIPSample = 0;
