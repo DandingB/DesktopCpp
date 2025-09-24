@@ -57,8 +57,16 @@ void LoadWaveFile(std::wstring path, AudioPeakData& out)
 	fread(&_fmt, sizeof(WAV_FMT), 1, file);
 	fread(&_data, sizeof(WAV_DATA), 1, file);
 
+	if (_fmt.AudioFormat != 3)
+	{
+		cxMessageBox(L"Only 32-bit WAV supported.");
+		return;
+	}
+
 	data.resize(_data.SubChunk2Size);
 	fread(data.data(), _data.SubChunk2Size, 1, file);
+
+	fclose(file);
 
 	uint32_t nSamples = _data.SubChunk2Size / _fmt.BlockAlign;
 
@@ -107,6 +115,6 @@ void LoadWaveFile(std::wstring path, AudioPeakData& out)
 		}
 	}
 
-	fclose(file);
+
 }
 
