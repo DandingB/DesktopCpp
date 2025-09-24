@@ -219,7 +219,12 @@ public:
 
 	void OnMouseScroll(cxMouseScrollEvent event) override
 	{
+#ifdef __APPLE__
+		m_hScroll -= event.scrollX;
+#elif _WIN32
 		m_hScroll -= event.scrollY;
+#endif
+		
 		if (m_hScroll < 0.f) m_hScroll = 0.f;
 		m_TopParent->Invalidate();
 	}
