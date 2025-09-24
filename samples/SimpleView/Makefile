@@ -12,7 +12,7 @@ FLAGS = -mwindows -municode --static -g
 default: compile
 
 compile:
-	$(CXX) main.cpp ../../src/cx/WindowContainer.cpp ../../src/cx/platform/ImplWindows.cpp $(LIBS) $(FLAGS) -o TextReader.exe
+	$(CXX) main.cpp ../../src/cx/WindowContainer.cpp ../../src/cx/platform/ImplWindows.cpp $(LIBS) $(FLAGS) -o SimpleView.exe
 
 else
 
@@ -27,7 +27,7 @@ FRAMEWORKS = -framework Cocoa -framework AppKit -framework System
 default: compile
 
 compile:
-	$(CXX) main.cpp ../../src/cx/WindowContainer.cpp ../../src/cx/platform/ImplMacOS.mm $(FRAMEWORKS) -o TextReader
+	$(CXX) main.cpp ../../src/cx/WindowContainer.cpp ../../src/cx/platform/ImplMacOS.mm $(FRAMEWORKS) -o SimpleView
 
 bundle:
 	mkdir -p bin/App.app/Contents

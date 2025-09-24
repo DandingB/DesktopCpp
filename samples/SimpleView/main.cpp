@@ -47,7 +47,7 @@ public:
 		GetChildView(0)->m_Bottom = height - 50.f;
 	}
 
-	void OnClosing()
+	void OnClosing() override
 	{
 		cxQuitApp();
 	}
