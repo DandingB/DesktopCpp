@@ -1,4 +1,3 @@
-#pragma once
 
 #define BRUSH_TEXTWHITE 0
 #define BRUSH_TEXTGREY  1

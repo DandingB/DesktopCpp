@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <cstdint>
 
 struct WAV_RIFF
 {
@@ -82,7 +83,7 @@ void LoadWaveFile(std::wstring path, AudioPeakData& out)
 	float highest = 0;
 	float lowest = 0;
 
-	for (int i = 0; i < nSamples; i++)
+	for (uint32_t i = 0; i < nSamples; i++)
 	{
 		if (MIPSample == 0)
 		{
