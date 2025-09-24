@@ -6,7 +6,7 @@ ifeq ($(OS),Windows_NT)
 
 CXX = g++ -std=gnu++17
 LIBS = -ld2d1 -ldwrite
-FLAGS = -mwindows -municode --static
+FLAGS = -mwindows -municode --static -g
 
 
 default: compile

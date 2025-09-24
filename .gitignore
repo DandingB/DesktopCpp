@@ -5,3 +5,6 @@ bin/
 /vsproject/x64/
 /vsproject/.vs/
 /vsproject/crispy-cross-app/
+/samples/WaveformViewer/x64/
+/samples/WaveformViewer/.vs/
+/samples/WaveformViewer/WaveformViewer/

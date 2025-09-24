@@ -1,4 +1,4 @@
-﻿#include "cx/cx.h"
+#include "cx.h"
 #include <functional>
 #include <fstream>
 
@@ -37,11 +37,11 @@ class TabControl : public cxView
 
 			float width, height;
 			font->GetFontTextMetrics(
-				view->m_Title, 
-				200, 
-				30, 
+				view->m_Title,
+				200,
+				30,
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
-				width, 
+				width,
 				height
 			);
 
@@ -95,12 +95,12 @@ class TabControl : public cxView
 					m_SelPage--;
 			}
 
-				
+
 			for (cxView* view : m_SubViews)
 				view->m_Show = false;
 			if (m_SubViews.size() > 0)
 				m_SubViews[m_SelPage]->m_Show = true;
-			
+
 
 		}
 		m_TopParent->Invalidate();
@@ -127,25 +127,25 @@ class TabControl : public cxView
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			font->GetFontTextMetrics( 
-				views->m_Title, 
-				200, 
+			font->GetFontTextMetrics(
+				views->m_Title,
+				200,
 				m_TabHeight,
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
-				width, 
+				width,
 				height
 			);
 
 			if (i == m_PageHover)
-				container->FillRectangle({x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABHOVERGREY);
+				container->FillRectangle({ x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABHOVERGREY);
 
 			if (i == m_SelPage)
-				container->FillRectangle({x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABGREY);
+				container->FillRectangle({ x, 0, x + width + m_TabPadding, m_TabHeight }, BRUSH_TABGREY);
 
 			container->DrawTextInRect(
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
-				views->m_Title, 
+				views->m_Title,
 				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight },
 				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 			);
@@ -154,27 +154,27 @@ class TabControl : public cxView
 			float closePadding = 10.f;
 			container->DrawLine(
 				{
-					x + width + m_TabPadding - closePadding, 
+					x + width + m_TabPadding - closePadding,
 					tabMiddle + 5.f
-				}, 
+				},
 				{
-					x + width + m_TabPadding - 10.f - closePadding, 
+					x + width + m_TabPadding - 10.f - closePadding,
 					tabMiddle - 5.f
-				}, 
-				i == m_PageHover and m_HoverClose ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY, 
+				},
+				i == m_PageHover and m_HoverClose ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				2.f
 			);
-			
+
 			container->DrawLine(
 				{
-					x + width + m_TabPadding - 10.f - closePadding, 
+					x + width + m_TabPadding - 10.f - closePadding,
 					tabMiddle + 5.f
-				}, 
+				},
 				{
-					x + width + m_TabPadding - closePadding, 
+					x + width + m_TabPadding - closePadding,
 					tabMiddle - 5.f
-				}, 
-				i == m_PageHover and m_HoverClose ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY, 
+				},
+				i == m_PageHover and m_HoverClose ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				2.f
 			);
 
@@ -182,7 +182,7 @@ class TabControl : public cxView
 			i++;
 		}
 	}
-	
+
 public:
 	void SetSelectedPage(int page)
 	{
@@ -232,56 +232,13 @@ public:
 			font.get(),
 			BRUSH_TEXTWHITE,
 			text,
-			{ 0, -scroll ,m_Right - m_Left,1000.f }, 
+			{ 0, -scroll ,m_Right - m_Left,1000.f },
 			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_TOP }
 		);
 
 	}
 };
 
-class MyButton : public cxView
-{
-	using cxView::cxView;
-
-public:
-	bool m_Highlight = false;
-	std::function<void()> callback;
-
-	void OnMouseDown(cxMouseEvent event) override
-	{
-	}
-
-	void OnMouseUp(cxMouseEvent event) override
-	{
-		callback();
-	}
-
-	void OnMouseEnter() override
-	{
-		m_Highlight = true;
-		m_TopParent->Invalidate();
-	}
-
-	void OnMouseLeave() override
-	{
-		m_Highlight = false;
-		m_TopParent->Invalidate();
-	}
-
-	void OnPaint(cxWindowContainer* container) override
-	{
-		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, m_Highlight ? BRUSH_BUTTONHIGHLIGHT : BRUSH_BUTTON);
-
-		container->DrawTextInRect(
-			font.get(),
-			BRUSH_TEXTWHITE,
-			m_Title,
-			{ 0,0,m_Right - m_Left,m_Bottom - m_Top },
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
-		);
-
-	}
-};
 
 class MyWindow : public cxWindowContainer
 {
@@ -315,7 +272,7 @@ public:
 		GetChildView(0)->OnSize();
 	}
 
-	void OpenFile() 
+	void OpenFile()
 	{
 		std::wstring filename;
 		cxOpenFileDialog(filename);

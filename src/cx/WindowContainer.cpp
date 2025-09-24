@@ -66,7 +66,7 @@ void cxView::AddView(cxView* view)
 	}
 }
 
-cxWindowContainer::cxWindowContainer()
+cxWindowContainer::cxWindowContainer() : m_pMouseOver(nullptr), m_pHasCapture(nullptr)
 {
 }
 
