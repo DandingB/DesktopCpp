@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\..\src\cx\platform\ImplWindows.cpp">
+      <Filter>cx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cx\WindowContainer.cpp">
+      <Filter>cx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\cx\cx.h">
+      <Filter>cx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cx\platform\Font.h">
+      <Filter>cx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cx\platform\Platform.h">
+      <Filter>cx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cx\Types.h">
+      <Filter>cx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cx\platform\WindowBase.h">
+      <Filter>cx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cx\WindowContainer.h">
+      <Filter>cx</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="cx">
+      <UniqueIdentifier>{1777ecda-2f71-4378-b265-6c77b0947fb2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\cx\platform\ImplMacOS.mm">
+      <Filter>cx</Filter>
+    </None>
+  </ItemGroup>
+</Project>

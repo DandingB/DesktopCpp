@@ -11,3 +11,8 @@ bin/
 /samples/TextReader/x64/
 /samples/TextReader/.vs/
 /samples/TextReader/TextReader/
+
+/samples/SimpleView/SimpleView.sln
+/samples/SimpleView/x64/
+/samples/SimpleView/.vs/
+/samples/SimpleView/SimpleView/
