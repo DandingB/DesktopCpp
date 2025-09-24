@@ -46,7 +46,12 @@ void LoadWaveFile(std::wstring path, AudioPeakData& out)
 	std::vector<uint8_t> data;
 	std::vector<std::vector<float>> audio;
 
+#ifdef __APPLE__
+	std::string str( path.begin(), path.end() );
+	FILE* file = fopen(str.c_str(), "rb");
+#elif _WIN32
 	FILE* file = _wfopen(path.c_str(), L"rb");
+#endif
 	fread(&_riff, sizeof(WAV_RIFF), 1, file);
 	fread(&_fmt, sizeof(WAV_FMT), 1, file);
 	fread(&_data, sizeof(WAV_DATA), 1, file);
