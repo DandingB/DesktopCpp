@@ -197,10 +197,14 @@ void cxWindowContainer::OnMouseScroll(cxMouseScrollEvent event)
 	float width, height;
 	GetClientSize(width, height);
 
-	//cxLog(L"%f %f", event.scrollX, event.scrollY);
-	if (m_pMouseOver)
+	cxView* view = GetViewAtLocation(m_SubViews, 0, 0, width, height, event.x, event.y);
+	if (view)
 	{
-		m_pMouseOver->OnMouseScroll(event);
+		m_pMouseOver = view;
+
+		float x, y;
+		view->GetWindowPos(x, y);
+		m_pMouseOver->OnMouseScroll({ event.x - x, event.y - y, event.scrollX, event.scrollY });
 	}
 }
 

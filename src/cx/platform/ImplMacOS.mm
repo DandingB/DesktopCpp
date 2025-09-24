@@ -136,7 +136,9 @@ struct cxSolidBrush
 
 - (void)scrollWheel:(NSEvent *) event
 {
-    ref->OnMouseScroll({(float)[event scrollingDeltaX], (float)[event scrollingDeltaY]});
+    NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
+    ref->OnMouseScroll({ (float)(curPoint.x), (float)(curPoint.y), 
+                         (float)[event scrollingDeltaX], (float)[event scrollingDeltaY]});
 }
 
 - (void)mouseExited:(NSEvent*)event
@@ -156,7 +158,6 @@ struct cxWindowBase::Impl
 {
     Window* m_Window;
     std::map<int, cxSolidBrush> m_pBrushes;
-    std::map<int, cxFont> m_pFonts;
 };
 
 struct cxFont::Impl

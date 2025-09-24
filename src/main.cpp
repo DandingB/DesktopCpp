@@ -320,25 +320,28 @@ public:
 		std::wstring filename;
 		cxOpenFileDialog(filename);
 
-		std::wifstream file(filename);
-		std::wstring contents;
-		std::wstring str;
-		while (std::getline(file, str))
+		if (filename != L"")
 		{
-			contents += str;
+			std::wifstream file(filename);
+			std::wstring contents;
+			std::wstring str;
+			while (std::getline(file, str))
+			{
+				contents += str;
+			}
+
+			std::wstring base_filename = filename.substr(filename.find_last_of(L"/\\") + 1);
+
+			MyView* mv2 = new MyView(50, 50, 150, 100);
+			mv2->m_Title = base_filename;
+			mv2->m_Show = false;
+			mv2->text = contents;
+			tabctrl->AddView(mv2);
+			GetChildView(0)->OnSize();
+			tabctrl->SetSelectedPage(0);
+
+			Invalidate();
 		}
-
-		std::wstring base_filename = filename.substr(filename.find_last_of(L"/\\") + 1);
-
-		MyView* mv2 = new MyView(50, 50, 150, 100);
-		mv2->m_Title = base_filename;
-		mv2->m_Show = false;
-		mv2->text = contents;
-		tabctrl->AddView(mv2);
-		GetChildView(0)->OnSize();
-		tabctrl->SetSelectedPage(0);
-
-		Invalidate();
 	}
 
 	void OnClosing() override
