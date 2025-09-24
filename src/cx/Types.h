@@ -18,7 +18,7 @@ struct cxMouseEvent
 
 struct cxMouseScrollEvent
 {
-    float x,y;
+    float x, y;
 	float scrollX, scrollY;
 };
 

@@ -17,7 +17,6 @@ public:
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
-		
 	}
 
 	void OnMouseScroll(cxMouseScrollEvent event) override

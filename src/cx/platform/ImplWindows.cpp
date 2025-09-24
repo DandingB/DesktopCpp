@@ -117,7 +117,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         float wheel = (SHORT)HIWORD(wParam);
 
-        wnd->OnMouseScroll({(float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), 0, wheel});
+        POINT p;
+        GetCursorPos(&p);
+        ScreenToClient(hwnd, &p);
+
+        wnd->OnMouseScroll({(float)p.x, (float)p.y, 0, wheel});
         return 0;
     }
     case WM_DPICHANGED:
