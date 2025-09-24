@@ -8,7 +8,7 @@
 #define BRUSH_BUTTON 6
 #define BRUSH_BUTTONHIGHLIGHT 7
 
-#include "../../src/cx/cx.h"
+#include "cx/cx.h"
 #include "Audio.h"
 #include <functional>
 #include <fstream>
