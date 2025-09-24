@@ -2,9 +2,12 @@
 .vs/
 .vscode/
 bin/
-/vsproject/x64/
-/vsproject/.vs/
-/vsproject/crispy-cross-app/
+/samples/WaveformViewer/WaveformViewer.sln
 /samples/WaveformViewer/x64/
 /samples/WaveformViewer/.vs/
 /samples/WaveformViewer/WaveformViewer/
+
+/samples/TextReader/TextReader.sln
+/samples/TextReader/x64/
+/samples/TextReader/.vs/
+/samples/TextReader/TextReader/

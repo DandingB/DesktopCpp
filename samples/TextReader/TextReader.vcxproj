@@ -109,7 +109,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Daniel\Documents\GitHub\crispy-cross\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,20 +137,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\cx\cx.h" />
-    <ClInclude Include="..\src\cx\Types.h" />
-    <ClInclude Include="..\src\cx\platform\Font.h" />
-    <ClInclude Include="..\src\cx\platform\Platform.h" />
-    <ClInclude Include="..\src\cx\platform\WindowBase.h" />
-    <ClInclude Include="..\src\cx\WindowContainer.h" />
+    <ClInclude Include="..\..\src\cx\cx.h" />
+    <ClInclude Include="..\..\src\cx\Types.h" />
+    <ClInclude Include="..\..\src\cx\platform\Font.h" />
+    <ClInclude Include="..\..\src\cx\platform\Platform.h" />
+    <ClInclude Include="..\..\src\cx\platform\WindowBase.h" />
+    <ClInclude Include="..\..\src\cx\WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\cx\WindowContainer.cpp" />
-    <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\cx\platform\ImplWindows.cpp" />
+    <ClCompile Include="..\..\src\cx\WindowContainer.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\..\src\cx\platform\ImplWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\cx\platform\ImplMacOS.mm" />
+    <None Include="..\..\src\cx\platform\ImplMacOS.mm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
