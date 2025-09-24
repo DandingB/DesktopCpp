@@ -12,7 +12,7 @@ FLAGS = -mwindows -municode --static -g
 default: compile
 
 compile:
-	$(CXX) src/main.cpp src/cx/WindowContainer.cpp src/cx/platform/ImplWindows.cpp $(LIBS) $(FLAGS) -o bin/App.exe
+	$(CXX) main.cpp ../../src/cx/WindowContainer.cpp ../../src/cx/platform/ImplWindows.cpp $(LIBS) $(FLAGS) -o TextReader.exe
 
 else
 
@@ -27,7 +27,7 @@ FRAMEWORKS = -framework Cocoa -framework AppKit -framework System
 default: compile
 
 compile:
-	$(CXX) src/main.cpp src/cx/WindowContainer.cpp src/cx/platform/ImplMacOS.mm $(FRAMEWORKS) -o bin/App
+	$(CXX) main.cpp ../../src/cx/WindowContainer.cpp ../../src/cx/platform/ImplMacOS.mm $(FRAMEWORKS) -o TextReader
 
 bundle:
 	mkdir -p bin/App.app/Contents
