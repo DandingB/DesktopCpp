@@ -14,6 +14,12 @@
 #include "Font.h"
 #include "Platform.h"
 
+#define KEY_UP 126
+#define KEY_DOWN 125
+#define KEY_LEFT 123
+#define KEY_RIGHT 124
+
+
 NSString* WStringToNSString(std::wstring wstr)
 {
     return [[NSString alloc] initWithBytes:wstr.data() length:wstr.size() * sizeof(wchar_t) encoding:NSUTF32LittleEndianStringEncoding];
@@ -62,6 +68,11 @@ struct cxSolidBrush
         callback(command);
 }
 
+- (void) windowDidResignKey:(NSNotification *) notification
+{
+    ref->OnFocusLost();
+}
+
 @end
 
 
@@ -96,42 +107,42 @@ struct cxSolidBrush
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
+    ref->OnMouseDown({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), cxMouseEvent::LEFT });
 }
 
 - (void)rightMouseDown:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseDown({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), RIGHT });
+    ref->OnMouseDown({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), cxMouseEvent::RIGHT });
 }
 
 - (void)mouseUp:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
+    ref->OnMouseUp({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), cxMouseEvent::LEFT });
 }
 
 - (void)rightMouseUp:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseUp({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), RIGHT });
+    ref->OnMouseUp({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), cxMouseEvent::RIGHT });
 }
 
 - (void)mouseMoved:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), NONE });
+    ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), cxMouseEvent::NONE });
 }
 
 - (void)mouseDragged:(NSEvent*)event
 {
     float scale = 1.0;
     NSPoint curPoint = [self convertPoint:[event locationInWindow] fromView:nil];
-    ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), LEFT });
+    ref->OnMouseMove({ (float)(curPoint.x * scale), (float)(curPoint.y * scale), cxMouseEvent::LEFT });
 }
 
 - (void)scrollWheel:(NSEvent *) event
@@ -147,6 +158,38 @@ struct cxSolidBrush
 }
 
 
+- (void)keyDown:(NSEvent *)theEvent 
+{
+    [self.window makeFirstResponder:self];
+    //[self interpretKeyEvents:[NSArray arrayWithObject:theEvent]];
+
+    switch ([theEvent keyCode])
+    {
+        case KEY_LEFT:
+            ref->OnKeyDown({cxKeyEvent::ARROW_LEFT});
+            break;
+        case KEY_RIGHT:
+            ref->OnKeyDown({cxKeyEvent::ARROW_RIGHT});
+            break;
+        case KEY_UP:
+            ref->OnKeyDown({cxKeyEvent::ARROW_UP});
+            break;
+        case KEY_DOWN:
+            ref->OnKeyDown({cxKeyEvent::ARROW_DOWN});
+            break;
+        default:
+            [super keyDown:theEvent];
+            break;
+    }
+
+
+}
+
+- (BOOL)acceptsFirstResponder 
+{
+    return YES;
+}
+
 - (BOOL)isFlipped
 {
     return YES;
@@ -157,6 +200,7 @@ struct cxSolidBrush
 struct cxWindowBase::Impl
 {
     Window* m_Window;
+    NSTextInsertionIndicator* caret;
     std::map<int, cxSolidBrush> m_pBrushes;
 };
 
@@ -179,6 +223,11 @@ cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
     view->ref = this;
     [p->m_Window setContentView: view];
     [p->m_Window makeKeyAndOrderFront: nil];
+
+    p->caret = [[[NSTextInsertionIndicator alloc] initWithFrame:NSMakeRect(10, 10, 10, 20)] autorelease];
+    [view addSubview: p->caret];
+    [p->caret setDisplayMode:NSTextInsertionIndicatorDisplayModeHidden];
+    
 }
 
 cxWindowBase::~cxWindowBase()
@@ -296,6 +345,20 @@ void cxWindowBase::ReleaseMouse()
 
 }
 
+void cxWindowBase::ShowCaret(bool show)
+{
+    if (show)
+        [p->caret setDisplayMode:NSTextInsertionIndicatorDisplayModeAutomatic];
+    else
+        [p->caret setDisplayMode:NSTextInsertionIndicatorDisplayModeHidden];
+}
+
+void cxWindowBase::SetCaretPos(cxPoint pt)
+{
+    [p->caret setFrameOrigin:NSMakePoint(pt.x, pt.y)];
+}
+
+
 void cxWindowBase::Invalidate()
 {
     [[p->m_Window contentView] setNeedsDisplay: YES];
@@ -388,6 +451,15 @@ void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, 
         case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
+
+    switch (options.m_WordWrapping)
+    {
+        case cxTextOptions::WORD_WRAPPING_NONE: [style setLineBreakMode:NSLineBreakByClipping]; break;
+        case cxTextOptions::WORD_WRAPPING_WORD: [style setLineBreakMode:NSLineBreakByWordWrapping]; break;
+        case cxTextOptions::WORD_WRAPPING_CHARACTER: [style setLineBreakMode:NSLineBreakByCharWrapping]; break;
+    }
+
+
 
     NSDictionary* attributes = @{
         NSFontAttributeName: [NSFont fontWithName:WStringToNSString(font->p->fontName) size:font->p->size],
