@@ -15,6 +15,9 @@ class cxTextBox : public cxView
 {
 	using cxView::cxView;
 
+	int m_Cursor = 0; // The cursor/selection start point
+	int m_Select = 0; // The selection end point
+
 	void OnMouseEnter() override
 	{
 		cxSetCursor(cxIBeam);
@@ -22,7 +25,26 @@ class cxTextBox : public cxView
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
+		float width, height;
+		GetSize(width, height);
 		SetFocus();
+		ShowCaret(true);
+		Invalidate();
+	}
+
+	void OnKeyDown(cxKeyEvent event) override
+	{
+		if (event.m_Key == cxKeyEvent::ARROW_LEFT)
+		{
+			if (m_Cursor != 0)
+				m_Cursor--;
+		}
+
+		if (event.m_Key == cxKeyEvent::ARROW_RIGHT)
+		{
+			if (m_Cursor < m_Title.size())
+				m_Cursor++;
+		}
 		Invalidate();
 	}
 
@@ -31,17 +53,26 @@ class cxTextBox : public cxView
 		float width, height;
 		GetSize(width, height);
 		context->FillRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBGSEL : BRUSH_TBG);
-		context->DrawRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
+		
 		context->DrawTextInRect(
 			font,
 			BRUSH_WHITE,
 			m_Title,
-			{ 10, 0, width, height },
+			{ 8.f, 0, width-8.f, height },
 			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
+
+		float textWidth, textHeight;
+		font->GetFontTextMetrics(m_Title.substr(0, m_Cursor), width, height, { cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }, textWidth, textHeight);
+		
+		SetCaretPos({ 7.f + textWidth, height * 0.5f - 10.f });
+
+		context->DrawRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
+		
 	}
 	void OnFocusLost() override
 	{
+		ShowCaret(false);
 		Invalidate();
 	}
 };
@@ -93,8 +124,8 @@ public:
 		MakeSolidBrush(BRUSH_TBORDERSEL, 0.f, 0.48f, 0.8f, 1.f);
 
 		SimpleView* view = new SimpleView(50.f, 50.f, 100.f, 100.f, this);
-		cxTextBox* textbox = new cxTextBox(5.f, 5.f, 160.f, 35.f, view);
-		textbox->m_Title = L"Hello";
+		cxTextBox* textbox = new cxTextBox(10.f, 10.f, 160.f, 40.f, view);
+		textbox->m_Title = L"Hello textbox, this is a string";
 	}
 
 	void OnSize(int width, int height) override
@@ -103,6 +134,15 @@ public:
 
 		GetChildView(0)->m_Right = width - 50.f;
 		GetChildView(0)->m_Bottom = height - 50.f;
+	}
+
+	void OnPaint() override
+	{
+		float width, height;
+		GetClientSize(width, height);
+
+		FillRectangle({ 0, 0, width, height }, BRUSH_GREY);
+		cxWindowContainer::OnPaint();
 	}
 
 	void OnClosing() override

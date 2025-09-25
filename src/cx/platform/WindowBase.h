@@ -37,6 +37,8 @@ public:
 
     void CaptureMouse();
     void ReleaseMouse();
+    void ShowCaret(bool show = true);
+    void SetCaretPos(cxPoint p);
 
     void Invalidate();
     void SetDrawConstraints(cxRect rect);
@@ -62,6 +64,8 @@ public:
     virtual void OnMouseDragged(cxMouseEvent event) {}
     virtual void OnMouseLeave() {}
     virtual void OnMouseScroll(cxMouseScrollEvent event) {} 
+
+    virtual void OnKeyDown(cxKeyEvent event) {} 
 
     virtual void OnFocusLost() {}
 

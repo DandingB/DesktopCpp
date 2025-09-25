@@ -55,6 +55,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         cxWindowBase* wnd1 = (cxWindowBase*)(CrtStrPtr->lpCreateParams);
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)wnd1);
 
+        CreateCaret(hwnd, (HBITMAP)NULL, 1, 20);
+
         return 0;
     }
     case WM_PAINT:
@@ -78,22 +80,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     case WM_LBUTTONDOWN:
     {
-        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), LEFT });
+        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::LEFT });
         return 0;
     }
     case WM_LBUTTONUP:
     {
-        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), LEFT });
+        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::LEFT });
         return 0;
     }
     case WM_RBUTTONDOWN:
     {
-        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), RIGHT });
+        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::RIGHT });
         return 0;
     }
     case WM_RBUTTONUP:
     {
-        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), RIGHT });
+        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::RIGHT });
         return 0;
     }
     case WM_MOUSEMOVE:
@@ -105,7 +107,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         tme.dwHoverTime = HOVER_DEFAULT;
         TrackMouseEvent(&tme);
 
-        wnd->OnMouseMove({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), NONE });
+        wnd->OnMouseMove({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::NONE });
         return 0;
     }
     case WM_MOUSELEAVE:
@@ -122,6 +124,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         ScreenToClient(hwnd, &p);
 
         wnd->OnMouseScroll({(float)p.x, (float)p.y, 0, wheel});
+        return 0;
+    }
+    case WM_KEYDOWN:
+    {
+        switch (wParam)
+        {
+        case VK_LEFT:   wnd->OnKeyDown({ cxKeyEvent::ARROW_LEFT }); return 0;
+        case VK_RIGHT:  wnd->OnKeyDown({ cxKeyEvent::ARROW_RIGHT }); return 0;
+        case VK_UP:     wnd->OnKeyDown({ cxKeyEvent::ARROW_UP }); return 0;
+        case VK_DOWN:   wnd->OnKeyDown({ cxKeyEvent::ARROW_DOWN }); return 0;
+        }
         return 0;
     }
     case WM_DPICHANGED:
@@ -146,6 +159,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
     {
         wnd->OnClosing();
+        return 0;
+    }
+    case WM_DESTROY:
+    {
+        DestroyCaret();
         return 0;
     }
     return 0;
@@ -278,6 +296,19 @@ void cxWindowBase::ReleaseMouse()
     ReleaseCapture();
 }
 
+void cxWindowBase::ShowCaret(bool show)
+{
+    if (show)
+        ::ShowCaret(p->m_hWnd);
+    else
+        ::HideCaret(p->m_hWnd);
+}
+
+void cxWindowBase::SetCaretPos(cxPoint p)
+{
+    ::SetCaretPos(p.x, p.y);
+}
+
 void cxWindowBase::Invalidate()
 {
     InvalidateRect(p->m_hWnd, NULL, TRUE);
@@ -357,6 +388,14 @@ void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, 
         case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
         case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
     }
+
+    switch (options.m_WordWrapping)
+    {
+        case cxTextOptions::WORD_WRAPPING_NONE: format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP); break;
+        case cxTextOptions::WORD_WRAPPING_WORD: format->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD); break;
+        case cxTextOptions::WORD_WRAPPING_CHARACTER: format->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER); break;
+    }
+
 
     p->m_pRenderTarget->DrawTextW(
         str.c_str(),
@@ -447,6 +486,13 @@ void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeigh
     case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
     case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
     case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
+    }
+
+    switch (options.m_WordWrapping)
+    {
+    case cxTextOptions::WORD_WRAPPING_NONE: format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP); break;
+    case cxTextOptions::WORD_WRAPPING_WORD: format->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD); break;
+    case cxTextOptions::WORD_WRAPPING_CHARACTER: format->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER); break;
     }
 
 

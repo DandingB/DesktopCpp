@@ -2,24 +2,42 @@
 #include <string>
 #include <vector>
 
-enum cxMouseButton
-{
-	LEFT,
-	RIGHT,
-	MIDDLE,
-	NONE
-};
+
 
 struct cxMouseEvent
 {
 	float x, y;
-	cxMouseButton button;
+
+    enum MouseButton
+    {
+        LEFT,
+        RIGHT,
+        MIDDLE,
+        NONE
+    } button;
 };
 
 struct cxMouseScrollEvent
 {
     float x, y;
 	float scrollX, scrollY;
+};
+
+struct cxKeyEvent
+{
+    enum Key
+    {
+        ARROW_UP,
+        ARROW_DOWN,
+        ARROW_LEFT,
+        ARROW_RIGHT,
+        SPACE,
+        ENTER,
+        BACKSPACE,
+        TAB,
+    } m_Key;
+
+    wchar_t m_Char;
 };
 
 enum cxCursorType
@@ -36,7 +54,6 @@ enum cxCursorType
     cxSizeNS,
     cxSizeAll,
     cxNo,
-    
 };
 
 struct cxTextOptions
@@ -54,6 +71,13 @@ struct cxTextOptions
         PARAGRAPH_ALIGNMENT_CENTER,
         PARAGRAPH_ALIGNMENT_BOTTOM
     } m_ParagraphAlignment;
+
+    enum WordWrapping
+    {
+        WORD_WRAPPING_NONE,
+        WORD_WRAPPING_WORD,
+        WORD_WRAPPING_CHARACTER
+    } m_WordWrapping;
 };
 
 struct cxMenuItem

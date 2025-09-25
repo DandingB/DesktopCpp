@@ -17,7 +17,6 @@ public:
 
 	cxView* m_Parent;
 	cxWindowContainer* m_TopParent;
-
 	std::vector<cxView*> m_SubViews;
 
 	std::wstring m_Title;
@@ -32,10 +31,12 @@ public:
 	void GetWindowPos(float& x, float& y);
 	void GetWindowRect(float& left, float& top, float& right, float& bottom);
 	void GetSize(float& width, float& height);
-	void GetWindowContainer(cxWindowContainer*& window);
+	cxWindowContainer* GetWindowContainer();
 
 	void SetFocus();
 	bool HasFocus();
+	void ShowCaret(bool show = true);
+	void SetCaretPos(cxPoint p);
 
 	void Invalidate();
 
@@ -48,6 +49,8 @@ public:
 	virtual void OnMouseEnter() {}
 	virtual void OnMouseLeave() {}
 	virtual void OnMouseScroll(cxMouseScrollEvent event) {}
+
+	virtual void OnKeyDown(cxKeyEvent event) {}
 
 	virtual void OnFocusLost() {}
 
@@ -80,6 +83,8 @@ public:
 	void OnMouseMove(cxMouseEvent event) override;
 	void OnMouseLeave() override;
 	void OnMouseScroll(cxMouseScrollEvent event) override;
+
+	void OnKeyDown(cxKeyEvent event) override;
 
 	void OnFocusLost() override;
 

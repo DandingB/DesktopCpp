@@ -78,7 +78,7 @@ void cxView::GetSize(float& width, float& height)
 	height = m_Bottom - m_Top;
 }
 
-void cxView::GetWindowContainer(cxWindowContainer*& window)
+cxWindowContainer* cxView::GetWindowContainer()
 {
 	cxView* view = this;
 	while (view->m_Parent != nullptr)
@@ -86,10 +86,10 @@ void cxView::GetWindowContainer(cxWindowContainer*& window)
 		view = view->m_Parent;
 	}
 
-	window = view->m_TopParent;
-
 	if (!view->m_TopParent)
 		cxLog(L"cxView::GetWindowContainer cannot get a m_TopParent");
+
+	return view->m_TopParent;
 }
 
 void cxView::SetFocus()
@@ -105,6 +105,24 @@ bool cxView::HasFocus()
 	return g_pFocusView == this;
 }
 
+void cxView::ShowCaret(bool show)
+{
+	cxWindowContainer* window = GetWindowContainer();
+	if (window)
+		window->ShowCaret(show);
+}
+
+void cxView::SetCaretPos(cxPoint p)
+{
+	cxWindowContainer* window = GetWindowContainer();
+	if (window)
+	{
+		float x, y;
+		GetWindowPos(x, y);
+		window->SetCaretPos({x + p.x, y + p.y });
+	}
+}
+
 void cxView::AddView(cxView* view)
 {
 	m_SubViews.push_back(view);
@@ -115,8 +133,7 @@ void cxView::AddView(cxView* view)
 
 void cxView::Invalidate()
 {
-	cxWindowContainer* window = nullptr;
-	GetWindowContainer(window);
+	cxWindowContainer* window = GetWindowContainer();
 	if (window)
 	{
 		window->Invalidate();
@@ -265,6 +282,11 @@ void cxWindowContainer::OnMouseScroll(cxMouseScrollEvent event)
 		view->GetWindowPos(x, y);
 		m_pMouseOver->OnMouseScroll({ event.x - x, event.y - y, event.scrollX, event.scrollY });
 	}
+}
+
+void cxWindowContainer::OnKeyDown(cxKeyEvent event)
+{
+	if (g_pFocusView) g_pFocusView->OnKeyDown(event);
 }
 
 void cxWindowContainer::OnFocusLost()
