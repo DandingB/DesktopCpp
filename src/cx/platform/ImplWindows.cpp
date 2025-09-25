@@ -138,6 +138,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             callback(wParam);
         return 0;
     }
+    case WM_KILLFOCUS:
+    {
+        wnd->OnFocusLost();
+        return 0;
+    }
     case WM_CLOSE:
     {
         wnd->OnClosing();

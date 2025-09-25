@@ -20,13 +20,13 @@ class cxTextBox : public cxView
 		cxSetCursor(cxIBeam);
 	}
 
-	void OnMouseDown(cxMouseEvent event)
+	void OnMouseDown(cxMouseEvent event) override
 	{
 		SetFocus();
 		Invalidate();
 	}
 
-	void OnPaint(cxWindowContainer* context)
+	void OnPaint(cxWindowContainer* context) override
 	{
 		float width, height;
 		GetSize(width, height);
@@ -40,6 +40,10 @@ class cxTextBox : public cxView
 			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
 	}
+	void OnFocusLost() override
+	{
+		Invalidate();
+	}
 };
 
 class SimpleView : public cxView
@@ -51,13 +55,13 @@ class SimpleView : public cxView
 		cxSetCursor(cxArrow);
 	}
 
-	void OnMouseDown(cxMouseEvent event)
+	void OnMouseDown(cxMouseEvent event) override
 	{
 		SetFocus();
 		Invalidate();
 	}
 
-	void OnPaint(cxWindowContainer* context)
+	void OnPaint(cxWindowContainer* context) override
 	{
 		float width, height;
 		GetSize(width, height);

@@ -267,6 +267,12 @@ void cxWindowContainer::OnMouseScroll(cxMouseScrollEvent event)
 	}
 }
 
+void cxWindowContainer::OnFocusLost()
+{
+	if (g_pFocusView) g_pFocusView->OnFocusLost();
+	g_pFocusView = nullptr;
+}
+
 
 cxView* cxWindowContainer::GetViewAtLocation(std::vector<cxView*>& views, float top, float left, float right, float bottom, float x, float y)
 {

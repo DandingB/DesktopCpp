@@ -81,6 +81,8 @@ public:
 	void OnMouseLeave() override;
 	void OnMouseScroll(cxMouseScrollEvent event) override;
 
+	void OnFocusLost() override;
+
 	cxView* GetViewAtLocation(std::vector<cxView*>& views, float top, float left, float right, float bottom, float x, float y);
 
 private:

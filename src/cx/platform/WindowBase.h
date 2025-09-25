@@ -63,6 +63,8 @@ public:
     virtual void OnMouseLeave() {}
     virtual void OnMouseScroll(cxMouseScrollEvent event) {} 
 
+    virtual void OnFocusLost() {}
+
 
 #ifdef _WIN32
     void StartPaint();
