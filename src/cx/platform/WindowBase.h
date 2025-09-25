@@ -21,6 +21,7 @@ public:
     cxWindowBase();
     ~cxWindowBase();
 
+    void Show(bool show = true);
     void SetTitle(std::wstring title);
     void SetPosition(int x, int y);
     void SetSize(int width, int height);
@@ -30,8 +31,6 @@ public:
     void GetSize(int& width, int& height);
     void GetClientSize(float& width, float& height);
 
-    void Show(bool show = true);
-
     void SetMenu(std::vector<cxMenuItem>& menu);
     void SetMenuCallback(std::function<void(int)> callback);
     void GetMenuCallback(std::function<void(int)>& callback);
@@ -40,12 +39,9 @@ public:
     void ReleaseMouse();
 
     void Invalidate();
-
     void SetDrawConstraints(cxRect rect);
     void RemoveDrawConstraints();
-
     void MakeSolidBrush(int key, float r, float g, float b, float a);
-
     void FillRectangle(cxRect rect, int brushKey);
     void DrawRectangle(cxRect rect, int brushKey, float strokeWidth = 1.0);
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey);

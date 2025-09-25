@@ -17,7 +17,6 @@
 
 #endif
 
-
 void cxInitApp();
 void cxRunApp();
 void cxQuitApp(int exitCode = 0);

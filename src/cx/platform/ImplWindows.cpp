@@ -18,11 +18,12 @@
 using Microsoft::WRL::ComPtr;
 
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
+HCURSOR cIBeam = LoadCursor(NULL, IDC_IBEAM);
 HCURSOR cSizeWE = LoadCursor(NULL, IDC_SIZEWE);
 
 bool RegisterWindowClass();
 
-const wchar_t CLASS_NAME[] = L"Main_Window";
+const wchar_t CLASS_NAME[] = L"cxWindowClass";
 bool g_ClassRegistered = RegisterWindowClass();
 
 ID2D1Factory* pD2DFactory;
@@ -34,7 +35,6 @@ struct cxWindowBase::Impl
     HWND m_hWnd;
     ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
     std::map<int, ComPtr<ID2D1Brush>> m_pBrushes;
-    std::map<int, ComPtr<IDWriteTextFormat>> m_pFonts;
 };
 
 struct cxFont::Impl
@@ -180,6 +180,11 @@ cxWindowBase::~cxWindowBase()
     DestroyWindow(p->m_hWnd);
 }
 
+void cxWindowBase::Show(bool show)
+{
+    ShowWindow(p->m_hWnd, show);
+}
+
 void cxWindowBase::SetTitle(std::wstring title)
 {
     SetWindowTextW(p->m_hWnd, title.c_str());
@@ -224,11 +229,6 @@ void cxWindowBase::GetClientSize(float& width, float& height)
     GetClientRect(p->m_hWnd, &rect);
     width = (float)rect.right;
     height = (float)rect.bottom;
-}
-
-void cxWindowBase::Show(bool show)
-{
-    ShowWindow(p->m_hWnd, show);
 }
 
 void EnumerateMenu(HMENU hMenu, std::vector<cxMenuItem>& menu)
@@ -554,11 +554,10 @@ void cxSetCursor(cxCursorType type)
     switch (type)
     {
     case cxArrow:
-    {
         ::SetCursor(cArrow);
         return;
-    }
     case cxIBeam:
+        ::SetCursor(cIBeam);
         return;
     case cxPointingHand:
         return;
@@ -569,10 +568,8 @@ void cxSetCursor(cxCursorType type)
     case cxCrosshair:
         return;
     case cxSizeWE:
-    {
         ::SetCursor(cSizeWE);
         return;
-    }
     case cxSizeNS:
         return;
     case cxNo:

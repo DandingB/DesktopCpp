@@ -1,14 +1,61 @@
-#include "cx/cx.h"
+#include <cx/cx.h>
 
 #define BRUSH_WHITE 0
 #define BRUSH_RED 1
 #define BRUSH_GREY 2
 
+#define BRUSH_TBG 3
+#define BRUSH_TBGSEL 4
+#define BRUSH_TBORDER 5
+#define BRUSH_TBORDERSEL 6
+
 cxFont* font;
+
+class cxTextBox : public cxView
+{
+	using cxView::cxView;
+
+	void OnMouseEnter() override
+	{
+		cxSetCursor(cxIBeam);
+	}
+
+	void OnMouseDown(cxMouseEvent event)
+	{
+		SetFocus();
+		Invalidate();
+	}
+
+	void OnPaint(cxWindowContainer* context)
+	{
+		float width, height;
+		GetSize(width, height);
+		context->FillRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBGSEL : BRUSH_TBG);
+		context->DrawRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
+		context->DrawTextInRect(
+			font,
+			BRUSH_WHITE,
+			m_Title,
+			{ 10, 0, width, height },
+			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+		);
+	}
+};
 
 class SimpleView : public cxView
 {
 	using cxView::cxView;
+
+	void OnMouseEnter() override
+	{
+		cxSetCursor(cxArrow);
+	}
+
+	void OnMouseDown(cxMouseEvent event)
+	{
+		SetFocus();
+		Invalidate();
+	}
 
 	void OnPaint(cxWindowContainer* context)
 	{
@@ -34,9 +81,16 @@ public:
 	{
 		MakeSolidBrush(BRUSH_WHITE, 1.f, 1.f, 1.f, 1.f);
 		MakeSolidBrush(BRUSH_RED, 1.f, 0.2f, 0.2f, 1.f);
-		MakeSolidBrush(BRUSH_GREY, 0.3f, 0.3f, 0.3f, 1.f);
+		MakeSolidBrush(BRUSH_GREY, 0.2f, 0.2f, 0.2f, 1.f);
 
-		AddView(new SimpleView(50.f, 50.f, 100.f, 100.f));
+		MakeSolidBrush(BRUSH_TBG, 0.19f, 0.19f, 0.19f, 1.f);
+		MakeSolidBrush(BRUSH_TBGSEL, 0.08f, 0.08f, 0.08f, 1.f);
+		MakeSolidBrush(BRUSH_TBORDER, 0.31f, 0.31f, 0.31f, 1.f);
+		MakeSolidBrush(BRUSH_TBORDERSEL, 0.f, 0.48f, 0.8f, 1.f);
+
+		SimpleView* view = new SimpleView(50.f, 50.f, 100.f, 100.f, this);
+		cxTextBox* textbox = new cxTextBox(5.f, 5.f, 160.f, 35.f, view);
+		textbox->m_Title = L"Hello";
 	}
 
 	void OnSize(int width, int height) override

@@ -1,6 +1,23 @@
 #include "WindowContainer.h"
 #include "platform/Platform.h"
 
+cxView* g_pFocusView = nullptr;
+
+std::unordered_map<cxView*, cxWindowContainer*> g_WindowRelations;
+
+
+cxView::cxView(float left, float top, float right, float bottom, cxView* parent)
+	: m_Left(left), m_Top(top), m_Right(right), m_Bottom(bottom), m_Parent(parent), m_TopParent(nullptr)
+{
+	if (m_Parent) m_Parent->AddView(this);
+}
+
+cxView::cxView(float left, float top, float right, float bottom, cxWindowContainer* parent)
+	: m_Left(left), m_Top(top), m_Right(right), m_Bottom(bottom), m_Parent(nullptr), m_TopParent(parent)
+{
+	if (m_TopParent) m_TopParent->AddView(this);
+}
+
 bool cxView::PointInView(float x, float y)
 {
 	float left, top, right, bottom;
@@ -61,16 +78,52 @@ void cxView::GetSize(float& width, float& height)
 	height = m_Bottom - m_Top;
 }
 
+void cxView::GetWindowContainer(cxWindowContainer*& window)
+{
+	cxView* view = this;
+	while (view->m_Parent != nullptr)
+	{
+		view = view->m_Parent;
+	}
+
+	window = view->m_TopParent;
+
+	if (!view->m_TopParent)
+		cxLog(L"cxView::GetWindowContainer cannot get a m_TopParent");
+}
+
+void cxView::SetFocus()
+{
+	if (g_pFocusView)
+		g_pFocusView->OnFocusLost();
+
+	g_pFocusView = this;
+}
+
+bool cxView::HasFocus()
+{
+	return g_pFocusView == this;
+}
+
 void cxView::AddView(cxView* view)
 {
 	m_SubViews.push_back(view);
-	view->m_Parent = this;
-	view->m_TopParent = m_TopParent;
-	if (view->m_TopParent)
+	//view->m_Parent = this;
+	//view->m_TopParent = m_TopParent;
+	Invalidate();
+}
+
+void cxView::Invalidate()
+{
+	cxWindowContainer* window = nullptr;
+	GetWindowContainer(window);
+	if (window)
 	{
-		view->m_TopParent->Invalidate();
+		window->Invalidate();
 	}
 }
+
+
 
 cxWindowContainer::cxWindowContainer() : m_pMouseOver(nullptr), m_pHasCapture(nullptr)
 {
@@ -84,8 +137,8 @@ cxWindowContainer::~cxWindowContainer()
 void cxWindowContainer::AddView(cxView* view)
 {
 	m_SubViews.push_back(view);
-	view->m_Parent = nullptr;
-	view->m_TopParent = this;
+	//view->m_Parent = nullptr;
+	//view->m_TopParent = this;
 }
 
 cxView* cxWindowContainer::GetChildView(int i)

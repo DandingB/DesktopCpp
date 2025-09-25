@@ -2,8 +2,12 @@
 #include "platform/WindowBase.h"
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 class cxWindowContainer;
+class cxView;
+
+extern cxView* g_pFocusView;
 
 class cxView
 {
@@ -13,13 +17,14 @@ public:
 
 	cxView* m_Parent;
 	cxWindowContainer* m_TopParent;
+
 	std::vector<cxView*> m_SubViews;
 
 	std::wstring m_Title;
-
 	bool m_Show = true;
 
-	cxView(float left, float top, float right, float bottom) : m_Left(left), m_Top(top), m_Right(right), m_Bottom(bottom), m_Parent(0) {}
+	cxView(float left, float top, float right, float bottom, cxView* parent);
+	cxView(float left, float top, float right, float bottom, cxWindowContainer* parent);
 
 	void AddView(cxView* view);
 
@@ -27,6 +32,12 @@ public:
 	void GetWindowPos(float& x, float& y);
 	void GetWindowRect(float& left, float& top, float& right, float& bottom);
 	void GetSize(float& width, float& height);
+	void GetWindowContainer(cxWindowContainer*& window);
+
+	void SetFocus();
+	bool HasFocus();
+
+	void Invalidate();
 
 	virtual void OnPaint(cxWindowContainer* container) {};
 	virtual void OnSize() {};
@@ -37,6 +48,10 @@ public:
 	virtual void OnMouseEnter() {}
 	virtual void OnMouseLeave() {}
 	virtual void OnMouseScroll(cxMouseScrollEvent event) {}
+
+	virtual void OnFocusLost() {}
+
+
 
 	friend cxWindowContainer;
 };

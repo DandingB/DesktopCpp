@@ -193,6 +193,14 @@ void cxWindowBase::SetTitle(std::wstring title)
     [p->m_Window setTitle: s];
 }
 
+void cxWindowBase::Show(bool show)
+{
+    if (show)
+        [p->m_Window makeKeyAndOrderFront: nil];
+    else
+        [p->m_Window orderOut: nil];
+}
+
 void cxWindowBase::SetPosition(int x, int y)
 {
     float scale = 1.0;
@@ -238,15 +246,6 @@ void cxWindowBase::GetClientSize(float& width, float& height)
     NSRect rect = [ [p->m_Window contentView] frame ];
     width = (float)rect.size.width * scale;
     height = (float)rect.size.height * scale;
-}
-
-
-void cxWindowBase::Show(bool show)
-{
-    if (show)
-        [p->m_Window makeKeyAndOrderFront: nil];
-    else
-        [p->m_Window orderOut: nil];
 }
 
 void EnumerateMenu(NSMenu* nsMenu, std::vector<cxMenuItem>& menu, Window* window)
