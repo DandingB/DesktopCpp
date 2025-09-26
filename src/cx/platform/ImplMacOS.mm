@@ -419,7 +419,7 @@ void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int bru
     cxSolidBrush brush = p->m_pBrushes[brushKey];
 
     CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
-    CGPathRef roundedRectPath = CGPathCreateWithRoundedRect(CGRectMake(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top), r1, r2, NULL);
+    CGPathRef roundedRectPath = CGPathCreateWithRoundedRect(CGRectMake(rect.left + 0.5f, rect.top + 0.5f, rect.right - rect.left - 1.f, rect.bottom - rect.top - 1.f), r1, r2, NULL);
     CGContextSetRGBStrokeColor(context, brush.r, brush.g, brush.b, brush.a);
     CGContextSetLineWidth(context, strokeWidth);
     CGContextAddPath(context, roundedRectPath);
@@ -492,11 +492,6 @@ float cxWindowBase::GetDPIScale()
 {
     return [p->m_Window backingScaleFactor];
 }
-
-void cxWindowBase::OnSize(int width, int height)
-{
-}
-
 
 
 cxFont::cxFont(std::wstring fontName, float size) : p(std::make_unique<Impl>())
