@@ -25,8 +25,6 @@ class cxTextBox : public cxView
 
 	void OnMouseDown(cxMouseEvent event) override
 	{
-		float width, height;
-		GetSize(width, height);
 		SetFocus();
 		ShowCaret(true);
 		Invalidate();
@@ -52,7 +50,7 @@ class cxTextBox : public cxView
 	{
 		float width, height;
 		GetSize(width, height);
-		context->FillRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBGSEL : BRUSH_TBG);
+		context->FillRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBGSEL : BRUSH_TBG);
 		
 		context->DrawTextInRect(
 			font,
@@ -67,12 +65,69 @@ class cxTextBox : public cxView
 		
 		SetCaretPos({ 7.f + textWidth, height * 0.5f - 10.f });
 
-		context->DrawRectangle({ 0, 0, width, height }, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
+		context->DrawRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
 		
 	}
 	void OnFocusLost() override
 	{
 		ShowCaret(false);
+		Invalidate();
+	}
+};
+
+class cxButton : public cxView
+{
+	using cxView::cxView;
+
+public:
+	bool m_Highlight = false;
+	std::function<void()> callback;
+
+	void OnMouseDown(cxMouseEvent event) override
+	{
+		SetFocus();
+		m_Highlight = true;
+		Invalidate();
+	}
+
+	void OnMouseUp(cxMouseEvent event) override
+	{
+		m_Highlight = false;
+		Invalidate();
+		if (callback) callback();
+	}
+
+	void OnMouseEnter() override
+	{
+		Invalidate();
+	}
+
+	void OnMouseLeave() override
+	{
+		m_Highlight = false;
+		Invalidate();
+	}
+
+	void OnPaint(cxWindowContainer* container) override
+	{
+		float width, height;
+		GetSize(width, height);
+
+		container->FillRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, m_Highlight ? BRUSH_TBGSEL : BRUSH_GREY);
+
+		container->DrawTextInRect(
+			font,
+			BRUSH_WHITE,
+			m_Title,
+			{ 8.f, 0, width - 8.f, height },
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+		);
+
+		container->DrawRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
+	}
+
+	void OnFocusLost() override
+	{
 		Invalidate();
 	}
 };
@@ -118,7 +173,7 @@ public:
 		MakeSolidBrush(BRUSH_RED, 1.f, 0.2f, 0.2f, 1.f);
 		MakeSolidBrush(BRUSH_GREY, 0.2f, 0.2f, 0.2f, 1.f);
 
-		MakeSolidBrush(BRUSH_TBG, 0.19f, 0.19f, 0.19f, 1.f);
+		MakeSolidBrush(BRUSH_TBG, 0.15f, 0.15f, 0.15f, 1.f);
 		MakeSolidBrush(BRUSH_TBGSEL, 0.08f, 0.08f, 0.08f, 1.f);
 		MakeSolidBrush(BRUSH_TBORDER, 0.31f, 0.31f, 0.31f, 1.f);
 		MakeSolidBrush(BRUSH_TBORDERSEL, 0.f, 0.48f, 0.8f, 1.f);
@@ -126,6 +181,9 @@ public:
 		SimpleView* view = new SimpleView(50.f, 50.f, 100.f, 100.f, this);
 		cxTextBox* textbox = new cxTextBox(10.f, 10.f, 160.f, 40.f, view);
 		textbox->m_Title = L"Hello textbox, this is a string";
+
+		cxButton* button = new cxButton(10.f, 50.f, 120.f, 75.f, view);
+		button->m_Title = L"Button";
 	}
 
 	void OnSize(int width, int height) override

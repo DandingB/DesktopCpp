@@ -78,6 +78,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         wnd->OnSize(LOWORD(lParam), HIWORD(lParam));
         return 0;
     }
+    case WM_LBUTTONDBLCLK:
     case WM_LBUTTONDOWN:
     {
         wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::LEFT });
@@ -352,7 +353,7 @@ void cxWindowBase::FillRoundedRectangle(cxRect rect, float r1, float r2, int bru
 
 void cxWindowBase::DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth)
 {
-    p->m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom), r1, r2), p->m_pBrushes[brushKey].Get(), strokeWidth);
+    p->m_pRenderTarget->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF(0.5f + rect.left, 0.5f + rect.top, -0.5f + rect.right, -0.5f + rect.bottom), r1, r2), p->m_pBrushes[brushKey].Get(), strokeWidth);
 }
 
 void cxWindowBase::DrawLine(cxPoint p1, cxPoint p2, int brushKey, float strokeWidth)
