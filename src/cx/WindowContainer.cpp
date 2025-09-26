@@ -289,6 +289,11 @@ void cxWindowContainer::OnKeyDown(cxKeyEvent event)
 	if (g_pFocusView) g_pFocusView->OnKeyDown(event);
 }
 
+void cxWindowContainer::OnCharacter(cxKeyEvent event)
+{
+	if (g_pFocusView) g_pFocusView->OnCharacter(event);
+}
+
 void cxWindowContainer::OnFocusLost()
 {
 	if (g_pFocusView) g_pFocusView->OnFocusLost();

@@ -66,6 +66,7 @@ public:
     virtual void OnMouseScroll(cxMouseScrollEvent event) {} 
 
     virtual void OnKeyDown(cxKeyEvent event) {} 
+    virtual void OnCharacter(cxKeyEvent event) {} 
 
     virtual void OnFocusLost() {}
 

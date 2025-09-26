@@ -51,6 +51,7 @@ public:
 	virtual void OnMouseScroll(cxMouseScrollEvent event) {}
 
 	virtual void OnKeyDown(cxKeyEvent event) {}
+	virtual void OnCharacter(cxKeyEvent event) {}
 
 	virtual void OnFocusLost() {}
 
@@ -85,6 +86,7 @@ public:
 	void OnMouseScroll(cxMouseScrollEvent event) override;
 
 	void OnKeyDown(cxKeyEvent event) override;
+	void OnCharacter(cxKeyEvent event) override;
 
 	void OnFocusLost() override;
 

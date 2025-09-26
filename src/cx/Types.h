@@ -35,6 +35,7 @@ struct cxKeyEvent
         ENTER,
         BACKSPACE,
         TAB,
+        CHARACTER,
     } m_Key;
 
     wchar_t m_Char;

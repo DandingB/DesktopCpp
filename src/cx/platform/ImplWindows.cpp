@@ -148,7 +148,13 @@ public:
             case VK_RIGHT:  wnd->OnKeyDown({ cxKeyEvent::ARROW_RIGHT }); return 0;
             case VK_UP:     wnd->OnKeyDown({ cxKeyEvent::ARROW_UP }); return 0;
             case VK_DOWN:   wnd->OnKeyDown({ cxKeyEvent::ARROW_DOWN }); return 0;
+            case VK_BACK:   wnd->OnKeyDown({ cxKeyEvent::BACKSPACE });  return 0;
             }
+            return 0;
+        }
+        case WM_CHAR:
+        {
+            wnd->OnCharacter({ cxKeyEvent::CHARACTER, (wchar_t)wParam });
             return 0;
         }
         case WM_DPICHANGED:
