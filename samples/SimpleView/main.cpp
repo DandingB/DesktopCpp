@@ -186,12 +186,12 @@ public:
 		button->m_Title = L"Button";
 	}
 
-	void OnSize(int width, int height) override
+	void OnSize(float width, float height) override
 	{
-		cxWindowContainer::OnSize(width, height);
+		GetChildView(0)->m_Right = (float)width - 50.f;
+		GetChildView(0)->m_Bottom = (float)height - 50.f;
 
-		GetChildView(0)->m_Right = width - 50.f;
-		GetChildView(0)->m_Bottom = height - 50.f;
+		cxLog(L"width: %d, height: %d DPI: %f\n", width, height, GetDPIScale());
 	}
 
 	void OnPaint() override
@@ -215,9 +215,13 @@ CX_FUNC_MAIN
 
 	font = new cxFont(CX_SYSTEM_FONT, 15.f);
 
+
+
 	SimpleWindow* window = new SimpleWindow;
 	window->SetTitle(L"Simple View");
 	window->Show();
+
+	cxLog(L"%f", window->GetDPIScale());
 
 	cxRunApp();
 }

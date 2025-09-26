@@ -42,137 +42,150 @@ struct cxFont::Impl
     ComPtr<IDWriteTextFormat> m_pTextFormat;
 };
 
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+class WndProc
 {
-    cxWindowBase* wnd = (cxWindowBase*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+public:
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        cxWindowBase* wnd = (cxWindowBase*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-    switch (uMsg)
-    {
-    case WM_CREATE:
-    {
-        CREATESTRUCT* CrtStrPtr = (CREATESTRUCT*)lParam;
-        cxWindowBase* wnd1 = (cxWindowBase*)(CrtStrPtr->lpCreateParams);
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)wnd1);
-
-        CreateCaret(hwnd, (HBITMAP)NULL, 1, 20);
-
-        return 0;
-    }
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
-
-        wnd->StartPaint();
-        wnd->OnPaint();
-        wnd->EndPaint();
-
-        EndPaint(hwnd, &ps);
-
-        ValidateRect(hwnd, NULL);
-        return 0;
-    }
-    case WM_SIZE:
-    {
-        wnd->OnSize(LOWORD(lParam), HIWORD(lParam));
-        return 0;
-    }
-    case WM_LBUTTONDBLCLK:
-    case WM_LBUTTONDOWN:
-    {
-        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::LEFT });
-        return 0;
-    }
-    case WM_LBUTTONUP:
-    {
-        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::LEFT });
-        return 0;
-    }
-    case WM_RBUTTONDOWN:
-    {
-        wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::RIGHT });
-        return 0;
-    }
-    case WM_RBUTTONUP:
-    {
-        wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::RIGHT });
-        return 0;
-    }
-    case WM_MOUSEMOVE:
-    {
-        TRACKMOUSEEVENT tme;
-        tme.cbSize = sizeof(tme);
-        tme.hwndTrack = hwnd;
-        tme.dwFlags = TME_HOVER | TME_LEAVE;
-        tme.dwHoverTime = HOVER_DEFAULT;
-        TrackMouseEvent(&tme);
-
-        wnd->OnMouseMove({ (float)GET_X_LPARAM(lParam), (float)GET_Y_LPARAM(lParam), cxMouseEvent::NONE });
-        return 0;
-    }
-    case WM_MOUSELEAVE:
-    {
-        wnd->OnMouseLeave();
-        return 0;
-    }
-    case WM_MOUSEWHEEL:
-    {
-        float wheel = (SHORT)HIWORD(wParam);
-
-        POINT p;
-        GetCursorPos(&p);
-        ScreenToClient(hwnd, &p);
-
-        wnd->OnMouseScroll({(float)p.x, (float)p.y, 0, wheel});
-        return 0;
-    }
-    case WM_KEYDOWN:
-    {
-        switch (wParam)
+        switch (uMsg)
         {
-        case VK_LEFT:   wnd->OnKeyDown({ cxKeyEvent::ARROW_LEFT }); return 0;
-        case VK_RIGHT:  wnd->OnKeyDown({ cxKeyEvent::ARROW_RIGHT }); return 0;
-        case VK_UP:     wnd->OnKeyDown({ cxKeyEvent::ARROW_UP }); return 0;
-        case VK_DOWN:   wnd->OnKeyDown({ cxKeyEvent::ARROW_DOWN }); return 0;
+        case WM_CREATE:
+        {
+            CREATESTRUCT* CrtStrPtr = (CREATESTRUCT*)lParam;
+            cxWindowBase* wnd1 = (cxWindowBase*)(CrtStrPtr->lpCreateParams);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)wnd1);
+
+            CreateCaret(hwnd, (HBITMAP)NULL, 1, 20 * ((float)GetDpiForWindow(hwnd) / USER_DEFAULT_SCREEN_DPI));
+
+            return 0;
+        }
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+
+            wnd->p->m_pRenderTarget->BeginDraw();
+            wnd->p->m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+            wnd->p->m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+            D2D1_SIZE_F rtSize = wnd->p->m_pRenderTarget->GetSize();
+            int width = static_cast<int>(rtSize.width);
+            int height = static_cast<int>(rtSize.height);
+
+            wnd->OnPaint();
+
+            wnd->p->m_pRenderTarget->EndDraw();
+
+            EndPaint(hwnd, &ps);
+
+            ValidateRect(hwnd, NULL);
+            return 0;
+        }
+        case WM_SIZE:
+        {
+            if (wnd->p->m_pRenderTarget)
+                wnd->p->m_pRenderTarget->Resize(D2D1::SizeU(LOWORD(lParam), HIWORD(lParam)));
+
+            wnd->OnSize(LOWORD(lParam) / wnd->GetDPIScale(), HIWORD(lParam) / wnd->GetDPIScale());
+            return 0;
+        }
+        case WM_LBUTTONDBLCLK:
+        case WM_LBUTTONDOWN:
+        {
+            wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam) / wnd->GetDPIScale(), (float)GET_Y_LPARAM(lParam) / wnd->GetDPIScale(), cxMouseEvent::LEFT });
+            return 0;
+        }
+        case WM_LBUTTONUP:
+        {
+            wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam) / wnd->GetDPIScale(), (float)GET_Y_LPARAM(lParam) / wnd->GetDPIScale(), cxMouseEvent::LEFT });
+            return 0;
+        }
+        case WM_RBUTTONDOWN:
+        {
+            wnd->OnMouseDown({ (float)GET_X_LPARAM(lParam) / wnd->GetDPIScale(), (float)GET_Y_LPARAM(lParam) / wnd->GetDPIScale(), cxMouseEvent::RIGHT });
+            return 0;
+        }
+        case WM_RBUTTONUP:
+        {
+            wnd->OnMouseUp({ (float)GET_X_LPARAM(lParam) / wnd->GetDPIScale(), (float)GET_Y_LPARAM(lParam) / wnd->GetDPIScale(), cxMouseEvent::RIGHT });
+            return 0;
+        }
+        case WM_MOUSEMOVE:
+        {
+            TRACKMOUSEEVENT tme;
+            tme.cbSize = sizeof(tme);
+            tme.hwndTrack = hwnd;
+            tme.dwFlags = TME_HOVER | TME_LEAVE;
+            tme.dwHoverTime = HOVER_DEFAULT;
+            TrackMouseEvent(&tme);
+
+            wnd->OnMouseMove({ (float)GET_X_LPARAM(lParam) / wnd->GetDPIScale(), (float)GET_Y_LPARAM(lParam) / wnd->GetDPIScale(), cxMouseEvent::NONE });
+            return 0;
+        }
+        case WM_MOUSELEAVE:
+        {
+            wnd->OnMouseLeave();
+            return 0;
+        }
+        case WM_MOUSEWHEEL:
+        {
+            float wheel = (SHORT)HIWORD(wParam);
+
+            POINT p;
+            GetCursorPos(&p);
+            ScreenToClient(hwnd, &p);
+
+            wnd->OnMouseScroll({ (float)p.x / wnd->GetDPIScale(), (float)p.y / wnd->GetDPIScale(), 0, wheel });
+            return 0;
+        }
+        case WM_KEYDOWN:
+        {
+            switch (wParam)
+            {
+            case VK_LEFT:   wnd->OnKeyDown({ cxKeyEvent::ARROW_LEFT }); return 0;
+            case VK_RIGHT:  wnd->OnKeyDown({ cxKeyEvent::ARROW_RIGHT }); return 0;
+            case VK_UP:     wnd->OnKeyDown({ cxKeyEvent::ARROW_UP }); return 0;
+            case VK_DOWN:   wnd->OnKeyDown({ cxKeyEvent::ARROW_DOWN }); return 0;
+            }
+            return 0;
+        }
+        case WM_DPICHANGED:
+        {
+            int dpi = HIWORD(wParam);
+
+            return 0;
+        }
+        case WM_COMMAND:
+        {
+            std::function<void(int)> callback;
+            wnd->GetMenuCallback(callback);
+            if (callback != nullptr)
+                callback(wParam);
+            return 0;
+        }
+        case WM_KILLFOCUS:
+        {
+            wnd->OnFocusLost();
+            return 0;
+        }
+        case WM_CLOSE:
+        {
+            wnd->OnClosing();
+            return 0;
+        }
+        case WM_DESTROY:
+        {
+            DestroyCaret();
+            return 0;
         }
         return 0;
-    }
-    case WM_DPICHANGED:
-    {
-        int dpi = HIWORD(wParam);
 
-        return 0; 
+        }
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
-    case WM_COMMAND:
-    {
-        std::function<void(int)> callback;
-        wnd->GetMenuCallback(callback);
-        if (callback != nullptr)
-            callback(wParam);
-        return 0;
-    }
-    case WM_KILLFOCUS:
-    {
-        wnd->OnFocusLost();
-        return 0;
-    }
-    case WM_CLOSE:
-    {
-        wnd->OnClosing();
-        return 0;
-    }
-    case WM_DESTROY:
-    {
-        DestroyCaret();
-        return 0;
-    }
-    return 0;
-
-    }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
+};
 
 
 cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
@@ -251,8 +264,8 @@ void cxWindowBase::GetClientSize(float& width, float& height)
 {
     RECT rect;
     GetClientRect(p->m_hWnd, &rect);
-    width = (float)rect.right;
-    height = (float)rect.bottom;
+    width = (float)rect.right * GetDPIScale();
+    height = (float)rect.bottom * GetDPIScale();
 }
 
 void EnumerateMenu(HMENU hMenu, std::vector<cxMenuItem>& menu)
@@ -307,7 +320,7 @@ void cxWindowBase::ShowCaret(bool show)
 
 void cxWindowBase::SetCaretPos(cxPoint p)
 {
-    ::SetCaretPos(p.x, p.y);
+    ::SetCaretPos(p.x * GetDPIScale(), p.y * GetDPIScale());
 }
 
 void cxWindowBase::Invalidate()
@@ -413,34 +426,6 @@ float cxWindowBase::GetDPIScale()
     return (float)GetDpiForWindow(p->m_hWnd) / USER_DEFAULT_SCREEN_DPI;
 }
 
-
-void cxWindowBase::OnSize(int width, int height)
-{
-    if (p->m_pRenderTarget)
-    {
-        p->m_pRenderTarget->Resize(D2D1::SizeU(width, height));
-    }
-}
-
-
-void cxWindowBase::StartPaint()
-{
-    p->m_pRenderTarget->BeginDraw();
-    p->m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-    p->m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-    D2D1_SIZE_F rtSize = p->m_pRenderTarget->GetSize();
-    int width = static_cast<int>(rtSize.width);
-    int height = static_cast<int>(rtSize.height);
-}
-
-void cxWindowBase::EndPaint()
-{
-    p->m_pRenderTarget->EndDraw();
-}
-
-
-
 cxFont::cxFont(std::wstring fontName, float size) : p(std::make_unique<Impl>())
 {
     //IDWriteFontCollection* m_dwFontColl;
@@ -521,7 +506,7 @@ bool RegisterWindowClass()
 
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    wc.lpfnWndProc = WindowProc;
+    wc.lpfnWndProc = WndProc::WindowProc;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = hInstance;

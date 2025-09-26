@@ -55,7 +55,7 @@ public:
 
     virtual void OnInit() {}
     virtual void OnClosing() {}
-    virtual void OnSize(int width, int height);
+    virtual void OnSize(float width, float height) {}
     virtual void OnPaint() {}
 
     virtual void OnMouseDown(cxMouseEvent event) {}
@@ -71,8 +71,7 @@ public:
 
 
 #ifdef _WIN32
-    void StartPaint();
-    void EndPaint();
+    friend class WndProc;
 #endif
 
 };

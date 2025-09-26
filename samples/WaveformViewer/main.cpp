@@ -110,7 +110,7 @@ class TabControl : public cxView
 		GetTabIndex(event.x, event.y, iTab, isClose);
 		m_PageHover = iTab;
 		m_HoverClose = isClose;
-		m_TopParent->Invalidate();
+		Invalidate();
 	}
 
 	void OnMouseDown(cxMouseEvent event) override
@@ -135,7 +135,7 @@ class TabControl : public cxView
 			if (m_SubViews.size() > 0)
 				m_SubViews[m_SelPage]->m_Show = true;
 		}
-		m_TopParent->Invalidate();
+		Invalidate();
 	}
 
 	void OnMouseEnter() override
@@ -147,7 +147,7 @@ class TabControl : public cxView
 	{
 		m_HoverClose = false;
 		m_PageHover = -1;
-		m_TopParent->Invalidate();
+		Invalidate();
 	}
 
 	void GetTabIndex(float xPos, float yPos, int& index, bool& isClose)
@@ -193,7 +193,7 @@ public:
 			if (m_SubViews.size() > 0)
 				m_SubViews[m_SelPage]->m_Show = true;
 
-			m_TopParent->Invalidate();
+			Invalidate();
 		}
 	}
 };
@@ -226,7 +226,7 @@ public:
 #endif
 		
 		if (m_hScroll < 0.f) m_hScroll = 0.f;
-		m_TopParent->Invalidate();
+		Invalidate();
 	}
 
 	void OnPaint(cxWindowContainer* container) override
@@ -263,8 +263,7 @@ public:
 		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
 
-		tabctrl = new TabControl(0, 0, 150, 100);
-		AddView(tabctrl);
+		tabctrl = new TabControl(0, 0, 150, 100, this);
 
 		GetChildView(0)->m_Right = 500;
 		GetChildView(0)->m_Bottom = 500;
@@ -280,13 +279,12 @@ public:
 		{
 			std::wstring base_filename = filename.substr(filename.find_last_of(L"/\\") + 1);
 
-			WaveformView* wfView = new WaveformView(50, 50, 150, 100);
+			WaveformView* wfView = new WaveformView(50, 50, 150, 100, tabctrl);
 			wfView->m_Title = base_filename;
 			wfView->m_Show = false;
 
 			LoadWaveFile(filename, wfView->data);
 
-			tabctrl->AddView(wfView);
 			tabctrl->SetSelectedPage(0);
 			GetChildView(0)->OnSize();
 
@@ -299,7 +297,7 @@ public:
 		cxQuitApp();
 	}
 
-	void OnSize(int width, int height) override
+	void OnSize(float width, float height) override
 	{
 		cxWindowContainer::OnSize(width, height);
 		GetChildView(0)->m_Right = width;

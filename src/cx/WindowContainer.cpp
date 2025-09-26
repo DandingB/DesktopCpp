@@ -202,7 +202,7 @@ void cxWindowContainer::PaintSubviews(std::vector<cxView*>& views, float left, f
 	}
 }
 
-void cxWindowContainer::OnSize(int width, int height)
+void cxWindowContainer::OnSize(float width, float height)
 {
 	cxWindowBase::OnSize(width, height);
 }

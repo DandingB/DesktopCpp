@@ -76,7 +76,7 @@ public:
 	cxView* GetChildView(int i);
 
 	void OnPaint() override;
-	void OnSize(int width, int height) override;
+	void OnSize(float width, float height) override;
 
 	void OnMouseDown(cxMouseEvent event) override;
 	void OnMouseUp(cxMouseEvent event) override;
