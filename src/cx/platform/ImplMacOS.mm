@@ -1,6 +1,7 @@
 #ifdef __APPLE__
 
 #import <Foundation/Foundation.h>
+#include <Carbon/Carbon.h>
 #include <Cocoa/Cocoa.h>
 #include <CoreText/CoreText.h>
 #include <mach-o/dyld.h>
@@ -158,34 +159,53 @@ struct cxSolidBrush
 }
 
 
-- (void)keyDown:(NSEvent *)theEvent 
+- (void)keyDown:(NSEvent *)event 
 {
     [self.window makeFirstResponder:self];
-    //[self interpretKeyEvents:[NSArray arrayWithObject:theEvent]];
 
-    switch ([theEvent keyCode])
+    switch ([event keyCode])
     {
-        case KEY_LEFT:
+        case kVK_LeftArrow:
             ref->OnKeyDown({cxKeyEvent::ARROW_LEFT});
             break;
-        case KEY_RIGHT:
+        case kVK_RightArrow:
             ref->OnKeyDown({cxKeyEvent::ARROW_RIGHT});
             break;
-        case KEY_UP:
+        case kVK_UpArrow:
             ref->OnKeyDown({cxKeyEvent::ARROW_UP});
             break;
-        case KEY_DOWN:
+        case kVK_DownArrow:
             ref->OnKeyDown({cxKeyEvent::ARROW_DOWN});
             break;
+        case kVK_Delete:
+            ref->OnKeyDown({cxKeyEvent::BACKSPACE});
+            break;
         default:
-            [super keyDown:theEvent];
+            [self interpretKeyEvents:[NSArray arrayWithObject:event]];
+            // [super keyDown:event];
             break;
     }
+}
 
-
+- (void)insertText:(id)string
+{
+    if ([string isKindOfClass:[NSString class]])
+    {
+        NSString* characters = (NSString*)string;
+        for (NSUInteger i = 0; i < characters.length; i++)
+        {
+            unichar c = [characters characterAtIndex:i];
+            ref->OnCharacter({cxKeyEvent::CHARACTER, (wchar_t)c});
+        }
+    }
 }
 
 - (BOOL)acceptsFirstResponder 
+{
+    return YES;
+}
+
+- (BOOL)becomeFirstResponder 
 {
     return YES;
 }
@@ -223,8 +243,9 @@ cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
     view->ref = this;
     [p->m_Window setContentView: view];
     [p->m_Window makeKeyAndOrderFront: nil];
+    [p->m_Window makeFirstResponder:view];
 
-    p->caret = [[[NSTextInsertionIndicator alloc] initWithFrame:NSMakeRect(10, 10, 10, 20)] autorelease];
+    p->caret = [[[NSTextInsertionIndicator alloc] initWithFrame:NSMakeRect(10, 10, 1, 20)] autorelease];
     [view addSubview: p->caret];
     [p->caret setDisplayMode:NSTextInsertionIndicatorDisplayModeHidden];
     

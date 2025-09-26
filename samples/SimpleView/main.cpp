@@ -32,8 +32,6 @@ class cxTextBox : public cxView
 
 	void OnKeyDown(cxKeyEvent event) override
 	{
-		cxLog(L"KeyDown %d\n", event);
-
 		if (event.m_Key == cxKeyEvent::ARROW_LEFT)
 		{
 			if (m_Cursor != 0)
@@ -54,16 +52,19 @@ class cxTextBox : public cxView
 
 		if (event.m_Key == cxKeyEvent::BACKSPACE)
 		{
-			
+			if (m_Cursor != 0 and m_Cursor == m_Select)
+			{
+				m_Title.erase(m_Title.begin() + m_Cursor - 1);
+				m_Cursor--;
+				m_Select = m_Cursor;
+			}
 		}
 		
 		Invalidate();
 	}
 
-	void OnCharacter(cxKeyEvent event)
+	void OnCharacter(cxKeyEvent event) override
 	{
-		cxLog(L"OnCharacter\n");
-
 		if (event.m_Char == '\b')
 		{
 			if (m_Cursor != 0 and m_Cursor == m_Select)
