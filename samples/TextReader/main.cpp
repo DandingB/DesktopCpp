@@ -239,50 +239,6 @@ public:
 	}
 };
 
-class MyButton : public cxView
-{
-	using cxView::cxView;
-
-public:
-	bool m_Highlight = false;
-	std::function<void()> callback;
-
-	void OnMouseDown(cxMouseEvent event) override
-	{
-	}
-
-	void OnMouseUp(cxMouseEvent event) override
-	{
-		callback();
-	}
-
-	void OnMouseEnter() override
-	{
-		m_Highlight = true;
-		m_TopParent->Invalidate();
-	}
-
-	void OnMouseLeave() override
-	{
-		m_Highlight = false;
-		m_TopParent->Invalidate();
-	}
-
-	void OnPaint(cxWindowContainer* container) override
-	{
-		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, m_Highlight ? BRUSH_BUTTONHIGHLIGHT : BRUSH_BUTTON);
-
-		container->DrawTextInRect(
-			font.get(),
-			BRUSH_TEXTWHITE,
-			m_Title,
-			{ 0,0,m_Right - m_Left,m_Bottom - m_Top },
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
-		);
-
-	}
-};
-
 class MyWindow : public cxWindowContainer
 {
 public:
