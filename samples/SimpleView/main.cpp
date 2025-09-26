@@ -65,16 +65,7 @@ class cxTextBox : public cxView
 
 	void OnCharacter(cxKeyEvent event) override
 	{
-		if (event.m_Char == '\b')
-		{
-			if (m_Cursor != 0 and m_Cursor == m_Select)
-			{
-				m_Title.erase(m_Title.begin() + m_Cursor - 1);
-				m_Cursor--;
-				m_Select = m_Cursor;
-			}
-		}
-		else
+		if (event.m_Char != '\b')
 		{
 			m_Title.insert(m_Title.begin() + m_Cursor, event.m_Char);
 			m_Cursor++;

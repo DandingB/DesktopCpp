@@ -299,8 +299,7 @@ public:
 		MakeSolidBrush(BRUSH_BUTTON, 0.3f, 0.3f, 0.3f, 1.0f);
 		MakeSolidBrush(BRUSH_BUTTONHIGHLIGHT, 0.4f, 0.4f, 0.4f, 1.0f);
 
-		tabctrl = new TabControl(0, 0, 150, 100);
-		AddView(tabctrl);
+		tabctrl = new TabControl(0, 0, 150, 100, this);
 
 		//mv = new MyView(50, 50, 150, 100);
 		//mv->m_Title = L"Open File";
@@ -332,11 +331,10 @@ public:
 
 			std::wstring base_filename = filename.substr(filename.find_last_of(L"/\\") + 1);
 
-			MyView* mv2 = new MyView(50, 50, 150, 100);
+			MyView* mv2 = new MyView(50, 50, 150, 100, tabctrl);
 			mv2->m_Title = base_filename;
 			mv2->m_Show = false;
 			mv2->text = contents;
-			tabctrl->AddView(mv2);
 			GetChildView(0)->OnSize();
 			tabctrl->SetSelectedPage(0);
 
@@ -349,9 +347,8 @@ public:
 		cxQuitApp();
 	}
 
-	void OnSize(int width, int height) override
+	void OnSize(float width, float height) override
 	{
-		cxWindowContainer::OnSize(width, height);
 		GetChildView(0)->m_Right = width;
 		GetChildView(0)->m_Bottom = height;
 		GetChildView(0)->OnSize();
