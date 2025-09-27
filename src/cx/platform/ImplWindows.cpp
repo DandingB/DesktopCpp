@@ -414,7 +414,7 @@ void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, 
     switch (options.m_WordWrapping)
     {
         case cxTextOptions::WORD_WRAPPING_NONE: format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP); break;
-        case cxTextOptions::WORD_WRAPPING_WORD: format->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD); break;
+        case cxTextOptions::WORD_WRAPPING_WORD: format->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP); break;
         case cxTextOptions::WORD_WRAPPING_CHARACTER: format->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER); break;
     }
 
