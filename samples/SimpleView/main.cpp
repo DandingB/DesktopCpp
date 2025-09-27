@@ -88,10 +88,10 @@ class cxTextBox : public cxView
 			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
 		);
 
-		float textWidth, textHeight;
-		font->GetFontTextMetrics(m_Title.substr(0, m_Cursor), width, height, { cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }, textWidth, textHeight);
-		
-		SetCaretPos({ 7.f + textWidth, height * 0.5f - 10.f });
+
+		//cxPoint pt;
+		//font->GetCharPosition(m_Title, m_Cursor, width, height, { cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }, pt);
+		//SetCaretPos({ 8.f + pt.x, height * 0.5f - 10.f });
 
 		context->DrawRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
 		
@@ -148,7 +148,7 @@ public:
 			BRUSH_WHITE,
 			m_Title,
 			{ 8.f, 0, width - 8.f, height },
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_NONE }
 		);
 
 		container->DrawRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);

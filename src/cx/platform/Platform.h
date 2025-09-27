@@ -11,9 +11,12 @@
 
 #elif _WIN32
 
-#include <Windows.h>
-#define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+//#include <Windows.h>
+//#define CX_FUNC_MAIN int APIENTRY wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+#define CX_FUNC_MAIN extern "C" int __stdcall wWinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nShowCmd )
 #define CX_SYSTEM_FONT L"Segoe UI"
+
+
 
 #endif
 

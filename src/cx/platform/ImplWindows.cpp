@@ -15,6 +15,8 @@
 #include "Font.h"
 #include "Platform.h"
 
+#undef GetStringMetrics
+
 using Microsoft::WRL::ComPtr;
 
 HCURSOR cArrow = LoadCursor(NULL, IDC_ARROW);
@@ -460,46 +462,82 @@ cxFont::~cxFont()
 
 }
 
-void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
+void cxFont::GetStringMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
 {
     HRESULT hr;
 
-    IDWriteTextFormat* format = p->m_pTextFormat.Get();
+    IDWriteTextFormat* textFormat = p->m_pTextFormat.Get();
 
     switch (options.m_TextAlignment)
     {
-    case cxTextOptions::TEXT_ALIGNMENT_LEFT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
-    case cxTextOptions::TEXT_ALIGNMENT_CENTER: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
-    case cxTextOptions::TEXT_ALIGNMENT_RIGHT: format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    case cxTextOptions::TEXT_ALIGNMENT_LEFT: textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
+    case cxTextOptions::TEXT_ALIGNMENT_CENTER: textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    case cxTextOptions::TEXT_ALIGNMENT_RIGHT: textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
     }
 
     switch (options.m_ParagraphAlignment)
     {
-    case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
-    case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
-    case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
     }
 
     switch (options.m_WordWrapping)
     {
-    case cxTextOptions::WORD_WRAPPING_NONE: format->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP); break;
-    case cxTextOptions::WORD_WRAPPING_WORD: format->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD); break;
-    case cxTextOptions::WORD_WRAPPING_CHARACTER: format->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER); break;
+    case cxTextOptions::WORD_WRAPPING_NONE: textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP); break;
+    case cxTextOptions::WORD_WRAPPING_WORD: textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD); break;
+    case cxTextOptions::WORD_WRAPPING_CHARACTER: textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER); break;
     }
 
 
     ComPtr<IDWriteTextLayout> pTextLayout;
-    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), format, maxWidth, maxHeight, pTextLayout.GetAddressOf());
+    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), textFormat, maxWidth, maxHeight, pTextLayout.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
-        // Get text size  
         DWRITE_TEXT_METRICS textMetrics;
         hr = pTextLayout->GetMetrics(&textMetrics);
         D2D1_SIZE_F size = D2D1::SizeF(ceil(textMetrics.widthIncludingTrailingWhitespace), ceil(textMetrics.height));
 
         width = size.width;
         height = size.height;
+    }
+}
+
+void cxFont::GetCharPosition(std::wstring str, int iChar, float maxWidth, float maxHeight, cxTextOptions options, cxPoint& out)
+{
+    HRESULT hr;
+
+    IDWriteTextFormat* textFormat = p->m_pTextFormat.Get();
+
+    switch (options.m_TextAlignment)
+    {
+    case cxTextOptions::TEXT_ALIGNMENT_LEFT: textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING); break;
+    case cxTextOptions::TEXT_ALIGNMENT_CENTER: textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    case cxTextOptions::TEXT_ALIGNMENT_RIGHT: textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER); break;
+    }
+
+    switch (options.m_ParagraphAlignment)
+    {
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER); break;
+    case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR); break;
+    }
+
+    switch (options.m_WordWrapping)
+    {
+    case cxTextOptions::WORD_WRAPPING_NONE: textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP); break;
+    case cxTextOptions::WORD_WRAPPING_WORD: textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD); break;
+    case cxTextOptions::WORD_WRAPPING_CHARACTER: textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER); break;
+    }
+
+    ComPtr<IDWriteTextLayout> pTextLayout;
+    hr = pDWriteFactory->CreateTextLayout(str.c_str(), static_cast<UINT32>(str.size()), textFormat, maxWidth, maxHeight, pTextLayout.GetAddressOf());
+
+    if (SUCCEEDED(hr))
+    {
+        DWRITE_HIT_TEST_METRICS metrics;
+        pTextLayout->HitTestTextPosition(iChar, false, &out.x, &out.y, &metrics);
     }
 }
 

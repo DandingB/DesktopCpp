@@ -526,7 +526,7 @@ cxFont::~cxFont()
 
 }
 
-void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
+void cxFont::GetStringMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
 {
     NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
 
@@ -536,7 +536,14 @@ void cxFont::GetFontTextMetrics(std::wstring str, float maxWidth, float maxHeigh
         case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
         case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
     }
-    
+
+    switch (options.m_WordWrapping)
+    {
+        case cxTextOptions::WORD_WRAPPING_NONE: [style setLineBreakMode:NSLineBreakByClipping]; break;
+        case cxTextOptions::WORD_WRAPPING_WORD: [style setLineBreakMode:NSLineBreakByWordWrapping]; break;
+        case cxTextOptions::WORD_WRAPPING_CHARACTER: [style setLineBreakMode:NSLineBreakByCharWrapping]; break;
+    }
+
     NSDictionary *attributes = @{
         NSFontAttributeName: [NSFont fontWithName:WStringToNSString(p->fontName) size: p->size],
         NSForegroundColorAttributeName: [NSColor blackColor],
