@@ -36,11 +36,11 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			font->GetFontTextMetrics(
+			font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER });
+			font->GetStringMetrics(
 				view->m_Title, 
 				200, 
 				30, 
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
 				width, 
 				height
 			);
@@ -127,11 +127,11 @@ class TabControl : public cxView
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			font->GetFontTextMetrics( 
+			font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER });
+			font->GetStringMetrics( 
 				views->m_Title, 
 				200, 
 				m_TabHeight,
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
 				width, 
 				height
 			);
@@ -146,8 +146,7 @@ class TabControl : public cxView
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title, 
-				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight },
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight }
 			);
 
 			float tabMiddle = m_TabHeight * 0.5f;
@@ -228,12 +227,12 @@ public:
 	{
 		container->FillRectangle({ 0,0,m_Right - m_Left,m_Bottom - m_Top }, BRUSH_DARKGREY);
 		//m_TopParent->DrawRectangle({ 1,1,m_Right - m_Left - 1 ,m_Bottom - m_Top - 1 }, 2, 2.0);
+		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_TOP });
 		container->DrawTextInRect(
 			font.get(),
 			BRUSH_TEXTWHITE,
 			text,
-			{ 0, -scroll ,m_Right - m_Left,1000.f }, 
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_TOP }
+			{ 0, -scroll ,m_Right - m_Left,1000.f }
 		);
 
 	}

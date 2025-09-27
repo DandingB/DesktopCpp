@@ -47,11 +47,11 @@ class TabControl : public cxView
 		for (cxView* views : m_SubViews)
 		{
 			float width, height;
-			font->GetFontTextMetrics(
+			font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER });
+			font->GetStringMetrics(
 				views->m_Title,
 				200,
 				m_TabHeight,
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
 				width,
 				height
 			);
@@ -66,8 +66,7 @@ class TabControl : public cxView
 				font.get(),
 				i == m_SelPage ? BRUSH_TEXTWHITE : BRUSH_TEXTGREY,
 				views->m_Title,
-				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight },
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+				{ x, 0, x + width + m_TabPadding - 20.f, m_TabHeight }
 			);
 
 			float tabMiddle = m_TabHeight * 0.5f;
@@ -162,11 +161,11 @@ class TabControl : public cxView
 			cxView* view = m_SubViews[i];
 
 			float width, height;
-			font->GetFontTextMetrics(
+			font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER });
+			font->GetStringMetrics(
 				view->m_Title,
 				200,
-				30,
-				{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER },
+				30,		
 				width,
 				height
 			);
