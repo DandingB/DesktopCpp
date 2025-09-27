@@ -49,7 +49,7 @@ public:
     void FillRoundedRectangle(cxRect rect, float r1, float r2, int brushKey);
     void DrawRoundedRectangle(cxRect rect, float r1, float r2, int brushKey, float strokeWidth = 1.0);
     void DrawLine(cxPoint p1, cxPoint p2, int brushKey, float strokeWidth = 1.0);
-    void DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options);
+    void DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect);
     
     float GetDPIScale();
 
