@@ -537,7 +537,6 @@ void cxFont::GetStringMetrics(std::wstring str, float maxWidth, float maxHeight,
 {
     NSDictionary *attributes = @{
         NSFontAttributeName: [NSFont fontWithName:WStringToNSString(p->fontName) size: p->size],
-        NSForegroundColorAttributeName: [NSColor blackColor],
         NSParagraphStyleAttributeName: p->style
     };
 
@@ -550,7 +549,51 @@ void cxFont::GetStringMetrics(std::wstring str, float maxWidth, float maxHeight,
 
     width = paragraphRect.size.width;
     height = paragraphRect.size.height;
+}
 
+void cxFont::GetCharPosition(std::wstring str, int iChar, float maxWidth, float maxHeight, cxPoint& out)
+{
+    NSDictionary *attributes = @{
+        NSParagraphStyleAttributeName: p->style
+    };
+
+    NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:WStringToNSString(str) attributes: attributes];
+
+
+
+    // Set up TextKit objects
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:currentText];
+    NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
+    NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:CGSizeMake(maxWidth, maxHeight)];
+
+    [layoutManager addTextContainer:textContainer];
+    [textStorage addLayoutManager:layoutManager];
+
+    // Character index we want
+    NSUInteger index = iChar;
+
+    // Convert character range to glyph range
+    NSRange charRange = NSMakeRange(index, 1);
+    NSRange glyphRange = [layoutManager glyphRangeForCharacterRange:charRange actualCharacterRange:NULL];
+
+    // Get bounding rect in the container’s coordinate system
+    CGRect rect = [layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:textContainer];
+
+
+    float top;
+    switch (p->paragraphAlignment)
+    {
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: 
+            top += ((maxHeight) - rect.size.height)/2; 
+            break;
+        case cxTextOptions::PARAGRAPH_ALIGNMENT_BOTTOM: break;
+    }
+    
+
+    CGPoint point = [layoutManager locationForGlyphAtIndex:index];
+
+    out = {(float)point.x, (float)point.y};
 }
 
 void cxInitApp()

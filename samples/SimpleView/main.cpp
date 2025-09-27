@@ -183,21 +183,21 @@ class SimpleView : public cxView
 		context->FillRectangle({0, 0, width, height }, BRUSH_GREY);
 		context->DrawRectangle({0, 0, width, height }, BRUSH_RED, 5.f);
 
-		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_WORD });
+		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_TOP, cxTextOptions::WORD_WRAPPING_WORD });
 		context->DrawTextInRect(
 			font, 
 			BRUSH_WHITE,
-			L"Simple View is the simples view in all views", 
+			L"Simple View is the simplest view in all views", 
 			{ 0, 0, width, height }
 		);
 
 
 		float textWidth, textHeight;
-		font->GetStringMetrics(L"Simple View is the simples view in all views", width, height, textWidth, textHeight);
+		font->GetStringMetrics(L"Simple View is the simplest view in all views", width, height, textWidth, textHeight);
 		context->DrawRectangle({ 0, 0, textWidth, textHeight }, BRUSH_WHITE, 2.f);
 
 		cxPoint pt;
-		font->GetCharPosition(L"Simple View is the simples view in all views", 10, width, height, pt);
+		font->GetCharPosition(L"Simple View is the simplest view in all views", 10, width, height, pt);
 
 		context->DrawRectangle({ pt.x, pt.y, pt.x + 1, pt.y + 1 }, BRUSH_RED, 5.f);
 
