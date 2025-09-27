@@ -228,6 +228,9 @@ struct cxFont::Impl
 {
     std::wstring fontName;
     float size;
+
+    NSMutableParagraphStyle* style;
+    cxTextOptions::ParagraphAlignment paragraphAlignment;
 };
 
 cxWindowBase::cxWindowBase() : p(std::make_unique<Impl>())
@@ -460,32 +463,15 @@ void cxWindowBase::DrawLine(cxPoint p1, cxPoint p2, int brushKey, float strokeWi
     CGContextStrokePath(context);
 }
 
-void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect, cxTextOptions options)
+void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, cxRect rect)
 {
     float top = rect.top;
     cxSolidBrush brush = p->m_pBrushes[brushKey];
 
-    NSMutableParagraphStyle* style = [[NSMutableParagraphStyle alloc] init];
-    switch (options.m_TextAlignment)
-    {
-        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [style setAlignment:NSTextAlignmentLeft]; break; 
-        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
-        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
-    }
-
-    switch (options.m_WordWrapping)
-    {
-        case cxTextOptions::WORD_WRAPPING_NONE: [style setLineBreakMode:NSLineBreakByClipping]; break;
-        case cxTextOptions::WORD_WRAPPING_WORD: [style setLineBreakMode:NSLineBreakByWordWrapping]; break;
-        case cxTextOptions::WORD_WRAPPING_CHARACTER: [style setLineBreakMode:NSLineBreakByCharWrapping]; break;
-    }
-
-
-
     NSDictionary* attributes = @{
         NSFontAttributeName: [NSFont fontWithName:WStringToNSString(font->p->fontName) size:font->p->size],
         NSForegroundColorAttributeName: [NSColor colorWithDeviceRed:brush.r green:brush.g blue:brush.b alpha:brush.a],
-        NSParagraphStyleAttributeName: style
+        NSParagraphStyleAttributeName: font->p->style
     };
 
     NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:WStringToNSString(str) attributes: attributes];
@@ -496,7 +482,7 @@ void cxWindowBase::DrawTextInRect(cxFont* font, int brushKey, std::wstring str, 
         context:nil];
 
 
-    switch (options.m_ParagraphAlignment)
+    switch (font->p->paragraphAlignment)
     {
         case cxTextOptions::PARAGRAPH_ALIGNMENT_TOP: break;
         case cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER: 
@@ -519,6 +505,8 @@ cxFont::cxFont(std::wstring fontName, float size) : p(std::make_unique<Impl>())
 {
     p->fontName = fontName;
     p->size = size;
+
+    p->style = [[NSMutableParagraphStyle alloc] init];
 }
 
 cxFont::~cxFont()
@@ -526,28 +514,31 @@ cxFont::~cxFont()
 
 }
 
-void cxFont::GetStringMetrics(std::wstring str, float maxWidth, float maxHeight, cxTextOptions options, float& width, float& height)
+void cxFont::SetTextOptions(cxTextOptions options)
 {
-    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-
     switch (options.m_TextAlignment)
     {
-        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [style setAlignment:NSTextAlignmentLeft]; break;
-        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [style setAlignment:NSTextAlignmentCenter]; break;
-        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [style setAlignment:NSTextAlignmentRight]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_LEFT: [p->style setAlignment:NSTextAlignmentLeft]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_CENTER: [p->style setAlignment:NSTextAlignmentCenter]; break;
+        case cxTextOptions::TEXT_ALIGNMENT_RIGHT: [p->style setAlignment:NSTextAlignmentRight]; break;
     }
 
     switch (options.m_WordWrapping)
     {
-        case cxTextOptions::WORD_WRAPPING_NONE: [style setLineBreakMode:NSLineBreakByClipping]; break;
-        case cxTextOptions::WORD_WRAPPING_WORD: [style setLineBreakMode:NSLineBreakByWordWrapping]; break;
-        case cxTextOptions::WORD_WRAPPING_CHARACTER: [style setLineBreakMode:NSLineBreakByCharWrapping]; break;
+        case cxTextOptions::WORD_WRAPPING_NONE: [p->style setLineBreakMode:NSLineBreakByClipping]; break;
+        case cxTextOptions::WORD_WRAPPING_WORD: [p->style setLineBreakMode:NSLineBreakByWordWrapping]; break;
+        case cxTextOptions::WORD_WRAPPING_CHARACTER: [p->style setLineBreakMode:NSLineBreakByCharWrapping]; break;
     }
 
+    p->paragraphAlignment = options.m_ParagraphAlignment;
+}
+
+void cxFont::GetStringMetrics(std::wstring str, float maxWidth, float maxHeight, float& width, float& height)
+{
     NSDictionary *attributes = @{
         NSFontAttributeName: [NSFont fontWithName:WStringToNSString(p->fontName) size: p->size],
         NSForegroundColorAttributeName: [NSColor blackColor],
-        NSParagraphStyleAttributeName: style
+        NSParagraphStyleAttributeName: p->style
     };
 
     NSAttributedString* currentText = [[NSAttributedString alloc] initWithString:WStringToNSString(str) attributes: attributes];

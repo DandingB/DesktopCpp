@@ -79,13 +79,13 @@ class cxTextBox : public cxView
 		float width, height;
 		GetSize(width, height);
 		context->FillRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBGSEL : BRUSH_TBG);
-		
+
+		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_WORD });
 		context->DrawTextInRect(
 			font,
 			BRUSH_WHITE,
 			m_Title,
-			{ 8.f, 0, width-8.f, height },
-			{ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			{ 8.f, 0, width-8.f, height }
 		);
 
 
@@ -143,12 +143,12 @@ public:
 
 		container->FillRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, m_Highlight ? BRUSH_TBGSEL : BRUSH_GREY);
 
+		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_WORD });
 		container->DrawTextInRect(
 			font,
 			BRUSH_WHITE,
 			m_Title,
-			{ 8.f, 0, width - 8.f, height },
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_NONE }
+			{ 8.f, 0, width - 8.f, height }
 		);
 
 		container->DrawRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBORDERSEL : BRUSH_TBORDER, 1.f);
@@ -182,12 +182,14 @@ class SimpleView : public cxView
 
 		context->FillRectangle({0, 0, width, height }, BRUSH_GREY);
 		context->DrawRectangle({0, 0, width, height }, BRUSH_RED, 5.f);
+
+		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_WORD });
+
 		context->DrawTextInRect(
 			font, 
 			BRUSH_WHITE,
 			L"Simple View", 
-			{ 0, 0, width, height }, 
-			{ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER }
+			{ 0, 0, width, height }
 		);
 	}
 };
