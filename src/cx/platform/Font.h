@@ -18,7 +18,7 @@ public:
     void SetTextOptions(cxTextOptions options);
 
     void GetStringMetrics(std::wstring str, float maxWidth, float maxHeight, float& width, float& height);
-    void GetCharPosition(std::wstring str, int iChar, float maxWidth, float maxHeight, cxTextOptions options, cxPoint& out);
+    void GetCharPosition(std::wstring str, int iChar, float maxWidth, float maxHeight, cxPoint& out);
 
     friend class cxWindowBase;
 };

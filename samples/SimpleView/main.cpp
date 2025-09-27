@@ -80,7 +80,7 @@ class cxTextBox : public cxView
 		GetSize(width, height);
 		context->FillRoundedRectangle({ 0, 0, width, height }, 5.f, 5.f, HasFocus() ? BRUSH_TBGSEL : BRUSH_TBG);
 
-		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_WORD });
+		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_LEFT, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_NONE });
 		context->DrawTextInRect(
 			font,
 			BRUSH_WHITE,
@@ -184,13 +184,24 @@ class SimpleView : public cxView
 		context->DrawRectangle({0, 0, width, height }, BRUSH_RED, 5.f);
 
 		font->SetTextOptions({ cxTextOptions::TEXT_ALIGNMENT_CENTER, cxTextOptions::PARAGRAPH_ALIGNMENT_CENTER, cxTextOptions::WORD_WRAPPING_WORD });
-
 		context->DrawTextInRect(
 			font, 
 			BRUSH_WHITE,
-			L"Simple View", 
+			L"Simple View is the simples view in all views", 
 			{ 0, 0, width, height }
 		);
+
+
+		float textWidth, textHeight;
+		font->GetStringMetrics(L"Simple View is the simples view in all views", width, height, textWidth, textHeight);
+		context->DrawRectangle({ 0, 0, textWidth, textHeight }, BRUSH_WHITE, 2.f);
+
+		cxPoint pt;
+		font->GetCharPosition(L"Simple View is the simples view in all views", 10, width, height, pt);
+
+		context->DrawRectangle({ pt.x, pt.y, pt.x + 1, pt.y + 1 }, BRUSH_RED, 5.f);
+
+
 	}
 };
 
@@ -209,11 +220,11 @@ public:
 		MakeSolidBrush(BRUSH_TBORDERSEL, 0.f, 0.48f, 0.8f, 1.f);
 
 		SimpleView* view = new SimpleView(50.f, 50.f, 100.f, 100.f, this);
-		cxTextBox* textbox = new cxTextBox(10.f, 10.f, 160.f, 40.f, view);
-		textbox->m_Title = L"Hello textbox, this is a string";
+		//cxTextBox* textbox = new cxTextBox(10.f, 10.f, 160.f, 40.f, view);
+		//textbox->m_Title = L"Hello textbox, this is a string";
 
-		cxButton* button = new cxButton(10.f, 50.f, 120.f, 75.f, view);
-		button->m_Title = L"Button";
+		//cxButton* button = new cxButton(10.f, 50.f, 120.f, 75.f, view);
+		//button->m_Title = L"Button";
 	}
 
 	void OnSize(float width, float height) override
